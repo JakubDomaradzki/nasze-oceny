@@ -231,7 +231,7 @@ function toast(msg, bad){ let box = document.getElementById('toasts'); if(!box){
   const t = document.createElement('div'); t.className = 'toast' + (bad ? ' bad' : ''); t.textContent = msg;
   box.appendChild(t); setTimeout(() => t.remove(), bad ? 4500 : 2200); }
 function errMsg(e){ if(!e) return 'Nieznany błąd'; if(e.code === '23505') return 'Taki album (wykonawca + tytuł) już jest w bazie.';
-  if(e.code === '42501') return 'Brak uprawnień do tej operacji.'; return e.message || String(e); }
+  if(e.code === '42501') return 'Brak uprawnień do tej operacji (' + (e.message || '') + ').'; return e.message || String(e); }
 // przycisk usuwania: pierwsze kliknięcie uzbraja, drugie wykonuje
 function armButton(btn, label, fn){
   btn.addEventListener('click', async () => {
@@ -704,11 +704,19 @@ function viewPerson(id){
 }
 
 /* ----- import ----- */
-const TYPE_MAP = {lp:'LP', album:'LP', ep:'EP', mixtape:'Mixtape', compilation:'Kompilacja', kompilacja:'Kompilacja', live:'Live', single:'Singiel', singiel:'Singiel', reissue:'LP'};
+const TYPE_MAP = {lp:'LP', album:'LP', soundtrack:'Inne', other:'Inne', inne:'Inne', ep:'EP', mixtape:'Mixtape', compilation:'Kompilacja', kompilacja:'Kompilacja', live:'Live', single:'Singiel', singiel:'Singiel', reissue:'LP'};
 function parseImport(text){
-  const lines = text.split(/\r?\n/).filter(l => l.trim());
+  const lines = text.replace(/^\ufeff/, '').split(/\r?\n/).filter(l => l.trim());
   if(!lines.length) return [];
-  const split = l => (l.includes('\t') ? l.split('\t') : l.split(';')).map(s => s.trim());
+  // wykryj separator (tabulator, średnik, przecinek) poza cudzysłowami
+  const count = (l, d) => { let n = 0, q = false; for(const ch of l){ if(ch === '"') q = !q; else if(!q && ch === d) n++; } return n; };
+  const first = lines[0];
+  const delim = count(first, '\t') ? '\t' : count(first, ';') >= count(first, ',') && count(first, ';') ? ';' : count(first, ',') ? ',' : ';';
+  const split = l => { const out = []; let cur = '', q = false;
+    for(let i = 0; i < l.length; i++){ const ch = l[i];
+      if(q){ if(ch === '"'){ if(l[i + 1] === '"'){ cur += '"'; i++; } else q = false; } else cur += ch; }
+      else if(ch === '"') q = true; else if(ch === delim){ out.push(cur.trim()); cur = ''; } else cur += ch; }
+    out.push(cur.trim()); return out; };
   let idx = null;
   const head = split(lines[0]).map(norm);
   const find = names => head.findIndex(h => names.includes(h));
@@ -745,8 +753,9 @@ function viewImport(){
   <p class="sub">Z AOTY nie da się pobrać ocen automatycznie, ale możesz wkleić listę z arkusza (Excel, Google Sheets) lub z notatek. Każda osoba importuje <b>swoje</b> oceny po zalogowaniu.</p>
   <div class="card">
     <h2>1. Wklej oceny</h2>
-    <p class="small muted" style="margin-top:0">Jeden album w wierszu, kolumny oddzielone tabulatorem (kopiowanie z arkusza) albo średnikiem:<br>
+    <p class="small muted" style="margin-top:0">Jeden album w wierszu, kolumny oddzielone tabulatorem (kopiowanie z arkusza), średnikiem albo przecinkiem (plik CSV):<br>
     <code>Wykonawca ; Tytuł ; Rok ; Typ ; Ocena</code> (rok i typ można pominąć). Wiersz nagłówka typu <i>Artist / Album / Year / Type / Rating</i> zostanie rozpoznany.</p>
+    <label class="small" style="display:block;margin-bottom:8px">Wczytaj plik CSV (np. eksport z AOTY): <input type="file" id="ifile" accept=".csv,.tsv,.txt,text/csv" style="width:auto;margin-left:6px"></label>
     <textarea id="it" style="min-height:180px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px" placeholder="Lorde;Melodrama;2017;LP;86&#10;Kate Bush;Hounds of Love;1985;LP;88"></textarea>
     <div class="btns" style="margin-top:10px"><button class="btn-p" id="ip">Sprawdź</button>
       <label class="small" style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="iov" checked style="width:auto"> nadpisz moje istniejące oceny</label></div>
@@ -777,6 +786,11 @@ function viewImport(){
     setTimeout(() => { URL.revokeObjectURL(link.href); link.remove(); }, 1000);
   };
   let parsed = [];
+  document.getElementById('ifile').onchange = async e => {
+    const f = e.target.files[0]; if(!f) return;
+    document.getElementById('it').value = await f.text(); e.target.value = '';
+    document.getElementById('ip').click();
+  };
   document.getElementById('ip').onclick = () => {
     parsed = parseImport(document.getElementById('it').value);
     const ok = parsed.filter(r => r.ok), nw = ok.filter(r => !r.ex);
