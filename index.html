@@ -14,6 +14,7 @@
   --bg:#111113;--card:#1b1b1e;--text:#ececef;--muted:#9b9ba4;--line:#2b2b30;--soft:#202024;
   --accent:#55c35b;--none:#55555c;--shadow:none}}
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 a{color:inherit;text-decoration:none}
@@ -168,6 +169,66 @@ tr.cl:hover td{background:var(--soft)}
 .toast{background:#222;color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;z-index:50;box-shadow:0 6px 20px rgba(0,0,0,.25);max-width:90vw}
 .toast.bad{background:var(--r)}
 
+/* przełącznik albumy/single */
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:var(--card);align-self:end}
+.seg button{border:none;border-radius:0;background:transparent;padding:7px 14px;font-weight:600;color:var(--muted)}
+.seg button.on{background:var(--accent);color:#fff}
+.av{overflow:hidden;flex:none}
+.av img{width:100%;height:100%;object-fit:cover;display:block}
+.btn-on{border-color:var(--accent);color:var(--accent);font-weight:600}
+
+/* strona główna */
+.hello{display:flex;align-items:center;gap:14px;margin-bottom:20px}
+.hello h1{margin:0}
+.home{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:18px;align-items:start}
+@media (max-width:900px){.home{grid-template-columns:1fr}}
+.hmain{display:grid;gap:18px;min-width:0}
+.shead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.shead h2{margin:0}
+.shead select{width:auto;padding:4px 8px}
+.mrow{display:grid;grid-template-columns:28px 48px minmax(0,1fr) auto;gap:12px;align-items:center;padding:7px 6px;border-bottom:1px solid var(--line);border-radius:6px}
+.mrow:hover{background:var(--soft)}
+.mrow:last-child{border-bottom:none}
+.mrow .rk{font-size:15px}
+.mrow .r2{display:flex;align-items:center;gap:10px}
+.mrow .grp{font-size:12px;color:var(--muted);text-align:right;white-space:nowrap}
+.c40{width:40px;height:40px}.c40 i{font-size:15px}
+.feed{position:sticky;top:70px;max-height:calc(100vh - 90px);display:flex;flex-direction:column;padding:16px 0 6px}
+.feed h2{padding:0 16px}
+.feedl{overflow:auto;padding:0 16px;overscroll-behavior:contain}
+@media (max-width:900px){.feed{position:static;max-height:540px}}
+.fi{display:grid;grid-template-columns:34px minmax(0,1fr);gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.fi:last-child{border-bottom:none}
+.fi .who{display:flex;justify-content:space-between;align-items:center;gap:6px;font-size:13.5px}
+.fi .alb{display:flex;gap:8px;align-items:center;margin-top:5px;font-size:13px;min-width:0}
+.fi .alb div{min-width:0}
+.fi .alb b,.fi .alb span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fi .alb span{color:var(--muted)}
+.fi .cm{font-size:12.5px;color:var(--muted);margin-top:4px;font-style:italic;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.fi time{font-size:11.5px;color:var(--muted)}
+.favs{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:14px}
+.fav{position:relative}
+.favctl{position:absolute;top:5px;right:5px;display:flex;gap:3px}
+.favctl button{padding:2px 7px;font-size:13px;background:rgba(0,0,0,.7);color:#fff;border:none}
+.picker{position:relative;margin-bottom:12px}
+.pres{position:absolute;left:0;right:0;top:100%;z-index:20;background:var(--card);border:1px solid var(--line);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.18);max-height:320px;overflow:auto;margin-top:4px}
+.pres button{display:grid;grid-template-columns:40px 1fr;gap:10px;align-items:center;width:100%;text-align:left;border:none;border-radius:0;border-bottom:1px solid var(--line);background:transparent;white-space:normal;padding:6px 10px}
+.pres button:hover{background:var(--soft)}
+.pres small{color:var(--muted)}
+.lrow{display:grid;grid-template-columns:48px minmax(0,1fr) auto auto;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+.lrow:last-child{border-bottom:none}
+.lrow .meta small{display:block}
+.lrow button{padding:5px 10px;font-size:13px}
+@media (max-width:560px){.lrow{grid-template-columns:48px minmax(0,1fr) auto}.lrow .sc{display:none}.lrow .okb{display:none}}
+
+/* losowanie */
+.rnd{display:grid;grid-template-columns:260px minmax(0,1fr);gap:26px;align-items:start;margin-top:18px}
+@media (max-width:640px){.rnd{grid-template-columns:1fr}}
+.dice{font-size:17px;padding:11px 26px}
+.who-rated{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 16px}
+.who-rated a{display:inline-flex;align-items:center;gap:6px;background:var(--soft);border:1px solid var(--line);border-radius:18px;padding:3px 10px 3px 3px;font-size:13px}
+.pool{font-size:14px;color:var(--muted);margin:4px 0 0}
+
 /* login */
 .login{max-width:360px;margin:9vh auto 0}
 .login h1{text-align:center;margin-bottom:4px}
@@ -179,17 +240,15 @@ tr.cl:hover td{background:var(--soft)}
 <main id="app"><div class="loading">Ładowanie…</div></main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
 <script>
-/* =====================================================================
-   KONFIGURACJA – uzupełnij danymi z Supabase (Project Settings → API)
-   ===================================================================== */
-const CONFIG = {
+/* KONFIGURACJA jest w osobnym pliku config.js (obok index.html) */
+const CONFIG = Object.assign({
   SUPABASE_URL: 'https://tebavdikzkdejjrfynqs.supabase.co',
   SUPABASE_KEY: 'sb_publishable_rpuWtPaSEj_IGrCzBi-a9g_AISeAbL0',
-  // Jeśli konta mają adresy typu kasia@oceny.app, znajomi mogą wpisać samo "kasia"
   LOGIN_DOMAIN: 'oceny.app',
   SITE_NAME: 'Nasze oceny',
-};
+}, window.OCENY_CONFIG || {}); // dane z pliku config.js
 /* ===================================================================== */
 
 const TYPES = ['LP','EP','Mixtape','Kompilacja','Live','Singiel','Inne'];
@@ -199,7 +258,10 @@ let sb = null;
 const S = {
   user:null, profiles:new Map(), albums:new Map(), ratings:[],
   byAlbum:new Map(), byUser:new Map(), loadedAt:0,
-  f:{min:1, type:'all'}, af:{q:'', f:'all', sort:'added', limit:120},
+  favs:[], listen:[], missing:false,
+  f:{min:1, type:'all', kind:'albums'}, af:{q:'', f:'all', sort:'added', limit:120, kind:'albums'},
+  home:{year:new Date().getFullYear(), all:false, edit:false},
+  rand:{src:'unrated', from:'', to:'', kind:'albums', min:75, last:null},
 };
 
 /* ---------- helpers ---------- */
@@ -226,7 +288,27 @@ function coverHtml(a, cls = 'c64'){
 const AV_COLORS = ['#e0573a','#2f9e44','#3b7dd8','#9c4fd6','#d6872f','#1f9e98','#d64f8a','#6b7a2f','#5a63d6','#a0522d'];
 function avColor(id){ let h = 0; for(const c of String(id)) h = (h * 31 + c.charCodeAt(0)) >>> 0; return AV_COLORS[h % AV_COLORS.length]; }
 function pname(id){ const p = S.profiles.get(id); return p ? (p.display_name || p.username || '?') : '(usunięty)'; }
-function avatar(id){ return `<span class="av" style="background:${avColor(id)}">${esc(pname(id).charAt(0).toUpperCase())}</span>`; }
+function avatar(id, size = 36){
+  const p = S.profiles.get(id), u = safeUrl(p && p.avatar_url);
+  const st = `width:${size}px;height:${size}px;font-size:${Math.round(size * .42)}px;background:${avColor(id)}`;
+  return u ? `<span class="av" style="${st}"><img src="${esc(u)}" alt="" loading="lazy" referrerpolicy="no-referrer"></span>`
+           : `<span class="av" style="${st}">${esc(pname(id).charAt(0).toUpperCase())}</span>`;
+}
+const isSingle = a => a.type === 'Singiel';
+const kindOk = (a, kind) => kind === 'all' || (kind === 'singles' ? isSingle(a) : !isSingle(a));
+function timeAgo(d){
+  if(!d) return ''; const s = (Date.now() - new Date(d)) / 1000;
+  if(s < 60) return 'przed chwilą';
+  if(s < 3600){ const m = Math.floor(s / 60); return `${m} min temu`; }
+  if(s < 86400){ const h = Math.floor(s / 3600); return `${h} godz. temu`; }
+  const dd = Math.floor(s / 86400);
+  if(dd === 1) return 'wczoraj'; if(dd < 7) return `${dd} dni temu`;
+  return fmtDate(d);
+}
+function segHtml(id, cur, opts = [['albums','Albumy'],['singles','Single']]){
+  return `<div class="seg" id="${id}">${opts.map(([v, l]) => `<button type="button" data-v="${v}" class="${cur === v ? 'on' : ''}">${l}</button>`).join('')}</div>`;
+}
+function bindSeg(id, fn){ const el = document.getElementById(id); if(el) el.querySelectorAll('button').forEach(b => b.onclick = () => fn(b.dataset.v)); }
 function toast(msg, bad){ let box = document.getElementById('toasts'); if(!box){ box = document.createElement('div'); box.id = 'toasts'; document.body.appendChild(box); }
   const t = document.createElement('div'); t.className = 'toast' + (bad ? ' bad' : ''); t.textContent = msg;
   box.appendChild(t); setTimeout(() => t.remove(), bad ? 4500 : 2200); }
@@ -254,7 +336,13 @@ async function fetchAll(table){
   return out;
 }
 async function loadData(){
-  const [p, a, r] = await Promise.all([fetchAll('profiles'), fetchAll('albums'), fetchAll('ratings')]);
+  let missing = false;
+  const opt = t => fetchAll(t).catch(e => { console.warn(t, e); missing = true; return []; });
+  const [p, a, r, f, l] = await Promise.all([fetchAll('profiles'), fetchAll('albums'), fetchAll('ratings'), opt('favorites'), opt('listen_later')]);
+  S.favs = f.map(x => ({...x, album_id:Number(x.album_id)}));
+  S.listen = l.map(x => ({...x, album_id:Number(x.album_id)}));
+  if(missing && !S.missing) toast('Ulubione i „do posłuchania” nie działają – uruchom update.sql w Supabase', true);
+  S.missing = missing;
   S.profiles = new Map(p.map(x => [x.id, x]));
   S.albums = new Map(a.map(x => [Number(x.id), {...x, id:Number(x.id)}]));
   S.ratings = r.map(x => ({...x, album_id:Number(x.album_id), score:Number(x.score)}));
@@ -280,17 +368,74 @@ function upsertLocalRating(row){
 function removeLocalRating(albumId, userId){
   S.ratings = S.ratings.filter(r => !(r.album_id === albumId && r.user_id === userId)); reindex();
 }
-function rankList({year = null, min = S.f.min, type = S.f.type} = {}){
+function rankList({year = null, min = S.f.min, type = S.f.type, kind = S.f.kind} = {}){
   const out = [];
   for(const a of S.albums.values()){
     if(year != null && a.year !== year) continue;
-    if(type !== 'all' && typeGroup(a.type) !== type) continue;
+    if(!kindOk(a, kind)) continue;
+    if(kind === 'albums' && type !== 'all' && typeGroup(a.type) !== type) continue;
     const st = stats(a.id);
     if(st.n === 0 || st.n < min) continue;
     out.push({a, st});
   }
   return out.sort((x, y) => y.st.avg - x.st.avg || y.st.n - x.st.n || x.a.title.localeCompare(y.a.title, 'pl'));
 }
+/* ulubione i do posłuchania */
+const myFavs = () => S.favs.filter(f => f.user_id === S.user.id && S.albums.has(f.album_id)).sort((a, b) => a.position - b.position);
+const favsOf = uid => S.favs.filter(f => f.user_id === uid && S.albums.has(f.album_id)).sort((a, b) => a.position - b.position);
+const isFav = id => S.favs.some(f => f.user_id === S.user.id && f.album_id === id);
+const myListen = () => S.listen.filter(l => l.user_id === S.user.id && S.albums.has(l.album_id)).sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''));
+const inListen = id => S.listen.some(l => l.user_id === S.user.id && l.album_id === id);
+async function addFav(id){
+  if(isFav(id)) return true;
+  const pos = Math.max(0, ...myFavs().map(f => f.position)) + 1;
+  const { data, error } = await sb.from('favorites').insert({user_id:S.user.id, album_id:id, position:pos}).select().single();
+  if(error){ toast(errMsg(error), true); return false; }
+  S.favs.push({...data, album_id:Number(data.album_id)}); return true;
+}
+async function removeFav(id){
+  const { error } = await sb.from('favorites').delete().eq('user_id', S.user.id).eq('album_id', id);
+  if(error){ toast(errMsg(error), true); return false; }
+  S.favs = S.favs.filter(f => !(f.user_id === S.user.id && f.album_id === id)); return true;
+}
+async function moveFav(id, dir){
+  const l = myFavs(), i = l.findIndex(f => f.album_id === id), j = i + dir;
+  if(i < 0 || j < 0 || j >= l.length) return;
+  [l[i], l[j]] = [l[j], l[i]];
+  const rows = l.map((f, k) => ({user_id:S.user.id, album_id:f.album_id, position:k + 1}));
+  rows.forEach(r => { const f = S.favs.find(x => x.user_id === r.user_id && x.album_id === r.album_id); if(f) f.position = r.position; });
+  const { error } = await sb.from('favorites').upsert(rows, {onConflict:'user_id,album_id'});
+  if(error) toast(errMsg(error), true);
+}
+async function addListen(id){
+  if(inListen(id)) return true;
+  const { data, error } = await sb.from('listen_later').insert({user_id:S.user.id, album_id:id}).select().single();
+  if(error){ toast(errMsg(error), true); return false; }
+  S.listen.push({...data, album_id:Number(data.album_id)}); return true;
+}
+async function removeListen(id){
+  const { error } = await sb.from('listen_later').delete().eq('user_id', S.user.id).eq('album_id', id);
+  if(error){ toast(errMsg(error), true); return false; }
+  S.listen = S.listen.filter(l => !(l.user_id === S.user.id && l.album_id === id)); return true;
+}
+/* wyszukiwarka albumów z bazy (do ulubionych / do posłuchania) */
+function pickerHtml(id, ph){ return `<div class="picker"><input type="search" id="${id}" placeholder="${esc(ph)}" autocomplete="off"><div class="pres" id="${id}-r" hidden></div></div>`; }
+function bindPicker(id, onPick, exclude = () => false){
+  const inp = document.getElementById(id), box = document.getElementById(id + '-r');
+  let list = [];
+  const draw = () => {
+    const q = norm(inp.value);
+    if(q.length < 2){ box.hidden = true; return; }
+    list = [...S.albums.values()].filter(a => !exclude(a) && (norm(a.artist).includes(q) || norm(a.title).includes(q) || norm(a.artist + ' ' + a.title).includes(q))).slice(0, 10);
+    box.innerHTML = list.length ? list.map((a, i) => `<button type="button" data-i="${i}">${coverHtml(a, 'c40')}<span><b>${esc(a.title)}</b><br><small>${esc(a.artist)}${a.year ? ' · ' + a.year : ''}</small></span></button>`).join('')
+      : `<div class="empty small">Nie ma tego w bazie. <a class="link" href="#/dodaj">Dodaj album</a></div>`;
+    box.hidden = false;
+    box.querySelectorAll('button').forEach(b => b.onclick = () => { box.hidden = true; inp.value = ''; onPick(list[+b.dataset.i]); });
+  };
+  inp.oninput = draw; inp.onfocus = draw;
+  inp.addEventListener('blur', () => setTimeout(() => { box.hidden = true; }, 200));
+}
+
 function findAlbum(artist, title){ const k = keyOf(artist, title);
   for(const a of S.albums.values()) if(keyOf(a.artist, a.title) === k) return a; return null; }
 
@@ -305,28 +450,94 @@ function mbType(rg){
 }
 const mbArtist = rg => (rg['artist-credit'] || []).map(c => (c.name || (c.artist && c.artist.name) || '') + (c.joinphrase || '')).join('');
 const mbCover = (id, size = 500) => `https://coverartarchive.org/release-group/${id}/front-${size}`;
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+let mbNext = 0; // MusicBrainz pozwala na ok. 1 zapytanie na sekundę
 async function mbSearch(query){
-  const r = await fetch('https://musicbrainz.org/ws/2/release-group/?fmt=json&limit=12&query=' + encodeURIComponent(query), {headers:{Accept:'application/json'}});
-  if(!r.ok) throw new Error('MusicBrainz nie odpowiada (' + r.status + '). Spróbuj za chwilę.');
-  const j = await r.json();
-  return (j['release-groups'] || []).map(rg => ({
-    id:rg.id, title:rg.title, artist:mbArtist(rg), score:rg.score || 0,
-    year:parseInt((rg['first-release-date'] || '').slice(0, 4)) || null, type:mbType(rg)
-  }));
+  const url = 'https://musicbrainz.org/ws/2/release-group/?fmt=json&limit=12&query=' + encodeURIComponent(query);
+  for(let attempt = 0; attempt < 5; attempt++){
+    const wait = mbNext - Date.now(); mbNext = Math.max(Date.now(), mbNext) + 1100;
+    if(wait > 0) await sleep(wait);
+    let r;
+    try { r = await fetch(url, {headers:{Accept:'application/json'}}); }
+    catch(e){ await sleep(1500 * (attempt + 1)); continue; }
+    if(r.status === 503 || r.status === 429 || r.status >= 500){ mbNext = Date.now() + 2000 * (attempt + 1); continue; }
+    if(!r.ok) throw new Error('MusicBrainz nie odpowiada (' + r.status + '). Spróbuj za chwilę.');
+    const j = await r.json();
+    return (j['release-groups'] || []).map(rg => ({
+      id:rg.id, title:rg.title, artist:mbArtist(rg), score:rg.score || 0,
+      year:parseInt((rg['first-release-date'] || '').slice(0, 4)) || null, type:mbType(rg)
+    }));
+  }
+  throw new Error('MusicBrainz jest przeciążony. Spróbuj za chwilę.');
 }
 const luc = s => String(s).replace(/([+\-!(){}\[\]^"~*?:\\\/]|&&|\|\|)/g, '\\$1');
-function testImage(url, ms = 9000){
+function testImage(url, ms = 15000){
   return new Promise(res => { const i = new Image(); const t = setTimeout(() => { i.src = ''; res(false); }, ms);
     i.onload = () => { clearTimeout(t); res(i.naturalWidth > 10); }; i.onerror = () => { clearTimeout(t); res(false); };
     i.referrerPolicy = 'no-referrer'; i.src = url; });
 }
+const simp = s => norm(s).normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '');
+const similar = (a, b) => { a = simp(a); b = simp(b); return !!a && !!b && (a === b || a.includes(b) || b.includes(a)); };
+// JSONP – Deezer i Apple nie pozwalają na zwykłe zapytania z innej strony, ale obsługują ten sposób
+let jsonpN = 0;
+function jsonp(url, ms = 12000){
+  return new Promise((res, rej) => {
+    const cb = '__jp' + (++jsonpN) + '_' + Date.now(), sc = document.createElement('script');
+    const done = () => { delete window[cb]; sc.remove(); clearTimeout(t); };
+    const t = setTimeout(() => { done(); rej(new Error('timeout')); }, ms);
+    window[cb] = d => { done(); res(d); };
+    sc.onerror = () => { done(); rej(new Error('błąd sieci')); };
+    sc.src = url + (url.includes('?') ? '&' : '?') + 'callback=' + cb;
+    document.head.appendChild(sc);
+  });
+}
+const dzType = t => t === 'ep' ? 'EP' : t === 'single' ? 'Singiel' : t === 'compile' ? 'Kompilacja' : 'LP';
+async function deezerSearch(q){
+  const d = await jsonp('https://api.deezer.com/search/album?limit=12&output=jsonp&q=' + encodeURIComponent(q));
+  return ((d && d.data) || []).filter(a => a.cover_xl || a.cover_big).map(a => ({
+    src:'Deezer', title:a.title, artist:(a.artist && a.artist.name) || '', type:dzType(a.record_type), year:null,
+    cover:a.cover_xl || a.cover_big, thumb:a.cover_medium || a.cover_xl }));
+}
+let itNext = 0; // Apple: ok. 20 zapytań na minutę
+async function itunesSearch(q){
+  const wait = itNext - Date.now(); itNext = Math.max(Date.now(), itNext) + 3200; if(wait > 0) await sleep(wait);
+  const d = await jsonp('https://itunes.apple.com/search?media=music&entity=album&country=PL&limit=12&term=' + encodeURIComponent(q));
+  return ((d && d.results) || []).filter(a => a.artworkUrl100).map(a => ({
+    src:'Apple Music', title:String(a.collectionName || '').replace(/ - (EP|Single)$/i, ''), artist:a.artistName || '',
+    type:/ - EP$/i.test(a.collectionName || '') ? 'EP' : / - Single$/i.test(a.collectionName || '') ? 'Singiel' : 'LP',
+    year:parseInt(String(a.releaseDate || '').slice(0, 4)) || null,
+    cover:a.artworkUrl100.replace(/\/\d+x\d+bb\./, '/600x600bb.'), thumb:a.artworkUrl100 }));
+}
+const cleanT = t => String(t || '').replace(/\s*[\(\[][^\)\]]*(deluxe|edition|remaster|version|expanded|bonus)[^\)\]]*[\)\]]/ig, '').replace(/ - (EP|Single)$/i, '');
+const matches = (r, artist, title) => similar(cleanT(r.title), cleanT(title)) && similar(r.artist, artist);
+// wynik: {status:'found', cover, ...} | {status:'none'} | {status:'retry'} (coś nie odpowiedziało – spróbuj ponownie)
 async function mbFindCover(artist, title){
-  const res = await mbSearch(`releasegroup:"${luc(title)}" AND artist:"${luc(artist)}"`);
-  for(const r of res.filter(r => r.score >= 80).slice(0, 3)){
-    const u = mbCover(r.id);
-    if(await testImage(u)) return {...r, cover:u};
-  }
-  return null;
+  let flaky = false;
+  // 1. Deezer
+  try {
+    let r = (await deezerSearch(`artist:"${artist}" album:"${cleanT(title)}"`)).find(x => matches(x, artist, title));
+    if(!r) r = (await deezerSearch(artist + ' ' + cleanT(title))).find(x => matches(x, artist, title));
+    if(r) return {...r, status:'found'};
+  } catch(e){ flaky = true; }
+  // 2. MusicBrainz / Cover Art Archive
+  let mbYear = null, mbId = null;
+  try {
+    let cands = (await mbSearch(`releasegroup:"${luc(title)}" AND artist:"${luc(artist)}"`)).filter(r => r.score >= 80);
+    if(!cands.length) cands = (await mbSearch(luc(title) + ' ' + luc(artist))).filter(r => matches(r, artist, title));
+    if(cands.length){ mbYear = cands[0].year; mbId = cands[0].id; }
+    for(const r of cands.slice(0, 3)){
+      for(let t = 0; t < 2; t++){
+        if(await testImage(mbCover(r.id, 250))) return {...r, status:'found', cover:mbCover(r.id)};
+        flaky = true;
+      }
+    }
+  } catch(e){ flaky = true; }
+  // 3. Apple Music
+  try {
+    const r = (await itunesSearch(artist + ' ' + cleanT(title))).find(x => matches(x, artist, title));
+    if(r) return {...r, status:'found', year:r.year || mbYear, id:mbId};
+  } catch(e){ flaky = true; }
+  return {status:flaky ? 'retry' : 'none', year:mbYear, id:mbId};
 }
 
 /* ---------- covers upload ---------- */
@@ -343,6 +554,18 @@ function resizeImage(file, max = 700){
     img.src = url;
   });
 }
+function cropSquare(file, size = 320){
+  return new Promise((res, rej) => {
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => {
+      const m = Math.min(img.width, img.height), c = document.createElement('canvas'); c.width = c.height = size;
+      c.getContext('2d').drawImage(img, (img.width - m) / 2, (img.height - m) / 2, m, m, 0, 0, size, size);
+      URL.revokeObjectURL(url); c.toBlob(b => b ? res(b) : rej(new Error('Nie udało się przetworzyć zdjęcia')), 'image/jpeg', 0.88);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('To nie jest obrazek')); };
+    img.src = url;
+  });
+}
 async function uploadCover(file){
   const blob = await resizeImage(file);
   const path = `${S.user.id}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`;
@@ -352,20 +575,20 @@ async function uploadCover(file){
 }
 
 /* ---------- layout ---------- */
-const NAV = [['ranking','Ranking'],['lata','Lata'],['albumy','Albumy'],['dodaj','+ Dodaj'],['osoby','Osoby'],['import','Import']];
+const NAV = [['start','Start'],['ranking','Ranking'],['lata','Lata'],['albumy','Albumy'],['losuj','🎲 Losuj'],['dodaj','+ Dodaj'],['osoby','Osoby'],['import','Import']];
 function renderNav(cur){
   if(!S.user){ top_.innerHTML = ''; return; }
   top_.innerHTML = `<header class="nav"><div class="nav-in">
-    <a class="brand" href="#/ranking">${esc(CONFIG.SITE_NAME).replace(/^(\S+)/, '<b>$1</b>')}</a>
+    <a class="brand" href="#/start">${esc(CONFIG.SITE_NAME).replace(/^(\S+)/, '<b>$1</b>')}</a>
     <nav class="links">${NAV.map(([k, l]) => `<a href="#/${k}" class="${cur === k ? 'on' : ''}">${l}</a>`).join('')}</nav>
-    <div class="me"><button id="reload" title="Odśwież dane">↻</button><a href="#/konto">${esc(me().display_name)}</a><button id="logout">Wyloguj</button></div>
+    <div class="me"><button id="reload" title="Odśwież dane">↻</button><a href="#/konto" title="Twoje konto" style="display:flex;align-items:center;gap:7px">${avatar(S.user.id, 26)}${esc(me().display_name)}</a><a href="#/konto"><button>Zmień hasło</button></a><button id="logout">Wyloguj</button></div>
   </div></header>`;
   document.getElementById('logout').onclick = async () => { await sb.auth.signOut(); S.user = null; location.hash = ''; render(); };
   document.getElementById('reload').onclick = async () => { await safeLoad(); render(); toast('Odświeżono'); };
 }
 function route(){
   const parts = location.hash.replace(/^#\/?/, '').split('/');
-  return {page:parts[0] || 'ranking', arg:parts[1] ? decodeURIComponent(parts[1]) : null};
+  return {page:parts[0] || 'start', arg:parts[1] ? decodeURIComponent(parts[1]) : null};
 }
 let lastPage = null;
 function render(){
@@ -374,8 +597,8 @@ function render(){
   renderNav(page === 'album' || page === 'osoba' ? null : page);
   if(page !== lastPage) window.scrollTo(0, 0);
   lastPage = page;
-  const V = {ranking:viewRanking, lata:viewYears, album:viewAlbum, albumy:viewAlbums, dodaj:viewAdd, osoby:viewPeople,
-             osoba:viewPerson, import:viewImport, konto:viewAccount, edytuj:viewEdit}[page] || viewRanking;
+  const V = {start:viewHome, losuj:viewRandom, ranking:viewRanking, lata:viewYears, album:viewAlbum, albumy:viewAlbums, dodaj:viewAdd, osoby:viewPeople,
+             osoba:viewPerson, import:viewImport, konto:viewAccount, edytuj:viewEdit}[page] || viewHome;
   try { V(arg); } catch(e){ console.error(e); app.innerHTML = `<div class="card err">Błąd: ${esc(e.message)}</div>`; }
 }
 async function safeLoad(){
@@ -403,7 +626,7 @@ function viewLogin(){
     if(error){ b.disabled = false; er.textContent = 'Zły login lub hasło.'; return; }
     S.user = data.user; app.innerHTML = '<div class="loading">Ładowanie ocen…</div>';
     await safeLoad();
-    if(!location.hash || location.hash === '#' || location.hash === '#/') location.hash = '#/ranking'; else render();
+    if(!location.hash || location.hash === '#' || location.hash === '#/') location.hash = '#/start'; else render();
   };
 }
 
@@ -419,31 +642,33 @@ function rowHtml({a, st}, i){
 function filtersHtml(){
   const maxN = Math.max(1, S.profiles.size);
   return `<div class="filters">
+    ${segHtml('fkind', S.f.kind)}
     <label>Min. liczba ocen<select id="fmin">${Array.from({length:maxN}, (_, i) => i + 1).map(n => `<option value="${n}" ${S.f.min === n ? 'selected' : ''}>${n}+</option>`).join('')}</select></label>
-    <label>Typ<select id="ftype">${[['all','Wszystkie'],['LP','LP'],['EP','EP'],['Inne','Inne']].map(([v, l]) => `<option value="${v}" ${S.f.type === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
+    <label ${S.f.kind === 'singles' ? 'hidden' : ''}>Typ<select id="ftype">${[['all','Wszystkie'],['LP','LP'],['EP','EP'],['Inne','Inne']].map(([v, l]) => `<option value="${v}" ${S.f.type === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
   </div>`;
 }
 function bindFilters(){
   document.getElementById('fmin').onchange = e => { S.f.min = +e.target.value; render(); };
   document.getElementById('ftype').onchange = e => { S.f.type = e.target.value; render(); };
+  bindSeg('fkind', v => { S.f.kind = v; render(); });
 }
 function listHtml(list){
   return list.length ? `<div class="list">${list.map(rowHtml).join('')}</div>`
-    : `<div class="list"><div class="empty">Brak albumów spełniających kryteria. Zmień filtry albo dodaj oceny.</div></div>`;
+    : `<div class="list"><div class="empty">Brak ${S.f.kind === 'singles' ? 'singli' : 'albumów'} spełniających kryteria. Zmień filtry albo dodaj oceny.</div></div>`;
 }
 
 /* ---------- views ---------- */
 function viewRanking(){
   const list = rankList();
-  app.innerHTML = `<h1>Ranking wszech czasów</h1>
-    <p class="sub">${S.albums.size} ${pl(S.albums.size,'album','albumy','albumów')} w bazie · ${S.ratings.length} ${pl(S.ratings.length,'ocena','oceny','ocen')} · kolejność według średniej grupy</p>
+  app.innerHTML = `<h1>${S.f.kind === 'singles' ? 'Ranking singli' : 'Ranking wszech czasów'}</h1>
+    <p class="sub">${(() => { const n = [...S.albums.values()].filter(a => kindOk(a, S.f.kind)).length; return S.f.kind === 'singles' ? `${n} ${pl(n,'singiel','single','singli')}` : `${n} ${pl(n,'album','albumy','albumów')}`; })()} w bazie · kolejność według średniej grupy</p>
     ${filtersHtml()}${listHtml(list)}`;
   bindFilters();
 }
 
 function viewYears(arg){
   const years = new Map();
-  for(const a of S.albums.values()) if(a.year) years.set(a.year, (years.get(a.year) || 0) + 1);
+  for(const a of S.albums.values()) if(a.year && kindOk(a, S.f.kind)) years.set(a.year, (years.get(a.year) || 0) + 1);
   const ys = [...years.keys()].sort((a, b) => b - a);
   const y = arg ? parseInt(arg) : null;
   if(!y){
@@ -455,13 +680,13 @@ function viewYears(arg){
         <div class="muted small">${l.length} ${pl(l.length,'oceniony','ocenione','ocenionych')} / ${years.get(yr)}</div></div>
         ${t ? badge(t.st.avg, 'sm') : ''}</a>`;
     }).join('');
-    app.innerHTML = `<h1>Rankingi roczne</h1><p class="sub">Najwyżej oceniony album każdego roku. Kliknij rok, żeby zobaczyć pełny ranking.</p>
+    app.innerHTML = `<h1>Rankingi roczne</h1><p class="sub">Najwyżej ${S.f.kind === 'singles' ? 'oceniony singiel' : 'oceniony album'} każdego roku. Kliknij rok, żeby zobaczyć pełny ranking.</p>
       ${filtersHtml()}<div class="years">${cards || '<div class="empty">Brak albumów z rokiem.</div>'}</div>`;
     bindFilters(); return;
   }
   const list = rankList({year:y});
-  app.innerHTML = `<h1>Najlepsze albumy ${y}</h1><p class="sub">${list.length} ${pl(list.length,'oceniony album','ocenione albumy','ocenionych albumów')}</p>
-    <div class="chips">${ys.map(yr => `<a class="chip ${yr === y ? 'on' : ''}" href="#/lata/${yr}">${yr} <small>${years.get(yr)}</small></a>`).join('')}</div>
+  app.innerHTML = `<h1>Najlepsze ${S.f.kind === 'singles' ? 'single' : 'albumy'} ${y}</h1><p class="sub">${list.length} ${S.f.kind === 'singles' ? pl(list.length,'oceniony singiel','ocenione single','ocenionych singli') : pl(list.length,'oceniony album','ocenione albumy','ocenionych albumów')}</p>
+    <div class="chips">${ys.map(yr => `<a class="chip ${yr === y ? 'on' : ''}" href="#/lata/${yr}">${yr} <small>${years.get(yr)}</small></a>`).join('')}${years.has(y) ? '' : `<span class="chip on">${y} <small>0</small></span>`}</div>
     ${filtersHtml()}${listHtml(list)}`;
   bindFilters();
 }
@@ -471,8 +696,9 @@ function viewAlbum(arg){
   if(!a){ app.innerHTML = `<div class="card">Nie znaleziono albumu. <a class="link" href="#/albumy">Wróć do albumów</a></div>`; return; }
   const st = stats(id), mine = myRating(id);
   const rs = [...st.rs].sort((x, y) => y.score - x.score);
-  const all = rankList({min:1, type:'all'}), pos = all.findIndex(x => x.a.id === id);
-  const ypos = a.year ? rankList({year:a.year, min:1, type:'all'}).findIndex(x => x.a.id === id) : -1;
+  const kind = isSingle(a) ? 'singles' : 'albums';
+  const all = rankList({min:1, type:'all', kind}), pos = all.findIndex(x => x.a.id === id);
+  const ypos = a.year ? rankList({year:a.year, min:1, type:'all', kind}).findIndex(x => x.a.id === id) : -1;
   const notRated = [...S.profiles.values()].filter(p => !rs.some(r => r.user_id === p.id)).map(p => p.display_name || p.username);
   const canDelete = a.created_by === S.user.id || me().is_admin;
   const scores = rs.map(r => r.score);
@@ -488,15 +714,19 @@ function viewAlbum(arg){
         <div>
           <div class="avglbl">Średnia grupy</div>
           <div class="avgsub"><b>${ocen(st.n)}</b>${st.n > 1 ? ` · od <b>${num(Math.min(...scores))}</b> do <b>${num(Math.max(...scores))}</b>` : ''}</div>
-          <div class="ranks">${pos >= 0 ? `<a href="#/ranking">#${pos + 1} w rankingu ogólnym</a>` : ''}${ypos >= 0 ? `<a href="#/lata/${a.year}">#${ypos + 1} w roku ${a.year}</a>` : ''}</div>
+          <div class="ranks">${pos >= 0 ? `<a href="#/ranking" id="rkLink">#${pos + 1} w rankingu ${kind === 'singles' ? 'singli' : 'ogólnym'}</a>` : ''}${ypos >= 0 ? `<a href="#/lata/${a.year}" id="rkYLink">#${ypos + 1} w roku ${a.year}</a>` : ''}</div>
         </div>
+      </div>
+      <div class="btns" style="margin-bottom:10px">
+        <button id="favB" class="${isFav(id) ? 'btn-on' : ''}">${isFav(id) ? '♥ W ulubionych' : '♡ Dodaj do ulubionych'}</button>
+        <button id="lisB" class="${inListen(id) ? 'btn-on' : ''}">${inListen(id) ? '✓ Do posłuchania' : '+ Do posłuchania'}</button>
       </div>
       <div class="btns"><a href="#/edytuj/${id}"><button>Edytuj album</button></a>${canDelete ? '<button class="btn-d" id="delA">Usuń album</button>' : ''}</div>
     </div>
   </div>
   <div class="cols">
     <div class="card"><h2>Oceny (${st.n})</h2>
-      <div class="rlist">${rs.length ? rs.map(r => `<div class="ri">${avatar(r.user_id)}
+      <div class="rlist">${rs.length ? rs.map(r => `<div class="ri"><a href="#/osoba/${r.user_id}">${avatar(r.user_id)}</a>
         <div><a class="nm" href="#/osoba/${r.user_id}">${esc(pname(r.user_id))}</a>
           ${r.comment ? `<div class="cm">${esc(r.comment)}</div>` : ''}
           <div class="bar"><div style="width:${r.score}%;background:${col(r.score)}"></div></div>
@@ -522,8 +752,14 @@ function viewAlbum(arg){
     const { data, error } = await sb.from('ratings').upsert({album_id:id, user_id:S.user.id, score:sc, comment}, {onConflict:'album_id,user_id'}).select().single();
     b.disabled = false;
     if(error){ er.textContent = errMsg(error); return; }
-    upsertLocalRating(data); toast('Zapisano ocenę ' + num(sc)); render();
+    upsertLocalRating(data); toast('Zapisano ocenę ' + num(sc));
+    if(inListen(id) && await removeListen(id)) toast('Usunięto z listy „do posłuchania”');
+    render();
   };
+  document.getElementById('favB').onclick = async () => { if(await (isFav(id) ? removeFav(id) : addFav(id))) render(); };
+  document.getElementById('lisB').onclick = async () => { if(await (inListen(id) ? removeListen(id) : addListen(id))) render(); };
+  const rk = document.getElementById('rkLink'); if(rk) rk.onclick = () => { S.f.kind = kind; S.f.type = 'all'; S.f.min = 1; };
+  const rky = document.getElementById('rkYLink'); if(rky) rky.onclick = () => { S.f.kind = kind; S.f.type = 'all'; S.f.min = 1; };
   const rd = document.getElementById('rdel');
   if(rd) armButton(rd, 'Na pewno usunąć?', async () => {
     const { error } = await sb.from('ratings').delete().eq('album_id', id).eq('user_id', S.user.id);
@@ -541,8 +777,10 @@ function viewAlbum(arg){
 
 function viewAlbums(){
   const f = S.af;
-  app.innerHTML = `<h1>Wszystkie albumy</h1><p class="sub">${S.albums.size} ${pl(S.albums.size,'album','albumy','albumów')} w bazie</p>
+  const cnt = [...S.albums.values()].filter(a => kindOk(a, f.kind)).length;
+  app.innerHTML = `<h1>${f.kind === 'singles' ? 'Single' : 'Wszystkie albumy'}</h1><p class="sub">${cnt} ${f.kind === 'singles' ? pl(cnt,'singiel','single','singli') : pl(cnt,'album','albumy','albumów')} w bazie</p>
     <div class="filters">
+      ${segHtml('akind', f.kind)}
       <label>Szukaj<input type="search" id="aq" value="${esc(f.q)}" placeholder="wykonawca lub tytuł"></label>
       <label>Pokaż<select id="af">${[['all','Wszystkie'],['unrated-me','Nieocenione przeze mnie'],['unrated','Bez żadnej oceny'],['nocover','Bez okładki']].map(([v, l]) => `<option value="${v}" ${f.f === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
       <label>Sortuj<select id="as">${[['added','Ostatnio dodane'],['artist','Wykonawca A–Z'],['year','Rok (najnowsze)'],['avg','Średnia']].map(([v, l]) => `<option value="${v}" ${f.sort === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
@@ -550,6 +788,7 @@ function viewAlbums(){
   const draw = () => {
     const q = norm(f.q);
     let l = [...S.albums.values()].filter(a => {
+      if(!kindOk(a, f.kind)) return false;
       if(q && !(norm(a.artist).includes(q) || norm(a.title).includes(q))) return false;
       if(f.f === 'unrated-me') return !myRating(a.id);
       if(f.f === 'unrated') return !stats(a.id).n;
@@ -572,6 +811,7 @@ function viewAlbums(){
       : `<div class="list"><div class="empty">Nic nie znaleziono. <a class="link" href="#/dodaj">Dodaj album</a></div></div>`;
     const m = document.getElementById('more'); if(m) m.onclick = () => { f.limit += 240; draw(); };
   };
+  bindSeg('akind', v => { f.kind = v; f.limit = 120; render(); });
   document.getElementById('aq').oninput = e => { f.q = e.target.value; f.limit = 120; draw(); };
   document.getElementById('af').onchange = e => { f.f = e.target.value; f.limit = 120; draw(); };
   document.getElementById('as').onchange = e => { f.sort = e.target.value; draw(); };
@@ -581,9 +821,9 @@ function viewAlbums(){
 /* ----- album form (dodaj / edytuj) ----- */
 function albumFormHtml(a, isNew){
   return `<div class="cols" style="margin-top:0">
-  <div class="card"><h2>${isNew ? '1. Znajdź album (uzupełni dane i okładkę)' : 'Znajdź okładkę / dane w MusicBrainz'}</h2>
+  <div class="card"><h2>${isNew ? '1. Znajdź album (uzupełni dane i okładkę)' : 'Znajdź okładkę / dane albumu'}</h2>
     <form class="btns" id="mbf" style="flex-wrap:nowrap"><input id="mbq" placeholder="np. Lorde Melodrama" value="${isNew ? '' : esc(a.artist + ' ' + a.title)}"><button class="btn-p">Szukaj</button></form>
-    <div class="muted small" id="mbst" style="margin-top:8px">Wyniki z bazy MusicBrainz. Kliknij wynik, aby wypełnić formularz.</div>
+    <div class="muted small" id="mbst" style="margin-top:8px">Wyniki z Deezera, MusicBrainz i Apple Music. Kliknij wynik, aby wypełnić formularz.</div>
     <div class="mbres" id="mbres"></div>
   </div>
   <div class="card"><h2>${isNew ? '2. Sprawdź dane i zapisz' : 'Dane albumu'}</h2>
@@ -619,17 +859,22 @@ function bindAlbumForm(a, isNew){
     e.preventDefault(); const q = $('mbq').value.trim(); if(!q) return;
     $('mbst').textContent = 'Szukam…'; $('mbres').innerHTML = '';
     try {
-      const res = await mbSearch(q);
+      const [mb, dz, it] = await Promise.all([
+        mbSearch(q).then(r => r.map(x => ({...x, src:'MusicBrainz', cover:null, thumb:mbCover(x.id, 250)}))).catch(() => []),
+        deezerSearch(q).catch(() => []), itunesSearch(q).catch(() => [])]);
+      // przeplataj źródła, żeby na górze były najlepsze wyniki z każdego
+      const res = []; for(let i = 0; i < 12; i++) for(const l of [dz, mb, it]) if(l[i]) res.push(l[i]);
       $('mbst').textContent = res.length ? 'Kliknij właściwy album:' : 'Nic nie znaleziono – wpisz dane ręcznie.';
       $('mbres').innerHTML = res.map((r, i) => `<button type="button" class="mbitem" data-i="${i}">
-        ${coverHtml({title:r.title, cover_url:mbCover(r.id, 250)}, 'c48')}
-        <span><b>${esc(r.title)}</b><br><span>${esc(r.artist)}</span><br><small>${r.year ?? '?'} · ${esc(r.type)}</small></span></button>`).join('');
+        ${coverHtml({title:r.title, cover_url:r.thumb}, 'c48')}
+        <span><b>${esc(r.title)}</b><br><span>${esc(r.artist)}</span><br><small>${r.year ?? ''}${r.year ? ' · ' : ''}${esc(r.type)} · ${esc(r.src)}</small></span></button>`).join('');
       $('mbres').querySelectorAll('.mbitem').forEach(b => b.onclick = async () => {
         const r = res[+b.dataset.i];
-        $('fa').value = r.artist; $('ft').value = r.title; if(r.year) $('fy').value = r.year; $('fty').value = r.type; $('fmb').value = r.id;
+        $('fa').value = r.artist; $('ft').value = r.title; if(r.year) $('fy').value = r.year; $('fty').value = r.type;
+        if(r.src === 'MusicBrainz') $('fmb').value = r.id;
         $('fc').value = ''; $('fcp').innerHTML = '<span class="muted small">Szukam okładki…</span>';
-        const u = mbCover(r.id);
-        if(await testImage(u)){ $('fc').value = u; } else toast('Brak okładki w bazie – wgraj plik lub wklej link', true);
+        const u = r.cover || mbCover(r.id);
+        if(await testImage(u)){ $('fc').value = u; } else toast('Brak okładki w tym źródle – wybierz inny wynik, wgraj plik lub wklej link', true);
         setPreview();
         const dup = isNew && findAlbum(r.artist, r.title);
         $('ferr').innerHTML = dup ? `Ten album już jest: <a class="link" href="#/album/${dup.id}">przejdź do niego</a>` : '';
@@ -688,19 +933,166 @@ function viewPeople(){
 function viewPerson(id){
   const p = S.profiles.get(id);
   if(!p){ app.innerHTML = '<div class="card">Nie ma takiej osoby.</div>'; return; }
-  const rs = (S.byUser.get(id) || []).filter(r => S.albums.has(r.album_id)).sort((a, b) => b.score - a.score);
-  const avg = rs.length ? rs.reduce((s, r) => s + r.score, 0) / rs.length : null;
+  const name = p.display_name || p.username;
+  const allR = (S.byUser.get(id) || []).filter(r => S.albums.has(r.album_id));
+  const rs = allR.filter(r => kindOk(S.albums.get(r.album_id), S.f.kind)).sort((a, b) => b.score - a.score);
+  const avg = allR.length ? allR.reduce((s, r) => s + r.score, 0) / allR.length : null;
   // jak bardzo ta osoba odbiega od średniej grupy
-  const diffs = rs.map(r => { const st = stats(r.album_id); return st.n > 1 ? r.score - (st.avg * st.n - r.score) / (st.n - 1) : null; }).filter(d => d != null);
+  const diffs = allR.map(r => { const st = stats(r.album_id); return st.n > 1 ? r.score - (st.avg * st.n - r.score) / (st.n - 1) : null; }).filter(d => d != null);
   const dAvg = diffs.length ? diffs.reduce((s, d) => s + d, 0) / diffs.length : null;
-  app.innerHTML = `<div class="btns" style="gap:14px;margin-bottom:6px">${avatar(id)}<h1 style="margin:0">${esc(p.display_name || p.username)}</h1></div>
-    <p class="sub">${ocen(rs.length)}${avg != null ? ' · średnia ' + num(avg) : ''}${dAvg != null ? ` · ocenia średnio <b>${dAvg >= 0 ? '+' : ''}${num(dAvg)}</b> względem reszty grupy` : ''}</p>
+  const favs = favsOf(id);
+  app.innerHTML = `<div class="hello">${avatar(id, 72)}<div><h1>${esc(name)}</h1>
+    <p class="sub" style="margin:2px 0 0">${ocen(allR.length)}${avg != null ? ' · średnia ' + num(avg) : ''}${dAvg != null ? ` · ocenia średnio <b>${dAvg >= 0 ? '+' : ''}${num(dAvg)}</b> względem reszty grupy` : ''}</p></div></div>
+    ${favs.length ? `<div class="card" style="margin-bottom:18px"><h2>Ulubione albumy</h2><div class="favs">${favs.map(f => { const a = S.albums.get(f.album_id);
+      return `<a class="tile" href="#/album/${a.id}">${coverHtml(a, 'cfull')}<div><div class="t">${esc(a.title)}</div><div class="a">${esc(a.artist)}</div></div></a>`; }).join('')}</div></div>` : ''}
+    <div class="filters">${segHtml('pkind', S.f.kind)}</div>
     ${rs.length ? `<div class="list">${rs.map((r, i) => { const a = S.albums.get(r.album_id), st = stats(a.id);
       return `<a class="row" href="#/album/${a.id}"><span class="rk">${i + 1}</span>${coverHtml(a)}
         <span class="meta"><b>${esc(a.title)}</b><span>${esc(a.artist)}</span><small>${a.year ?? '—'} · ${esc(a.type || '')}</small></span>
-        <span class="sc">${badge(r.score, 'big')}<small>${esc(p.display_name || p.username)}</small></span>
+        <span class="sc">${badge(r.score, 'big')}<small>${esc(name)}</small></span>
         <span class="mine">grupa: <b>${num(st.avg)}</b><br>${ocen(st.n)}</span></a>`; }).join('')}</div>`
       : '<div class="list"><div class="empty">Brak ocen.</div></div>'}`;
+  bindSeg('pkind', v => { S.f.kind = v; render(); });
+}
+
+/* ----- strona główna ----- */
+function viewHome(){
+  const H = S.home, uid = S.user.id;
+  const mineR = (S.byUser.get(uid) || []).filter(r => { const a = S.albums.get(r.album_id); return a && !isSingle(a); });
+  const years = [...new Set(mineR.map(r => S.albums.get(r.album_id).year).filter(Boolean)).add(new Date().getFullYear())].sort((a, b) => b - a);
+  const yearList = mineR.filter(r => S.albums.get(r.album_id).year === H.year).sort((a, b) => b.score - a.score);
+  const shown = H.all ? yearList : yearList.slice(0, 10);
+  const favs = myFavs(), listen = myListen();
+  const feed = S.ratings.filter(r => r.user_id !== uid && S.albums.has(r.album_id))
+    .sort((a, b) => (b.updated_at || b.created_at || '').localeCompare(a.updated_at || a.created_at || '')).slice(0, 150);
+  const hour = new Date().getHours(), hi = hour < 5 ? 'Dobranoc' : hour < 18 ? 'Cześć' : 'Dobry wieczór';
+  app.innerHTML = `
+  <div class="hello">${avatar(uid, 56)}<div><h1>${hi}, ${esc(me().display_name)}!</h1>
+    <div class="muted small">${ocen((S.byUser.get(uid) || []).length)} · ${favs.length} ulubionych · ${listen.length} do posłuchania</div></div></div>
+  <div class="home">
+    <div class="hmain">
+      <section class="card">
+        <div class="shead"><h2>Twój ranking ${H.year}</h2>
+          <select id="hy">${years.map(y => `<option ${y === H.year ? 'selected' : ''}>${y}</option>`).join('')}</select></div>
+        ${yearList.length ? shown.map((r, i) => { const a = S.albums.get(r.album_id), st = stats(a.id);
+          return `<a class="mrow ${i < 3 ? 'top' + (i + 1) : ''}" href="#/album/${a.id}"><span class="rk">${i + 1}</span>${coverHtml(a, 'c48')}
+            <span class="meta"><b>${esc(a.title)}</b><span>${esc(a.artist)}</span></span>
+            <span class="r2"><span class="grp">grupa ${num(st.avg)}<br>${ocen(st.n)}</span>${badge(r.score, 'big')}</span></a>`; }).join('')
+          : `<div class="empty">Nie oceniłeś jeszcze żadnego albumu z ${H.year} roku.</div>`}
+        ${yearList.length > 10 ? `<div style="text-align:center;margin-top:10px"><button id="hall">${H.all ? 'Pokaż mniej' : `Pokaż wszystkie (${yearList.length})`}</button></div>` : ''}
+      </section>
+
+      <section class="card">
+        <div class="shead"><h2>Ulubione albumy</h2><button id="fedit">${H.edit ? 'Gotowe' : (favs.length ? 'Edytuj' : '+ Dodaj')}</button></div>
+        ${H.edit ? pickerHtml('fpick', 'Dodaj ulubiony album – wpisz wykonawcę lub tytuł…') : ''}
+        ${favs.length ? `<div class="favs">${favs.map((f, i) => { const a = S.albums.get(f.album_id);
+          return `<div class="fav"><a class="tile" href="#/album/${a.id}">${coverHtml(a, 'cfull')}<div><div class="t">${esc(a.title)}</div><div class="a">${esc(a.artist)}</div></div></a>
+            ${H.edit ? `<div class="favctl">${i > 0 ? `<button data-mv="-1" data-id="${a.id}" title="W lewo">←</button>` : ''}${i < favs.length - 1 ? `<button data-mv="1" data-id="${a.id}" title="W prawo">→</button>` : ''}<button data-rm="${a.id}" title="Usuń">×</button></div>` : ''}</div>`; }).join('')}</div>`
+          : `<div class="empty">Nie masz jeszcze ulubionych. Kliknij „+ Dodaj” albo „♡ Dodaj do ulubionych” na stronie albumu.</div>`}
+      </section>
+
+      <section class="card">
+        <div class="shead"><h2>Do posłuchania (${listen.length})</h2><a href="#/losuj"><button>🎲 Wylosuj coś</button></a></div>
+        ${pickerHtml('lpick', 'Dodaj album do posłuchania – wpisz wykonawcę lub tytuł…')}
+        ${listen.length ? listen.map(l => { const a = S.albums.get(l.album_id), st = stats(a.id);
+          return `<div class="lrow">${coverHtml(a, 'c48')}<a class="meta" href="#/album/${a.id}"><b>${esc(a.title)}</b><span>${esc(a.artist)}${a.year ? ' · ' + a.year : ''}</span><small>dodano ${timeAgo(l.created_at)}</small></a>
+            <span class="sc">${st.n ? badge(st.avg, 'sm') + `<small>${ocen(st.n)}</small>` : '<small>brak ocen</small>'}</span>
+            <span class="btns"><a class="okb" href="#/album/${a.id}"><button>Oceń</button></a><button data-lrm="${a.id}" title="Usuń z listy">×</button></span></div>`; }).join('')
+          : `<div class="empty">Lista jest pusta. Dodaj albumy powyżej, przyciskiem „+ Do posłuchania” na stronie albumu albo przez losowanie.</div>`}
+      </section>
+    </div>
+
+    <aside class="card feed"><h2>Aktywność znajomych</h2>
+      <div class="feedl">${feed.length ? feed.map(r => { const a = S.albums.get(r.album_id);
+        return `<div class="fi"><a href="#/osoba/${r.user_id}">${avatar(r.user_id, 34)}</a><div>
+          <div class="who"><a href="#/osoba/${r.user_id}"><b>${esc(pname(r.user_id))}</b></a>${badge(r.score, 'sm')}</div>
+          <a class="alb" href="#/album/${a.id}">${coverHtml(a, 'c40')}<div><b>${esc(a.title)}</b><span>${esc(a.artist)}</span></div></a>
+          ${r.comment ? `<div class="cm">„${esc(r.comment)}”</div>` : ''}
+          <time>${timeAgo(r.updated_at || r.created_at)}</time></div></div>`; }).join('')
+        : '<div class="empty">Znajomi jeszcze nic nie ocenili.</div>'}</div>
+    </aside>
+  </div>`;
+  document.getElementById('hy').onchange = e => { H.year = +e.target.value; H.all = false; render(); };
+  const ha = document.getElementById('hall'); if(ha) ha.onclick = () => { H.all = !H.all; render(); };
+  document.getElementById('fedit').onclick = () => { H.edit = !H.edit; render(); if(H.edit){ const i = document.getElementById('fpick'); if(i) i.focus(); } };
+  if(H.edit) bindPicker('fpick', async a => { if(await addFav(a.id)){ toast('Dodano do ulubionych'); render(); const i = document.getElementById('fpick'); if(i) i.focus(); } }, a => isFav(a.id));
+  bindPicker('lpick', async a => { if(await addListen(a.id)){ toast('Dodano do posłuchania'); render(); } }, a => inListen(a.id));
+  app.querySelectorAll('[data-mv]').forEach(b => b.onclick = async () => { await moveFav(+b.dataset.id, +b.dataset.mv); render(); });
+  app.querySelectorAll('[data-rm]').forEach(b => b.onclick = async () => { if(await removeFav(+b.dataset.rm)) render(); });
+  app.querySelectorAll('[data-lrm]').forEach(b => b.onclick = async () => { if(await removeListen(+b.dataset.lrm)) render(); });
+}
+
+/* ----- losowanie ----- */
+function randomPool(){
+  const R = S.rand, uid = S.user.id, from = R.from ? +R.from : null, to = R.to ? +R.to : null;
+  return [...S.albums.values()].filter(a => {
+    if(!kindOk(a, R.kind)) return false;
+    if(from != null && !(a.year && a.year >= from)) return false;
+    if(to != null && !(a.year && a.year <= to)) return false;
+    if(R.src === 'unrated') return !myRating(a.id);
+    if(R.src === 'listen') return inListen(a.id);
+    if(R.src === 'rec'){
+      if(myRating(a.id)) return false;
+      const o = (S.byAlbum.get(a.id) || []).filter(r => r.user_id !== uid);
+      return o.length > 0 && o.reduce((s, r) => s + r.score, 0) / o.length >= R.min;
+    }
+    return true;
+  });
+}
+function viewRandom(){
+  const R = S.rand;
+  const years = [...new Set([...S.albums.values()].map(a => a.year).filter(Boolean))].sort((a, b) => b - a);
+  const yOpts = cur => `<option value="">dowolny</option>` + years.map(y => `<option ${String(y) === String(cur) ? 'selected' : ''}>${y}</option>`).join('');
+  const pool = randomPool();
+  app.innerHTML = `<h1>🎲 Wylosuj album</h1><p class="sub">Nie wiesz, czego posłuchać? Wylosuj coś z naszej bazy.</p>
+    <div class="card">
+      <div class="filters" style="margin:0">
+        <label>Losuj spośród<select id="rsrc">${[['unrated','Nieocenionych przeze mnie'],['rec','Polecanych przez znajomych'],['listen','Mojej listy „do posłuchania”'],['all','Całej bazy']].map(([v, l]) => `<option value="${v}" ${R.src === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
+        ${R.src === 'rec' ? `<label>Średnia znajomych od<select id="rmin">${[60,65,70,75,80,85,90].map(v => `<option ${R.min === v ? 'selected' : ''}>${v}</option>`).join('')}</select></label>` : ''}
+        <label>Rok od<select id="rfrom">${yOpts(R.from)}</select></label>
+        <label>Rok do<select id="rto">${yOpts(R.to)}</select></label>
+        ${segHtml('rkind', R.kind, [['albums','Albumy'],['singles','Single'],['all','Wszystko']])}
+      </div>
+      <div class="btns" style="margin-top:16px"><button class="btn-p dice" id="roll" ${pool.length ? '' : 'disabled'}>🎲 Losuj</button>
+        <span class="pool">W puli: <b>${pool.length}</b> ${pl(pool.length,'pozycja','pozycje','pozycji')}${!pool.length ? ' – zmień filtry' : ''}</span></div>
+    </div>
+    <div id="rres"></div>`;
+  const set = (k, v) => { R[k] = v; R.last = null; render(); };
+  document.getElementById('rsrc').onchange = e => set('src', e.target.value);
+  const rm = document.getElementById('rmin'); if(rm) rm.onchange = e => set('min', +e.target.value);
+  document.getElementById('rfrom').onchange = e => set('from', e.target.value);
+  document.getElementById('rto').onchange = e => set('to', e.target.value);
+  bindSeg('rkind', v => set('kind', v));
+  const box = document.getElementById('rres');
+  const show = (a, final) => {
+    const st = stats(a.id), rs = [...st.rs].sort((x, y) => y.score - x.score);
+    box.innerHTML = `<div class="rnd">${coverHtml(a, 'c260')}<div>
+      <h1 style="font-size:30px;line-height:1.15">${esc(a.title)}</h1><div class="artist">${esc(a.artist)}</div>
+      <div class="facts">${a.year || 'rok nieznany'} · ${esc(a.type || '')}</div>
+      ${final ? `<div class="btns">${st.n ? badge(st.avg, 'big') + `<span class="muted">średnia grupy · ${ocen(st.n)}</span>` : '<span class="muted">Nikt jeszcze tego nie ocenił – możesz być pierwszy.</span>'}</div>
+      ${rs.length ? `<div class="who-rated">${rs.map(r => `<a href="#/osoba/${r.user_id}">${avatar(r.user_id, 24)}${esc(pname(r.user_id))} <b>${num(r.score)}</b></a>`).join('')}</div>` : '<div style="height:14px"></div>'}
+      <div class="btns"><button id="rl" class="${inListen(a.id) ? 'btn-on' : ''}">${inListen(a.id) ? '✓ Na liście do posłuchania' : '+ Do posłuchania'}</button>
+        <a href="#/album/${a.id}"><button>Przejdź do albumu</button></a><button id="ragain">🎲 Jeszcze raz</button></div>` : ''}
+    </div></div>`;
+    if(!final) return;
+    document.getElementById('rl').onclick = async () => { if(await (inListen(a.id) ? removeListen(a.id) : addListen(a.id))) show(a, true); };
+    document.getElementById('ragain').onclick = roll;
+  };
+  let spinning = false;
+  async function roll(){
+    const pl_ = randomPool(); if(!pl_.length || spinning) return;
+    spinning = true; document.getElementById('roll').disabled = true;
+    let pick = pl_[Math.floor(Math.random() * pl_.length)];
+    if(pl_.length > 1 && pick.id === R.last){ pick = pl_[(pl_.indexOf(pick) + 1 + Math.floor(Math.random() * (pl_.length - 1))) % pl_.length]; }
+    const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(!reduce && pl_.length > 1){
+      for(let i = 0, d = 50; i < 14; i++, d += 12){ show(pl_[Math.floor(Math.random() * pl_.length)], false); await sleep(d); }
+    }
+    R.last = pick.id; show(pick, true);
+    spinning = false; const b = document.getElementById('roll'); if(b) b.disabled = false;
+  }
+  document.getElementById('roll').onclick = roll;
+  if(R.last && S.albums.has(R.last)) show(S.albums.get(R.last), true);
 }
 
 /* ----- import ----- */
@@ -763,7 +1155,7 @@ function viewImport(){
   </div>
   <div class="card" style="margin-top:18px">
     <h2>2. Okładki</h2>
-    <p class="small muted" style="margin-top:0">${noCover.length} ${pl(noCover.length,'album nie ma','albumy nie mają','albumów nie ma')} okładki. Strona może poszukać ich automatycznie w bazie MusicBrainz / Cover Art Archive (ok. 1 album na sekundę). Uzupełni też brakujący rok.</p>
+    <p class="small muted" style="margin-top:0">${noCover.length} ${pl(noCover.length,'album nie ma','albumy nie mają','albumów nie ma')} okładki. Strona poszuka ich automatycznie w Deezerze, MusicBrainz i Apple Music i sama ponowi te, które się nie wczytały. Uzupełni też brakujący rok.</p>
     <div class="btns"><button id="cv" ${noCover.length ? '' : 'disabled'}>Znajdź brakujące okładki</button><button id="cvs" style="display:none">Zatrzymaj</button></div>
     <div class="small" id="cvst" style="margin-top:8px"></div>
   </div>
@@ -809,23 +1201,33 @@ function viewImport(){
   document.getElementById('cv').onclick = async () => {
     const b = document.getElementById('cv'), sbtn = document.getElementById('cvs'), st = document.getElementById('cvst');
     b.disabled = true; sbtn.style.display = ''; stop = false;
-    const todo = [...S.albums.values()].filter(a => !safeUrl(a.cover_url));
-    let found = 0, i = 0;
-    for(const a of todo){
-      if(stop) break; i++;
-      st.textContent = `${i}/${todo.length}: ${a.artist} – ${a.title}… (znaleziono ${found})`;
-      const t0 = Date.now();
-      try {
-        const r = await mbFindCover(a.artist, a.title);
-        if(r){
-          const upd = {cover_url:r.cover, mbid:a.mbid || r.id}; if(!a.year && r.year) upd.year = r.year;
-          const { data, error } = await sb.from('albums').update(upd).eq('id', a.id).select().single();
-          if(!error){ S.albums.set(a.id, {...data, id:Number(data.id)}); found++; }
+    let todo = [...S.albums.values()].filter(a => !safeUrl(a.cover_url));
+    const total = todo.length, notFound = [];
+    let found = 0, done = 0;
+    for(let pass = 1; pass <= 3 && todo.length && !stop; pass++){
+      const retry = []; let i = 0;
+      const worker = async () => {
+        while(!stop && i < todo.length){
+          const a = todo[i++];
+          try {
+            const r = await mbFindCover(a.artist, a.title);
+            if(r.status === 'found'){
+              const upd = {cover_url:r.cover}; if(!a.mbid && r.id) upd.mbid = r.id; if(!a.year && r.year) upd.year = r.year;
+              const { data, error } = await sb.from('albums').update(upd).eq('id', a.id).select().single();
+              if(!error){ S.albums.set(a.id, {...data, id:Number(data.id)}); found++; }
+            } else if(r.status === 'retry') retry.push(a); else notFound.push(a);
+          } catch(e){ console.warn(e); retry.push(a); }
+          if(pass === 1) done++;
+          st.textContent = (pass === 1 ? `Sprawdzono ${done}/${total}` : `Przejście ${pass}: ponawiam ${i}/${todo.length}`) + ` · znaleziono ${found}`;
         }
-      } catch(e){ console.warn(e); }
-      const wait = 1100 - (Date.now() - t0); if(wait > 0) await new Promise(r => setTimeout(r, wait));
+      };
+      await Promise.all([worker(), worker(), worker()]);
+      todo = retry;
+      if(todo.length && pass < 3 && !stop){ st.textContent = `Ponawiam ${todo.length} ${pl(todo.length,'album','albumy','albumów')}, których okładki nie zdążyły się wczytać…`; await sleep(3000); }
     }
-    st.textContent = `Gotowe: znaleziono ${found} ${pl(found,'okładkę','okładki','okładek')} z ${i} sprawdzonych.` + (i - found ? ' Resztę uzupełnij ręcznie (Albumy → filtr „Bez okładki”).' : '');
+    const missing = notFound.length + todo.length;
+    st.innerHTML = `<b>${stop ? 'Zatrzymano' : 'Gotowe'}:</b> znaleziono ${found} ${pl(found,'okładkę','okładki','okładek')}.` +
+      (missing ? ` Bez okładki: ${missing}. Te albumy uzupełnij ręcznie (Albumy → filtr „Bez okładki” → album → Edytuj → wgraj plik lub wklej link).` : '');
     b.disabled = false; sbtn.style.display = 'none';
   };
   document.getElementById('cvs').onclick = () => { stop = true; };
@@ -872,6 +1274,10 @@ async function runImport(rows, btn){
 function viewAccount(){
   const p = me();
   app.innerHTML = `<h1>Twoje konto</h1><p class="sub">Zalogowano jako ${esc(S.user.email)}</p>
+  <div class="card" style="margin-bottom:18px"><h2>Avatar</h2>
+    <div class="btns" style="gap:18px"><span id="avp">${avatar(S.user.id, 96)}</span>
+      <div class="form"><label>Wgraj zdjęcie (zostanie przycięte do kwadratu)<input type="file" id="avf" accept="image/*"></label>
+      ${safeUrl(p.avatar_url) ? '<div><button class="btn-d" id="avdel">Usuń avatar</button></div>' : ''}<div id="avm"></div></div></div></div>
   <div class="cols" style="margin-top:0">
     <div class="card"><h2>Nazwa widoczna dla innych</h2>
       <form class="form" id="nf"><input id="nn" maxlength="40" required value="${esc(p.display_name || '')}">
@@ -888,6 +1294,25 @@ function viewAccount(){
     const pr = S.profiles.get(S.user.id); if(pr) pr.display_name = v;
     m.className = 'ok'; m.textContent = 'Zapisano.'; renderNav(null);
   };
+  const setAvatar = async url => {
+    const m = document.getElementById('avm');
+    const { error } = await sb.from('profiles').update({avatar_url:url}).eq('id', S.user.id);
+    if(error){ m.className = 'err'; m.textContent = /avatar_url/.test(error.message || '') ? 'Najpierw uruchom update.sql w Supabase.' : errMsg(error); return; }
+    const pr = S.profiles.get(S.user.id); if(pr) pr.avatar_url = url;
+    toast(url ? 'Avatar zapisany' : 'Avatar usunięty'); render();
+  };
+  document.getElementById('avf').onchange = async e => {
+    const file = e.target.files[0]; if(!file) return; const m = document.getElementById('avm');
+    m.className = 'muted small'; m.textContent = 'Wgrywanie…';
+    try {
+      const blob = await cropSquare(file, 320);
+      const path = `avatars/${S.user.id}/${Date.now()}.jpg`;
+      const { error } = await sb.storage.from('covers').upload(path, blob, {contentType:'image/jpeg', upsert:false});
+      if(error) throw error;
+      await setAvatar(sb.storage.from('covers').getPublicUrl(path).data.publicUrl);
+    } catch(err){ m.className = 'err'; m.textContent = 'Nie udało się wgrać: ' + errMsg(err); }
+  };
+  const ad = document.getElementById('avdel'); if(ad) ad.onclick = () => setAvatar(null);
   document.getElementById('pf').onsubmit = async e => {
     e.preventDefault(); const a = document.getElementById('p1').value, b = document.getElementById('p2').value, m = document.getElementById('pm');
     if(a !== b){ m.className = 'err'; m.textContent = 'Hasła się różnią.'; return; }
@@ -900,7 +1325,7 @@ function viewAccount(){
 /* ---------- start ---------- */
 async function init(){
   if(!window.supabase || CONFIG.SUPABASE_URL.includes('TWOJ-PROJEKT')){
-    app.innerHTML = `<div class="card login"><h1>Prawie gotowe</h1><p>Uzupełnij <code>SUPABASE_URL</code> i <code>SUPABASE_KEY</code> na początku pliku <code>index.html</code> (sekcja KONFIGURACJA).</p></div>`;
+    app.innerHTML = `<div class="card login"><h1>Prawie gotowe</h1><p>Brakuje pliku <code>config.js</code> obok <code>index.html</code> albo nie ma w nim adresu i klucza Supabase.</p></div>`;
     return;
   }
   sb = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
@@ -913,7 +1338,7 @@ async function init(){
   document.addEventListener('visibilitychange', async () => {
     if(document.visibilityState !== 'visible' || !S.user || Date.now() - S.loadedAt < 120000) return;
     const p = route().page; await safeLoad();
-    if(['ranking','lata','osoby','osoba'].includes(p) && route().page === p) render();
+    if(['start','ranking','lata','osoby','osoba'].includes(p) && route().page === p) render();
   });
 }
 init();
