@@ -2055,9 +2055,15 @@ async function makeShareImage(a){
   const [cover, logo] = await Promise.all([safeCover(a.cover_url), safeCover(new URL('icon-192.png', location.href).href)]);
   const W = 1080, P = 64, C = 400, rowH = tracks.length > 18 ? 46 : 56;
   const c = document.createElement('canvas'), ctx = c.getContext('2d');
+  const X = P + C + 48, RW = W - X - P, bw = 230, bh = 150;
+  ctx.font = `800 54px ${F}`; const tLines = wrapLines(ctx, a.title, RW, 3);
+  ctx.font = `600 34px ${F}`; const aLines = wrapLines(ctx, a.artist, RW, 2);
+  const textBottom = P + 34 + 26 + tLines.length * 60 + aLines.length * 44 + 40;
+  const by = Math.max(P + C - bh, textBottom + 30);      // ocena zawsze pod tekstem
+  const topBottom = Math.max(P + C, by + bh);
   ctx.font = `italic 500 30px ${F}`;
   const cm = mine.comment ? wrapLines(ctx, '„' + mine.comment + '”', W - 2 * P, 3) : [];
-  const headH = P + C + (cm.length ? 36 + cm.length * 42 : 0) + 40;
+  const headH = topBottom + (cm.length ? 36 + cm.length * 42 : 0) + 40;
   const listH = hasTr ? 80 + tracks.length * rowH + 24 : 0;
   const H = headH + listH + 110;
   c.width = W; c.height = H;
@@ -2074,23 +2080,22 @@ async function makeShareImage(a){
     ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.font = `800 180px ${F}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText((a.title || '?').trim().charAt(0).toUpperCase(), P + C / 2, P + C / 2 + 8); }
   ctx.restore();
   // prawa kolumna
-  const X = P + C + 48, RW = W - X - P; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+  ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
   let y = P + 34;
   ctx.fillStyle = '#9097a3'; ctx.font = `600 28px ${F}`; ctx.fillText(wrapLines(ctx, pname(S.user.id) + ' ocenił(a)', RW, 1)[0], X, y); y += 26;
   ctx.fillStyle = '#ffffff'; ctx.font = `800 54px ${F}`;
-  for(const l of wrapLines(ctx, a.title, RW, 3)){ y += 60; ctx.fillText(l, X, y); }
+  for(const l of tLines){ y += 60; ctx.fillText(l, X, y); }
   ctx.fillStyle = '#d5d8de'; ctx.font = `600 34px ${F}`;
-  for(const l of wrapLines(ctx, a.artist, RW, 2)){ y += 44; ctx.fillText(l, X, y); }
+  for(const l of aLines){ y += 44; ctx.fillText(l, X, y); }
   ctx.fillStyle = '#9097a3'; ctx.font = `500 28px ${F}`; y += 40; ctx.fillText([a.year, a.type].filter(Boolean).join(' · '), X, y);
   // ocena
-  const bw = 230, bh = 150, by = P + C - bh;
   ctx.save(); ctx.shadowColor = col + '88'; ctx.shadowBlur = 30; rrect(ctx, X, by, bw, bh, 26); ctx.fillStyle = col; ctx.fill(); ctx.restore();
   ctx.fillStyle = '#ffffff'; ctx.font = `800 108px ${F}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(String(Math.round(mine.score)), X + bw / 2, by + bh / 2 + 6);
   const st = visStats(a.id);
   if(st.n > 1){ ctx.textAlign = 'left'; ctx.fillStyle = '#9097a3'; ctx.font = `600 26px ${F}`; ctx.fillText('średnia grupy', X + bw + 24, by + 58); ctx.fillStyle = SC(Math.round(st.avg)); ctx.font = `800 52px ${F}`; ctx.fillText(String(Math.round(st.avg)), X + bw + 24, by + 116); }
   // komentarz
   ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-  if(cm.length){ ctx.fillStyle = '#c3c7cf'; ctx.font = `italic 500 30px ${F}`; let cy = P + C + 30; for(const l of cm){ cy += 42; ctx.fillText(l, P, cy); } }
+  if(cm.length){ ctx.fillStyle = '#c3c7cf'; ctx.font = `italic 500 30px ${F}`; let cy = topBottom + 30; for(const l of cm){ cy += 42; ctx.fillText(l, P, cy); } }
   // utwory
   if(hasTr){
     let ty = headH + 20;
