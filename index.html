@@ -488,6 +488,34 @@ tr.cl:hover td{background:var(--soft)}
 .vf.muted{color:var(--muted)}
 .viewbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 12px;margin-bottom:10px;border-radius:10px;background:var(--accent-soft);font-size:14px}
 .viewbar .link{margin-left:auto}
+.calc{margin-top:18px}
+.calc summary{cursor:pointer;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;list-style:none}
+.calc summary::-webkit-details-marker{display:none}
+.calc summary::before{content:'▸';color:var(--muted);transition:transform .15s;display:inline-block}
+.calc details[open] summary::before{transform:rotate(90deg)}
+.calc .ch{font-size:17px;font-weight:700}
+.cgrid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:24px;margin-top:16px}
+@media (max-width:820px){.cgrid{grid-template-columns:1fr}}
+.cgrid>*{min-width:0}
+.calc .seg{display:flex;width:100%}.calc .seg button{flex:1}
+@media (max-width:520px){.cres{flex-wrap:wrap}.cbig{width:72px;height:72px;font-size:34px}.cstats{width:100%;grid-template-columns:repeat(3,minmax(0,1fr));gap:3px 10px;font-size:12.5px}}
+.ctxt{margin-top:12px;min-height:90px;font-variant-numeric:tabular-nums}
+.cchips{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+.cchip{font-size:13px;padding:2px 9px;border-radius:12px;border:1px solid var(--line);font-variant-numeric:tabular-nums}
+.cchip.top{border-color:var(--g);color:var(--g);font-weight:700}
+.cchip.bot{border-color:var(--r);color:var(--r);font-weight:700}
+.cchip.skip{color:var(--muted);text-decoration:line-through}
+.cchip.bad{color:var(--r);border-style:dashed}
+.cres{display:flex;gap:16px;align-items:center;margin-top:16px;padding-top:16px;border-top:1px solid var(--line)}
+.cbig{width:90px;height:90px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:42px;font-weight:800;color:#fff;flex:none;letter-spacing:-1px;font-variant-numeric:tabular-nums}
+.cstats{display:grid;grid-template-columns:repeat(3,auto);gap:3px 18px;font-size:13.5px;font-variant-numeric:tabular-nums}
+.cstats span{color:var(--muted)}
+.cset{display:grid;grid-template-columns:1fr 52px;align-items:center;gap:2px 10px;margin-bottom:10px}
+.cset label{grid-column:1/3;font-size:13px;color:var(--muted);font-weight:600}
+.cset output{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+.cset input[type=range]{padding:0;border:none;background:none;accent-color:var(--accent);box-shadow:none}
+.cchart{margin:6px 0 10px}
+.cchart text{fill:var(--muted);font-size:10px}
 .trsum{margin-top:14px;padding:14px;border-radius:12px;background:var(--soft);border:1px solid var(--line)}
 .trsum .sr{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:5px 0;font-size:14px}
 .trsum .sr b{font-size:17px;font-variant-numeric:tabular-nums}
@@ -1158,7 +1186,8 @@ function viewAlbum(arg){
       </form>
     </div>
   </div>
-  <section class="card trk" id="trk"><div class="shead"><h2>Utwory</h2><span id="trkTools"></span></div><div id="trkBody"><div class="muted small">Ładowanie tracklisty…</div></div></section>`;
+  <section class="card trk" id="trk"><div class="shead"><h2>Utwory</h2><span id="trkTools"></span></div><div id="trkBody"><div class="muted small">Ładowanie tracklisty…</div></div></section>
+  <section class="card calc" id="calcCard"><details id="calcD" ${S.calcOpen ? 'open' : ''}><summary><span class="ch">Kalkulator oceny</span><span class="muted small">suwaki, ręczne wpisywanie, skala 0-10 lub 0-100</span></summary><div id="calcBody"></div></details></section>`;
   document.getElementById('rf').onsubmit = async e => {
     e.preventDefault();
     const sc = parseScore(document.getElementById('rs').value), er = document.getElementById('rerr');
@@ -1176,7 +1205,9 @@ function viewAlbum(arg){
     if(await (was ? removeFav(id) : addFav(id))){ b.classList.toggle('on', !was); b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop');
       b.title = was ? 'Dodaj do ulubionych' : 'Usuń z ulubionych'; b.setAttribute('aria-pressed', String(!was)); toast(was ? 'Usunięto z ulubionych' : 'Dodano do ulubionych ♥'); } };
   document.getElementById('lisB').onclick = async () => { if(await (inListen(id) ? removeListen(id) : addListen(id))) render(); };
-  initTracks(a).then(() => markRaters(a));
+  initTracks(a).then(() => { markRaters(a); drawCalc(a); });
+  const cd = document.getElementById('calcD'); cd.ontoggle = () => { S.calcOpen = cd.open; if(cd.open) drawCalc(a); };
+  drawCalc(a);
   document.querySelectorAll('.rlist [data-ru]').forEach(b => b.onclick = async e => { e.stopPropagation(); showUserTracksPop(a, b.dataset.ru, b); });
   const rk = document.getElementById('rkLink'); if(rk) rk.onclick = () => { S.f.kind = kind; S.f.type = 'all'; S.f.min = 1; };
   const rky = document.getElementById('rkYLink'); if(rky) rky.onclick = () => { S.f.kind = kind; S.f.type = 'all'; S.f.min = 1; };
@@ -1649,21 +1680,127 @@ function mapB(x, c = 80){
   for(let i = 0; i < A.length - 1; i++) if(x <= A[i + 1][0]){ const [x0, y0] = A[i], [x1, y1] = A[i + 1]; return y0 + (x - x0) * (y1 - y0) / (x1 - x0); }
   return 100;
 }
+/* ----- kalkulator oceny (suwaki) ----- */
+const CALC_DEF = {bonus:0.3, kara:0.15, frac:25, center:80, stretch:100, mode:'B'};
+function calcCfg(){ if(!S.calc){ let v = {}; try { v = JSON.parse(localStorage.getItem('oceny_calc') || '{}') || {}; } catch(e){} S.calc = Object.assign({}, CALC_DEF, v); } return S.calc; }
+function calcSave(){ try { localStorage.setItem('oceny_calc', JSON.stringify(S.calc)); } catch(e){} }
+function calcAnchors(c, mode){
+  if(mode === 'A') return [[0,0],[60,55],[c-12,c-16],[c-6,c-9],[c-2,c-4],[c,c],[c+2,c+4],[c+4,c+7],[c+6,c+9],[c+8,c+11],[95,97],[100,100]];
+  return [[0,0],[50,40],[60,50],[c-12,c-20],[c-6,c-12],[c-2,c-6],[c,c-3],[c+2,c+1],[c+4,c+6],[c+6,c+9],[c+8,c+11],[95,97],[100,100]];
+}
+function calcMap(x){
+  const C = calcCfg(), A = calcAnchors(C.center, C.mode); let y = 100;
+  for(let i = 0; i < A.length - 1; i++) if(x <= A[i + 1][0]){ const [x0, y0] = A[i], [x1, y1] = A[i + 1]; y = y0 + (x - x0) * (y1 - y0) / (x1 - x0); break; }
+  return x + (C.stretch / 100) * (y - x);
+}
+function calcCompute(vals){
+  const C = calcCfg(), n = vals.length; if(!n) return null;
+  const sorted = [...vals].sort((p, q) => q - p), k = Math.min(n, Math.max(2, Math.ceil(n * C.frac / 100)));
+  const avg = l => l.reduce((s2, v) => s2 + v, 0) / l.length;
+  const Sm = avg(vals), T = avg(sorted.slice(0, k)), D = avg(sorted.slice(n - k));
+  const W = Math.max(0, Math.min(100, Sm + C.bonus * (T - Sm) - C.kara * (Sm - D)));
+  return {n, k, S:Sm, T, D, W, F:calcMap(W), topThr:sorted[k - 1], botThr:sorted[n - k]};
+}
+// ręczne wpisywanie: spacje/enter; przecinek przed jedną cyfrą = ułamek; „x” = pomiń; wszystkie ≤ 10 → skala 0-10 (×10)
+function calcParse(txt){
+  const t = String(txt || '').replace(/(\d),(\d)(?!\d)/g, '$1.$2'), out = [];
+  for(const tok of t.split(/[\s,;]+/)){ if(!tok) continue;
+    const m = tok.match(/^(\d{1,3}(?:\.\d+)?)(x)?$/i);
+    if(!m || parseFloat(m[1]) > 100){ out.push({bad:tok}); continue; }
+    out.push({v:parseFloat(m[1]), orig:m[1], skip:!!m[2]}); }
+  const ok = out.filter(o => o.v != null); out.ten = ok.length > 0 && ok.every(o => o.v <= 10);
+  if(out.ten) ok.forEach(o => o.v = o.v * 10);
+  return out;
+}
+function calcChart(res){
+  const W = 320, H = 200, L = 28, R = 8, T = 8, B = 22, x0 = 50, x1 = 100, y0 = 40, y1 = 100;
+  const sx = x => L + (x - x0) / (x1 - x0) * (W - L - R), sy = y => T + (y1 - y) / (y1 - y0) * (H - T - B);
+  let g = '';
+  for(let v = 50; v <= 100; v += 10) g += `<line x1="${sx(v)}" x2="${sx(v)}" y1="${T}" y2="${H - B}" stroke="var(--line)"/><text x="${sx(v)}" y="${H - 7}" text-anchor="middle">${v}</text>`;
+  for(let v = 40; v <= 100; v += 10) g += `<line x1="${L}" x2="${W - R}" y1="${sy(v)}" y2="${sy(v)}" stroke="var(--line)"/><text x="${L - 4}" y="${sy(v) + 3}" text-anchor="end">${v}</text>`;
+  g += `<line x1="${sx(50)}" y1="${sy(50)}" x2="${sx(100)}" y2="${sy(100)}" stroke="var(--muted)" stroke-dasharray="3 3" opacity=".6"/>`;
+  let pth = ''; for(let x = 50; x <= 100; x += 0.5){ const y = Math.max(y0, calcMap(x)); pth += (pth ? 'L' : 'M') + sx(x).toFixed(1) + ' ' + sy(y).toFixed(1); }
+  g += `<path d="${pth}" fill="none" stroke="var(--accent)" stroke-width="2.5"/>`;
+  if(res && res.W >= 50) g += `<circle cx="${sx(res.W)}" cy="${sy(Math.max(y0, res.F))}" r="5" fill="var(--card)" stroke="var(--text)" stroke-width="2"/>`;
+  g += `<text x="${W - R}" y="${T + 10}" text-anchor="end">wynik → ocena</text>`;
+  return `<svg class="cchart" viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Wykres przelicznika skali">${g}</svg>`;
+}
+function calcData(a){
+  const T = S.tr[a.id];
+  const trVals = T && T.state === 'ok' ? T.tracks.filter(t => !t.skip).map(t => { const r = T.ratings.find(x => x.user_id === S.user.id && x.position === t.position); return r && r.score != null ? r.score : null; }).filter(v => v != null) : [];
+  const src = S.calcSrc || (trVals.length ? 'tracks' : 'manual');
+  S.calcText = S.calcText || {};
+  if(src === 'tracks') return {src, vals:trVals, res:calcCompute(trVals), chips:'',
+    note:trVals.length ? `Twoje oceny ${trVals.length} ${pl(trVals.length,'piosenki','piosenek','piosenek')} z tego albumu (bez pomijanych). Zmieniają się na bieżąco, gdy oceniasz utwory.` : 'Nie oceniłeś jeszcze piosenek z tego albumu - oceń je w sekcji „Utwory” albo przełącz na „Wpisz ręcznie”.'};
+  const parsed = calcParse(S.calcText[a.id] || '');
+  const vals = parsed.filter(o => o.v != null && !o.skip).map(o => o.v), res = calcCompute(vals);
+  const idx = []; parsed.forEach((o, i) => { if(o.v != null && !o.skip) idx.push(i); });
+  const order = [...idx].sort((p, q) => parsed[q].v - parsed[p].v), k = res ? res.k : 0;
+  const top = new Set(order.slice(0, k)), bot = new Set(order.slice(order.length - k));
+  const chips = parsed.length ? `<div class="cchips">${parsed.map((o, i) => o.bad != null ? `<span class="cchip bad" title="Nie rozpoznano">${esc(o.bad)}</span>`
+    : `<span class="cchip ${o.skip ? 'skip' : top.has(i) ? 'top' : bot.has(i) ? 'bot' : ''}">${esc(o.orig.replace('.', ','))}</span>`).join('')}</div>` : '';
+  return {src, vals, res, chips, note:parsed.ten ? 'Wykryto skalę 0-10 - oceny liczone ×10.' : ''};
+}
+function calcResHtml(d){
+  const res = d.res;
+  return `${d.chips}${d.note ? `<p class="note">${d.note}</p>` : ''}
+    <div class="cres">
+      <div class="cbig" style="background:${res ? col(Math.round(res.F)) : 'var(--none)'}">${res ? Math.round(res.F) : '-'}</div>
+      <div class="cstats">${res ? `<span>Średnia</span><span>Najlepsze (${res.k})</span><span>Najsłabsze (${res.k})</span>
+        <b>${num(res.S)}</b><b style="color:var(--g)">${num(res.T)}</b><b style="color:var(--r)">${num(res.D)}</b>
+        <span>Z bonusem</span><span>Po przeliczeniu</span><span>Utworów</span>
+        <b>${Math.round(res.W)}</b><b>${Math.round(res.F)}</b><b>${res.n}</b>` : '<span class="muted">Brak ocen do policzenia.</span>'}</div>
+    </div>
+    ${res ? `<div class="btns" style="margin-top:12px"><button type="button" class="btn-p" data-put="${Math.round(res.F)}">Wstaw ${Math.round(res.F)} do oceny albumu</button><button type="button" data-put="${Math.round(res.W)}">Wstaw ${Math.round(res.W)} (bez przeliczenia)</button></div>` : ''}`;
+}
+// odśwież tylko wynik, wykres i podpowiedzi - suwaki i pole tekstowe zostają (nie przerywa przeciągania ani pisania)
+function refreshCalc(a){
+  const w = document.getElementById('cresW'); if(!w) return;
+  const d = calcData(a); w.innerHTML = calcResHtml(d);
+  const ch = document.getElementById('cchW'); if(ch) ch.innerHTML = calcChart(d.res);
+  const s2 = document.getElementById('trkSum'); if(s2) s2.innerHTML = trackSumHtml(a);
+  bindPut();
+}
+function drawCalc(a){
+  const box = document.getElementById('calcBody'), det = document.getElementById('calcD');
+  if(!box || !det || !det.open) return;
+  const C = calcCfg(), d = calcData(a);
+  const SL = {bonus:{l:'Bonus za najlepsze utwory', min:0, max:.6, step:.05, f:x => num(x)}, kara:{l:'Kara za najsłabsze utwory', min:0, max:.6, step:.05, f:x => num(x)},
+    frac:{l:'Ile utworów to „najlepsze / najsłabsze” (min. 2)', min:10, max:50, step:5, f:x => x + '%'}, center:{l:'Środek skali', min:73, max:85, step:.5, f:x => num(x)},
+    stretch:{l:'Siła rozciągania', min:0, max:100, step:5, f:x => x + '%'}};
+  box.innerHTML = `<div class="cgrid">
+    <div>
+      ${segHtml('csrc', d.src, [['tracks','Moje oceny piosenek'],['manual','Wpisz ręcznie']])}
+      ${d.src === 'manual' ? `<textarea id="ctxt" class="ctxt" placeholder="np. 8,5 7,5 9 8 4,5x 8 albo 85 75 90 80 45x 80">${esc(S.calcText[a.id] || '')}</textarea>
+        <p class="note" style="margin-top:6px">Oddzielaj spacją lub enterem. Skala <b>0-10</b> (np. <code>8,5</code>) albo <b>0-100</b> - jeśli wszystkie oceny są ≤ 10, liczą się ×10. Dopisz <code>x</code>, żeby pominąć utwór (intro, skit), np. <code>45x</code>.</p>` : ''}
+      <div id="cresW">${calcResHtml(d)}</div>
+    </div>
+    <div>
+      ${Object.entries(SL).map(([k, v]) => `<div class="cset"><label for="cs-${k}">${v.l}</label><input type="range" id="cs-${k}" min="${v.min}" max="${v.max}" step="${v.step}" value="${C[k]}"><output id="co-${k}">${v.f(C[k])}</output></div>`).join('')}
+      <div class="cset"><label for="cs-mode">Przelicznik</label><select id="cs-mode" style="grid-column:1/3"><option value="B" ${C.mode === 'B' ? 'selected' : ''}>B: obniżony środek (mniej ocen 80+)</option><option value="A" ${C.mode === 'A' ? 'selected' : ''}>A: symetryczny</option></select></div>
+      <div id="cchW">${calcChart(d.res)}</div>
+      <div class="btns"><button type="button" id="creset">Przywróć domyślne</button><span class="note" style="margin:0">Ustawienia zapamiętują się na tym urządzeniu.</span></div>
+    </div></div>`;
+  bindSeg('csrc', v => { S.calcSrc = v; drawCalc(a); if(v === 'manual'){ const t = document.getElementById('ctxt'); if(t) t.focus(); } });
+  const tx = document.getElementById('ctxt'); if(tx) tx.oninput = () => { S.calcText[a.id] = tx.value; refreshCalc(a); };
+  for(const k of Object.keys(SL)){ const el = document.getElementById('cs-' + k);
+    el.oninput = () => { C[k] = parseFloat(el.value); document.getElementById('co-' + k).textContent = SL[k].f(C[k]); calcSave(); refreshCalc(a); }; }
+  document.getElementById('cs-mode').onchange = e => { C.mode = e.target.value; calcSave(); refreshCalc(a); };
+  document.getElementById('creset').onclick = () => { S.calc = Object.assign({}, CALC_DEF); calcSave(); drawCalc(a); refreshCalc(a); };
+  bindPut();
+}
 function trackSumHtml(a){
   const T = S.tr[a.id], {by} = trackStats(a);
   const vals = T.tracks.filter(t => !t.skip).map(t => by.get(t.position).mine).filter(v => v != null);
   const total = T.tracks.filter(t => !t.skip).length;
   if(!vals.length) return `<div class="trsum muted small">Oceń piosenki, a strona podpowie ocenę albumu.</div>`;
-  const sorted = [...vals].sort((p, q) => q - p), n = vals.length, k = Math.min(n, Math.max(2, Math.ceil(n * .25)));
-  const avg = l => l.reduce((s2, v) => s2 + v, 0) / l.length;
-  const Sm = avg(vals), Tp = avg(sorted.slice(0, k)), D = avg(sorted.slice(n - k));
-  const W = Math.max(0, Math.min(100, Sm + .3 * (Tp - Sm) - .15 * (Sm - D))), F = mapB(W);
+  const C = calcCfg(), res = calcCompute(vals), n = vals.length, Sm = res.S, W = res.W, F = res.F;
   const r1 = v => Math.round(v);
   const row = (label, v, hint) => `<div class="sr"><span>${label}${hint ? `<br><small class="muted">${hint}</small>` : ''}</span><span class="btns"><b>${num(r1(v))}</b><button type="button" data-put="${r1(v)}">Wstaw</button></span></div>`;
   return `<div class="trsum"><div class="small muted" style="margin-bottom:4px">Oceniłeś ${n}/${total} ${pl(total,'utwór','utwory','utworów')} (bez pomijanych). Podpowiedź oceny albumu:</div>
     ${row('Średnia z piosenek', Sm)}
-    ${row('Z bonusem za najlepsze utwory', W, 'średnia + 30% przewagi najlepszych − 15% straty najsłabszych')}
-    ${row('Po przeliczeniu skali', F, 'rozciągnięcie wokół 80')}</div>`;
+    ${row('Z bonusem za najlepsze utwory', W, `średnia + ${Math.round(C.bonus * 100)}% przewagi najlepszych − ${Math.round(C.kara * 100)}% straty najsłabszych`)}
+    ${row('Po przeliczeniu skali', F, `rozciągnięcie wokół ${num(C.center)}${C.stretch < 100 ? ` (siła ${C.stretch}%)` : ''}`)}</div>`;
 }
 const tinCls = v => v == null ? '' : v >= 70 ? 'sg' : v >= 50 ? 'sy' : 'sr';
 const gaHtml = (o, hid, pos, view) => {
@@ -1764,6 +1901,7 @@ function refreshTrackRow(a, pos){
   });
   bindGab(a);
   document.getElementById('trkSum').innerHTML = trackSumHtml(a); bindPut();
+  if(S.calcSrc !== 'manual'){ if(document.getElementById('cresW')) refreshCalc(a); else drawCalc(a); }
 }
 async function trackData(a){ const T = S.tr[a.id]; return T && T.state === 'ok' && T.tracks ? T : loadTracks(a.id, true); }
 async function saveTrackScore(a, pos, inp){
