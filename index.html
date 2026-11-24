@@ -480,6 +480,8 @@ tr.cl:hover td{background:var(--soft)}
 .tpop a:hover{background:var(--soft)}
 .tpop.wide{width:min(340px,calc(100vw - 16px));max-width:none}
 .tpop .tph a.link{display:inline!important;grid-template-columns:none}
+.fi .tpb{cursor:pointer;line-height:0;border-radius:7px}
+.fi .tpb:hover .score{filter:brightness(1.1);box-shadow:0 0 0 2px var(--card,#fff)}
 .tile .cw .tpb{position:absolute;right:6px;bottom:6px;line-height:0;cursor:pointer;border-radius:7px}
 .tile .cw .tpb .score{position:static;box-shadow:0 1px 4px rgba(0,0,0,.3)}
 .tile .cw .tpb:hover .score{filter:brightness(1.1);box-shadow:0 0 0 2px #fff,0 1px 4px rgba(0,0,0,.3)}
@@ -1536,7 +1538,7 @@ function histHtml(R, sel, who){
 function viewPerson(id){
   const p = S.profiles.get(id);
   if(!p){ app.innerHTML = '<div class="card">Nie ma takiej osoby.</div>'; return; }
-  if(!S.pv || S.pv.id !== id) S.pv = {id, year:new Date().getFullYear(), all:false, bucket:null};
+  if(!S.pv || S.pv.id !== id) S.pv = {id, year:new Date().getFullYear(), all:false, bucket:null, type:(S.pv && S.pv.type) || 'all'};
   const V = S.pv, name = p.display_name || p.username, isMe = id === S.user.id;
   const allR = (S.byUser.get(id) || []).filter(r => S.albums.has(r.album_id) && !isHidden(r));
   const cp = !isMe ? compat(S.user.id, id) : null;
@@ -1545,7 +1547,8 @@ function viewPerson(id){
   const ys = new Set(kindR.map(r => S.albums.get(r.album_id).year).filter(Boolean)).add(new Date().getFullYear());
   if(V.year !== 'all') ys.add(V.year);
   const years = [...ys].sort((a, b) => b - a);
-  const list = kindR.filter(r => V.year === 'all' || S.albums.get(r.album_id).year === V.year).sort((a, b) => b.score - a.score);
+  const tOk = r => S.f.kind === 'singles' || V.type === 'all' || typeGroup(S.albums.get(r.album_id).type) === V.type;
+  const list = kindR.filter(r => (V.year === 'all' || S.albums.get(r.album_id).year === V.year) && tOk(r)).sort((a, b) => b.score - a.score || S.albums.get(a.album_id).title.localeCompare(S.albums.get(b.album_id).title, 'pl'));
   const shown = V.all ? list : list.slice(0, 15);
   const recent = [...allR].sort((a, b) => tsOf(b) - tsOf(a)).slice(0, 24);
   const favs = favsOf(id);
@@ -1568,12 +1571,12 @@ function viewPerson(id){
   <div class="prow">
     <section class="card">
       <div class="shead"><h2>Ranking ${V.year === 'all' ? 'wszech czasów' : V.year}</h2>
-        <div class="btns">${segHtml('pkind', S.f.kind)}<select id="py" style="width:auto"><option value="all" ${V.year === 'all' ? 'selected' : ''}>Wszystkie lata</option>${years.map(y => `<option ${y === V.year ? 'selected' : ''}>${y}</option>`).join('')}</select></div></div>
+        <div class="btns">${list.length ? `<button type="button" class="ico-b" id="pShare" title="Udostępnij top ${Math.min(10, list.length)} jako grafikę" aria-label="Udostępnij top 10 jako grafikę"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg></button>` : ''}${segHtml('pkind', S.f.kind)}${S.f.kind === 'singles' ? '' : `<select id="ptype" style="width:auto" aria-label="Typ wydania">${[['all','Wszystkie'],['LP','LP'],['EP','EP'],['Inne','Inne']].map(([v, l]) => `<option value="${v}" ${V.type === v ? 'selected' : ''}>${l}</option>`).join('')}</select>`}<select id="py" style="width:auto"><option value="all" ${V.year === 'all' ? 'selected' : ''}>Wszystkie lata</option>${years.map(y => `<option ${y === V.year ? 'selected' : ''}>${y}</option>`).join('')}</select></div></div>
       ${list.length ? shown.map((r, i) => { const a = S.albums.get(r.album_id), st = stats(a.id);
         return `<a class="mrow ${i < 3 ? 'top' + (i + 1) : ''}" href="#/album/${a.id}"><span class="rk">${i + 1}</span>${coverHtml(a, 'c48')}
           <span class="meta"><b>${esc(a.title)}</b><span>${esc(a.artist)}</span><small>${a.year ?? '—'} · ${esc(a.type || '')}</small></span>
           <span class="r2"><span class="grp">grupa ${avgN(st.avg)}<br>${ocen(st.n)}</span>${badge(r.score, 'big')}</span></a>`; }).join('')
-        : `<div class="empty">${esc(name)} nie ma jeszcze ocenionych ${what}${V.year === 'all' ? '' : ' z ' + V.year + ' roku'}.</div>`}
+        : `<div class="empty">${esc(name)} nie ma jeszcze ocenionych ${S.f.kind !== 'singles' && V.type !== 'all' ? (V.type === 'Inne' ? 'innych wydań' : V.type) : what}${V.year === 'all' ? '' : ' z ' + V.year + ' roku'}.</div>`}
       ${list.length > 15 ? `<div style="text-align:center;margin-top:10px"><button id="pall">${V.all ? 'Pokaż mniej' : `Pokaż wszystkie (${list.length})`}</button></div>` : ''}
     </section>
     <section class="card" id="phist"><h2>Rozkład ocen</h2>${histHtml(kindR, V.bucket, id)}</section>
@@ -1584,6 +1587,10 @@ function viewPerson(id){
       return `<a class="tile" href="#/album/${a.id}">${coverHtml(a, 'cfull')}<div><div class="t">${esc(a.title)}</div><div class="a">${esc(a.artist)}</div></div></a>`; }).join('')}</div>`
       : '<div class="empty">Nie masz jeszcze ulubionych - dodasz je na stronie Start albo serduszkiem na stronie albumu.</div>'}</section>` : ''}`;
   document.getElementById('py').onchange = e => { V.year = e.target.value === 'all' ? 'all' : +e.target.value; V.all = false; render(); };
+  const pt = document.getElementById('ptype'); if(pt) pt.onchange = e => { V.type = e.target.value; V.all = false; render(); };
+  const ps = document.getElementById('pShare'); if(ps) ps.onclick = () => { const o = {uid:id, kind:S.f.kind, type:V.type}, yl = V.year === 'all' ? 'wszech czasów' : V.year, tl = S.f.kind === 'singles' ? ' (single)' : V.type !== 'all' ? ` (${V.type})` : '';
+    openShareImg(() => makeTopImage(V.year, o), `Top 10 ${yl}${tl} - ${name}`, `Top 10 ${yl}${tl}`, `Top 10 · ${yl}${tl}`,
+      r => r.missing ? `Przy ${r.missing} ${pl(r.missing,'albumie','albumach','albumach')} serwer nie pozwolił skopiować okładki - jest litera.` : ''); };
   const pa = document.getElementById('pall'); if(pa) pa.onclick = () => { V.all = !V.all; render(); };
   bindSeg('pkind', v => { S.f.kind = v; V.bucket = null; render(); });
   app.querySelectorAll('[data-lrm]').forEach(b => b.onclick = async e => { e.preventDefault(); if(await removeListen(+b.dataset.lrm)) render(); });
@@ -1800,7 +1807,7 @@ function trackSumHtml(a){
   if(!vals.length) return `<div class="trsum muted small">Oceń piosenki, a strona podpowie ocenę albumu.</div>`;
   const C = calcCfg(), res = calcCompute(vals), n = vals.length, Sm = res.S, W = res.W, F = res.F;
   const r1 = v => Math.round(v);
-  const row = (label, v, hint) => `<div class="sr"><span>${label}${hint ? `<br><small class="muted">${hint}</small>` : ''}</span><span class="btns"><b>${num(r1(v))}</b><button type="button" data-put="${r1(v)}">Wstaw</button></span></div>`;
+  const row = (label, v, hint) => `<div class="sr"><span>${label}${hint ? `<br><small class="muted">${hint}</small>` : ''}</span><span class="btns"><b>${(Math.round(v * 10) / 10).toFixed(1).replace('.', ',').replace(',0', '')}</b><button type="button" data-put="${r1(v)}">Wstaw</button></span></div>`;
   return `<div class="trsum"><div class="small muted" style="margin-bottom:4px">Oceniłeś ${n}/${total} ${pl(total,'utwór','utwory','utworów')} (bez pomijanych). Podpowiedź oceny albumu:</div>
     ${row('Średnia z piosenek', Sm)}
     ${row('Z bonusem za najlepsze utwory', W, `średnia + ${Math.round(C.bonus * 100)}% przewagi najlepszych − ${Math.round(C.kara * 100)}% straty najsłabszych`)}
@@ -2224,7 +2231,7 @@ function viewArtist(name){
 function feedItem(r){
   const a = S.albums.get(r.album_id), hid = isHidden(r);
   return `<div class="fi ${tsOf(r) > S.prevSeen ? 'new' : ''}"><a href="#/osoba/${r.user_id}">${avatar(r.user_id, 34)}</a><div>
-    <div class="who"><a href="#/osoba/${r.user_id}"><b>${esc(pname(r.user_id))}</b></a>${hid ? lockBadge() : badge(r.score, 'sm')}</div>
+    <div class="who"><a href="#/osoba/${r.user_id}"><b>${esc(pname(r.user_id))}</b></a>${hid ? lockBadge() : tpBadge(a.id, r.user_id, r.score)}</div>
     <a class="alb" href="#/album/${a.id}">${coverHtml(a, 'c40')}<div><b>${esc(a.title)}</b><span>${esc(a.artist)}</span></div></a>
     ${r.comment && !hid ? `<div class="cm">„${esc(r.comment)}”</div>` : ''}
     <time>${timeAgo(r.updated_at || r.created_at)}</time></div></div>`;
@@ -2350,10 +2357,11 @@ async function makeShareImage(a){
   ctx.textAlign = 'right'; ctx.fillStyle = '#7c828d'; ctx.font = `500 26px ${F}`; ctx.fillText(new Date(mine.updated_at || mine.created_at || Date.now()).toLocaleDateString('pl-PL', {day:'numeric', month:'long', year:'numeric'}), W - P, fy + 12);
   return new Promise(res => c.toBlob(b => res({blob:b, hasTr, cover:!!cover}), 'image/png'));
 }
-async function makeTopImage(year){
+async function makeTopImage(year, o = {}){
+  const uid = o.uid || S.user.id, kind = o.kind || 'albums', type = o.type || 'all';
   const F = '"Bricolage Grotesque", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
   try { await Promise.all([document.fonts.load(`800 60px ${F}`), document.fonts.load(`600 30px ${F}`)]); } catch(e){}
-  const list = (S.byUser.get(S.user.id) || []).filter(r => { const a = S.albums.get(r.album_id); return a && !isSingle(a) && a.year === year; })
+  const list = (S.byUser.get(uid) || []).filter(r => { const a = S.albums.get(r.album_id); return a && !isHidden(r) && kindOk(a, kind) && (kind === 'singles' || type === 'all' || typeGroup(a.type) === type) && (year === 'all' || a.year === year); })
     .sort((p, q) => q.score - p.score || S.albums.get(p.album_id).title.localeCompare(S.albums.get(q.album_id).title, 'pl')).slice(0, 10);
   const covers = await Promise.all(list.map(r => safeCover(S.albums.get(r.album_id).cover_url)));
   const logo = await safeCover(new URL('icon-192.png', location.href).href);
@@ -2362,9 +2370,10 @@ async function makeTopImage(year){
   ctx.fillStyle = '#101215'; ctx.fillRect(0, 0, W, H);
   const g = ctx.createRadialGradient(W * .85, 0, 0, W * .85, 0, W); g.addColorStop(0, '#3fbf6044'); g.addColorStop(1, '#10121500'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
   ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-  ctx.fillStyle = '#9097a3'; ctx.font = `600 30px ${F}`; ctx.fillText(pname(S.user.id), P, P + 30);
-  ctx.fillStyle = '#ffffff'; ctx.font = `800 84px ${F}`; ctx.fillText(`Top ${list.length} · ${year}`, P, P + 128);
-  ctx.fillStyle = '#9097a3'; ctx.font = `500 28px ${F}`; ctx.fillText('najlepsze albumy roku', P, P + 172);
+  ctx.fillStyle = '#9097a3'; ctx.font = `600 30px ${F}`; ctx.fillText(pname(uid), P, P + 30);
+  ctx.fillStyle = '#ffffff'; ctx.font = `800 84px ${F}`; ctx.fillText(year === 'all' ? `Top ${list.length}` : `Top ${list.length} · ${year}`, P, P + 128);
+  const what = kind === 'singles' ? 'single' : {LP:'albumy (LP)', EP:'EP-ki', Inne:'wydania (mixtape, live, kompilacje)'}[type] || 'albumy';
+  ctx.fillStyle = '#9097a3'; ctx.font = `500 28px ${F}`; ctx.fillText(`najlepsze ${what} ${year === 'all' ? 'wszech czasów' : 'roku'}`, P, P + 172);
   const medal = ['#f5c542', '#c7ccd4', '#d08a4c'];
   list.forEach((r, i) => {
     const a = S.albums.get(r.album_id), y = headH + i * rowH, cy = y + rowH / 2, sc = Math.round(r.score);
