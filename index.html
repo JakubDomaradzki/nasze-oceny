@@ -423,6 +423,13 @@ tr.cl:hover td{background:var(--soft)}
 .p1 .who{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;margin-bottom:6px}
 .note{font-size:12.5px;color:var(--muted);margin-top:10px}
 
+/* grafika do udostępnienia */
+.modal-bg{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:16px;-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+.modal{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;width:min(460px,100%);max-height:calc(100vh - 32px);display:flex;flex-direction:column;gap:14px}
+.modal .pv{overflow:auto;border-radius:12px;background:var(--soft);min-height:120px;display:flex;align-items:flex-start;justify-content:center}
+.modal .pv img{width:100%;display:block;border-radius:12px}
+.modal .btns{justify-content:center}
+
 /* profil */
 .phead{display:flex;align-items:center;gap:18px;margin-bottom:22px;flex-wrap:wrap}
 .phead h1{margin:0}
@@ -455,7 +462,8 @@ tr.cl:hover td{background:var(--soft)}
 .star{border:none;background:none;padding:2px;font-size:20px;line-height:1;color:var(--line);border-radius:6px}
 .star.on{color:#f5b301}
 .star:hover{color:#f5b301;border:none}
-.tin{text-align:center;font-weight:700;font-size:15px;padding:6px 4px;font-variant-numeric:tabular-nums}
+.tin{text-align:center;font-weight:800;font-size:16px;padding:6px 4px;font-variant-numeric:tabular-nums;background:#fff!important;border-color:#cfd3da;color:#16181d}
+.tin::placeholder{color:#9aa0aa}
 .tin.saved{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
 .trsum{margin-top:14px;padding:14px;border-radius:12px;background:var(--soft);border:1px solid var(--line)}
 .trsum .sr{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:5px 0;font-size:14px}
@@ -1119,6 +1127,7 @@ function viewAlbum(arg){
         <label>Ocena (0-100, zaokrąglana do pełnej liczby)<input class="scorein" id="rs" inputmode="decimal" value="${mine ? num(mine.score) : ''}" placeholder="np. 84"></label>
         <label>Komentarz (opcjonalnie)<textarea id="rc" maxlength="2000" placeholder="Ulubiony utwór, krótka opinia…">${esc(mine ? mine.comment || '' : '')}</textarea></label>
         <div class="btns"><button class="btn-p" id="rsave">${mine ? 'Zapisz zmiany' : 'Zapisz ocenę'}</button>${mine ? '<button type="button" class="btn-d" id="rdel">Usuń moją ocenę</button>' : ''}</div>
+        ${mine ? '<button type="button" id="shareB" style="width:100%;margin-top:4px">📤 Udostępnij grafikę z oceną</button>' : ''}
         <div class="err" id="rerr"></div>
       </form>
     </div>
@@ -1144,6 +1153,7 @@ function viewAlbum(arg){
   initTracks(a);
   const rk = document.getElementById('rkLink'); if(rk) rk.onclick = () => { S.f.kind = kind; S.f.type = 'all'; S.f.min = 1; };
   const rky = document.getElementById('rkYLink'); if(rky) rky.onclick = () => { S.f.kind = kind; S.f.type = 'all'; S.f.min = 1; };
+  const shb = document.getElementById('shareB'); if(shb) shb.onclick = () => openShare(a);
   const rd = document.getElementById('rdel');
   if(rd) armButton(rd, 'Na pewno usunąć?', async () => {
     const { error } = await sb.from('ratings').delete().eq('album_id', id).eq('user_id', S.user.id);
@@ -1628,6 +1638,7 @@ function trackSumHtml(a){
     ${row('Z bonusem za najlepsze utwory', W, 'średnia + 30% przewagi najlepszych − 15% straty najsłabszych')}
     ${row('Po przeliczeniu skali', F, 'rozciągnięcie wokół 80')}</div>`;
 }
+const tinCol = v => v == null ? '#16181d' : v >= 70 ? '#2b8f3a' : v >= 50 ? '#b88a00' : '#cf4426';
 const gaHtml = (o, hid) => hid ? (o.others ? lockBadge() : '<small>-</small>') : o.n ? badge(o.sum / o.n, 'sm') + `<small>${o.n}${o.fav ? ' · ★' + o.fav : ''}</small>` : '<small>-</small>';
 function drawTracks(a){
   const T = S.tr[a.id], body = document.getElementById('trkBody'), tools = document.getElementById('trkTools');
@@ -1649,7 +1660,7 @@ function drawTracks(a){
         <span class="tt"><b title="${esc(t.title)}">${esc(t.title)}</b><small>${fmtDur(t.duration)}${t.skip ? (t.duration ? ' · ' : '') + 'pomijany w ocenie albumu' : ''}</small></span>
         <span class="ga">${gaHtml(o, hid)}</span>
         <button type="button" class="star ${o.myFav ? 'on' : ''}" data-fav="${t.position}" title="${o.myFav ? 'Twój ulubiony utwór' : 'Oznacz jako ulubiony'}" aria-pressed="${o.myFav}">★</button>
-        <input class="tin" data-pos="${t.position}" inputmode="decimal" enterkeyhint="next" value="${o.mine == null ? '' : num(o.mine)}" placeholder="-" aria-label="Twoja ocena: ${esc(t.title)}">
+        <input class="tin" data-pos="${t.position}" inputmode="decimal" enterkeyhint="next" style="color:${tinCol(o.mine)}" value="${o.mine == null ? '' : num(o.mine)}" placeholder="-" aria-label="Twoja ocena: ${esc(t.title)}">
       </div>`; }).join('')}
     <div id="trkSum">${trackSumHtml(a)}</div>
     ${T.src ? `<p class="note">Tracklista pobrana z: ${T.src}. Błąd? Kliknij „Edytuj tracklistę”.</p>` : ''}`;
@@ -1658,6 +1669,7 @@ function drawTracks(a){
   inputs.forEach((inp, i) => {
     inp.onkeydown = e => { if(e.key === 'Enter'){ e.preventDefault(); (inputs[i + 1] || inp).focus(); if(!inputs[i + 1]) inp.blur(); } };
     inp.onchange = () => saveTrackScore(a, +inp.dataset.pos, inp);
+    inp.oninput = () => { inp.style.color = tinCol(parseScore(inp.value)); };
   });
   body.querySelectorAll('[data-fav]').forEach(b => b.onclick = () => toggleFavTrack(a, +b.dataset.fav));
   bindPut();
@@ -2006,6 +2018,128 @@ function viewActivity(){
   app.querySelectorAll('[data-w]').forEach(el => el.onclick = e => { e.preventDefault(); A.who = el.dataset.w; A.limit = 100; render(); });
   const m = document.getElementById('actMore'); if(m) m.onclick = () => { A.limit += 200; const y = window.scrollY; render(); window.scrollTo(0, y); };
   markSeen();
+}
+/* ----- grafika z oceną do udostępnienia ----- */
+const SC = v => v == null ? '#4a4f58' : v >= 70 ? '#3fa64d' : v >= 50 ? '#dcae1d' : '#df5235';
+function loadImg(url, cors){
+  return new Promise(res => {
+    if(!url) return res(null);
+    const i = new Image(); if(cors) i.crossOrigin = 'anonymous';
+    const t = setTimeout(() => res(null), 9000);
+    i.onload = () => { clearTimeout(t); res(i); }; i.onerror = () => { clearTimeout(t); res(null); };
+    i.src = cors && /^https:/.test(url) && !url.startsWith(location.origin) ? url + (url.includes('?') ? '&' : '?') + 'x=1' : url;
+  });
+}
+// okładka z innej domeny może zablokować zapis obrazka - sprawdź na osobnym płótnie
+async function safeCover(url){
+  const img = await loadImg(/^https?:/.test(url || '') ? url : '', true); if(!img) return null;
+  try { const c = document.createElement('canvas'); c.width = c.height = 4; const x = c.getContext('2d'); x.drawImage(img, 0, 0, 4, 4); x.getImageData(0, 0, 1, 1); return img; }
+  catch(e){ return null; }
+}
+function rrect(ctx, x, y, w, h, r){ ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+function wrapLines(ctx, text, maxW, maxLines){
+  const words = String(text || '').split(/\s+/).filter(Boolean), lines = []; let cur = '';
+  for(const w of words){ const t = cur ? cur + ' ' + w : w; if(ctx.measureText(t).width <= maxW || !cur) cur = t; else { lines.push(cur); cur = w; } }
+  if(cur) lines.push(cur);
+  const out = lines.slice(0, maxLines);
+  if(lines.length > maxLines){ let l = out[maxLines - 1] + '…'; while(ctx.measureText(l).width > maxW && l.length > 2) l = l.slice(0, -2) + '…'; out[maxLines - 1] = l; }
+  return out.map(l => { if(ctx.measureText(l).width <= maxW) return l; let x = l; while(ctx.measureText(x + '…').width > maxW && x.length > 1) x = x.slice(0, -1); return x + '…'; });
+}
+async function makeShareImage(a){
+  const F = '"Bricolage Grotesque", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
+  try { await Promise.all([document.fonts.load(`800 60px ${F}`), document.fonts.load(`500 30px ${F}`)]); } catch(e){}
+  const mine = myRating(a.id), T = S.tr[a.id] && S.tr[a.id].state === 'ok' ? S.tr[a.id] : await loadTracks(a.id);
+  const tracks = T && T.state === 'ok' ? T.tracks : [];
+  const myTr = new Map((T && T.ratings || []).filter(r => r.user_id === S.user.id).map(r => [r.position, r]));
+  const hasTr = tracks.some(t => { const r = myTr.get(t.position); return r && r.score != null; });
+  const [cover, logo] = await Promise.all([safeCover(a.cover_url), safeCover(new URL('icon-192.png', location.href).href)]);
+  const W = 1080, P = 64, C = 400, rowH = tracks.length > 18 ? 46 : 56;
+  const c = document.createElement('canvas'), ctx = c.getContext('2d');
+  ctx.font = `italic 500 30px ${F}`;
+  const cm = mine.comment ? wrapLines(ctx, '„' + mine.comment + '”', W - 2 * P, 3) : [];
+  const headH = P + C + (cm.length ? 36 + cm.length * 42 : 0) + 40;
+  const listH = hasTr ? 80 + tracks.length * rowH + 24 : 0;
+  const H = headH + listH + 110;
+  c.width = W; c.height = H;
+  const col = SC(Math.round(mine.score));
+  // tło
+  ctx.fillStyle = '#101215'; ctx.fillRect(0, 0, W, H);
+  const g = ctx.createRadialGradient(W * .15, 0, 0, W * .15, 0, W * .95); g.addColorStop(0, col + '55'); g.addColorStop(1, '#10121500');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  // okładka
+  ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.55)'; ctx.shadowBlur = 40; ctx.shadowOffsetY = 16; rrect(ctx, P, P, C, C, 22); ctx.fillStyle = '#2a2e35'; ctx.fill(); ctx.restore();
+  ctx.save(); rrect(ctx, P, P, C, C, 22); ctx.clip();
+  if(cover) ctx.drawImage(cover, P, P, C, C);
+  else { const gg = ctx.createLinearGradient(P, P, P + C, P + C); gg.addColorStop(0, '#8f96a3'); gg.addColorStop(1, '#4d535e'); ctx.fillStyle = gg; ctx.fillRect(P, P, C, C);
+    ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.font = `800 180px ${F}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText((a.title || '?').trim().charAt(0).toUpperCase(), P + C / 2, P + C / 2 + 8); }
+  ctx.restore();
+  // prawa kolumna
+  const X = P + C + 48, RW = W - X - P; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+  let y = P + 34;
+  ctx.fillStyle = '#9097a3'; ctx.font = `600 28px ${F}`; ctx.fillText(wrapLines(ctx, pname(S.user.id) + ' ocenił(a)', RW, 1)[0], X, y); y += 26;
+  ctx.fillStyle = '#ffffff'; ctx.font = `800 54px ${F}`;
+  for(const l of wrapLines(ctx, a.title, RW, 3)){ y += 60; ctx.fillText(l, X, y); }
+  ctx.fillStyle = '#d5d8de'; ctx.font = `600 34px ${F}`;
+  for(const l of wrapLines(ctx, a.artist, RW, 2)){ y += 44; ctx.fillText(l, X, y); }
+  ctx.fillStyle = '#9097a3'; ctx.font = `500 28px ${F}`; y += 40; ctx.fillText([a.year, a.type].filter(Boolean).join(' · '), X, y);
+  // ocena
+  const bw = 230, bh = 150, by = P + C - bh;
+  ctx.save(); ctx.shadowColor = col + '88'; ctx.shadowBlur = 30; rrect(ctx, X, by, bw, bh, 26); ctx.fillStyle = col; ctx.fill(); ctx.restore();
+  ctx.fillStyle = '#ffffff'; ctx.font = `800 108px ${F}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(String(Math.round(mine.score)), X + bw / 2, by + bh / 2 + 6);
+  const st = visStats(a.id);
+  if(st.n > 1){ ctx.textAlign = 'left'; ctx.fillStyle = '#9097a3'; ctx.font = `600 26px ${F}`; ctx.fillText('średnia grupy', X + bw + 24, by + 58); ctx.fillStyle = SC(Math.round(st.avg)); ctx.font = `800 52px ${F}`; ctx.fillText(String(Math.round(st.avg)), X + bw + 24, by + 116); }
+  // komentarz
+  ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+  if(cm.length){ ctx.fillStyle = '#c3c7cf'; ctx.font = `italic 500 30px ${F}`; let cy = P + C + 30; for(const l of cm){ cy += 42; ctx.fillText(l, P, cy); } }
+  // utwory
+  if(hasTr){
+    let ty = headH + 20;
+    ctx.fillStyle = '#ffffff'; ctx.font = `800 36px ${F}`; ctx.fillText('Utwory', P, ty + 14);
+    ty += 50;
+    const fs = rowH > 50 ? 30 : 26;
+    tracks.forEach((t, i) => {
+      const r = myTr.get(t.position), sc = r && r.score != null ? Math.round(r.score) : null, rowY = ty + i * rowH;
+      if(i){ ctx.fillStyle = 'rgba(255,255,255,.07)'; ctx.fillRect(P, rowY, W - 2 * P, 2); }
+      const cy = rowY + rowH / 2 + fs * .36;
+      ctx.textAlign = 'right'; ctx.fillStyle = '#6b717c'; ctx.font = `700 ${fs - 2}px ${F}`; ctx.fillText(String(t.position), P + 40, cy);
+      ctx.textAlign = 'left'; ctx.fillStyle = t.skip ? '#7c828d' : '#eceef2'; ctx.font = `${t.skip ? 500 : 600} ${fs}px ${F}`;
+      const fav = r && r.fav, tw = W - 2 * P - 60 - 150;
+      ctx.fillText(wrapLines(ctx, t.title, tw - (fav ? 44 : 0), 1)[0] || '', P + 60, cy);
+      if(fav){ const w = Math.min(ctx.measureText(wrapLines(ctx, t.title, tw - 44, 1)[0] || '').width, tw - 44); ctx.fillStyle = '#f5b301'; ctx.font = `800 ${fs}px ${F}`; ctx.fillText('★', P + 60 + w + 12, cy); }
+      ctx.textAlign = 'right'; ctx.font = `800 ${fs + 4}px ${F}`; ctx.fillStyle = sc == null ? '#5b616b' : SC(sc); ctx.fillText(sc == null ? '-' : String(sc), W - P, cy);
+    });
+  }
+  // stopka
+  const fy = H - 64; ctx.fillStyle = 'rgba(255,255,255,.08)'; ctx.fillRect(P, fy - 40, W - 2 * P, 2);
+  if(logo){ ctx.save(); rrect(ctx, P, fy - 18, 44, 44, 11); ctx.clip(); ctx.drawImage(logo, P, fy - 18, 44, 44); ctx.restore(); }
+  ctx.textAlign = 'left'; ctx.font = `800 30px ${F}`; ctx.fillStyle = '#3fbf60'; const n1 = (CONFIG.SITE_NAME || '').split(' ')[0] || ''; ctx.fillText(n1, P + (logo ? 58 : 0), fy + 14);
+  const w1 = ctx.measureText(n1 + ' ').width; ctx.fillStyle = '#ffffff'; ctx.fillText((CONFIG.SITE_NAME || '').split(' ').slice(1).join(' '), P + (logo ? 58 : 0) + w1, fy + 14);
+  ctx.textAlign = 'right'; ctx.fillStyle = '#7c828d'; ctx.font = `500 26px ${F}`; ctx.fillText(new Date(mine.updated_at || mine.created_at || Date.now()).toLocaleDateString('pl-PL', {day:'numeric', month:'long', year:'numeric'}), W - P, fy + 12);
+  return new Promise(res => c.toBlob(b => res({blob:b, hasTr, cover:!!cover}), 'image/png'));
+}
+async function openShare(a){
+  const bg = document.createElement('div'); bg.className = 'modal-bg';
+  bg.innerHTML = `<div class="modal" role="dialog" aria-label="Grafika z oceną"><div class="shead" style="margin:0"><h2 style="margin:0">Grafika z oceną</h2><button type="button" class="link" id="mClose">Zamknij</button></div>
+    <div class="pv"><div class="muted small" style="padding:40px 10px">Tworzę grafikę…</div></div><div class="btns" id="mBtns"></div><div class="small muted" id="mMsg" style="text-align:center"></div></div>`;
+  document.body.appendChild(bg);
+  const close = () => { bg.remove(); document.removeEventListener('keydown', esc_); };
+  const esc_ = e => { if(e.key === 'Escape') close(); };
+  document.addEventListener('keydown', esc_);
+  bg.onclick = e => { if(e.target === bg) close(); }; bg.querySelector('#mClose').onclick = close;
+  let r; try { r = await makeShareImage(a); } catch(e){ console.error(e); bg.querySelector('.pv').innerHTML = `<div class="err" style="padding:20px">Nie udało się stworzyć grafiki: ${esc(e.message || e)}</div>`; return; }
+  if(!r || !r.blob){ bg.querySelector('.pv').innerHTML = '<div class="err" style="padding:20px">Nie udało się stworzyć grafiki.</div>'; return; }
+  const url = URL.createObjectURL(r.blob), fname = (a.artist + ' - ' + a.title).replace(/[\\/:*?"<>|]+/g, '').slice(0, 80) + '.png';
+  const file = new File([r.blob], fname, {type:'image/png'});
+  bg.querySelector('.pv').innerHTML = `<img src="${url}" alt="Grafika z oceną albumu ${esc(a.title)}">`;
+  const canShare = !!(navigator.canShare && navigator.canShare({files:[file]}));
+  const canCopy = !!(navigator.clipboard && window.ClipboardItem);
+  bg.querySelector('#mBtns').innerHTML = `${canShare ? '<button class="btn-p" id="mShare">Udostępnij…</button>' : ''}${canCopy ? `<button ${canShare ? '' : 'class="btn-p"'} id="mCopy">Kopiuj obrazek</button>` : ''}<a href="${url}" download="${esc(fname)}"><button type="button">Pobierz</button></a>`;
+  const msg = bg.querySelector('#mMsg');
+  if(!r.cover && safeUrl(a.cover_url)) msg.textContent = 'Serwer okładki nie pozwolił jej skopiować - w grafice jest litera zamiast okładki.';
+  const cp = bg.querySelector('#mCopy');
+  if(cp) cp.onclick = async () => { try { await navigator.clipboard.write([new ClipboardItem({'image/png':r.blob})]); msg.textContent = 'Skopiowano - wklej obrazek w rozmowie (Ctrl+V / Wklej).'; toast('Skopiowano grafikę'); } catch(e){ msg.textContent = 'Przeglądarka nie pozwoliła skopiować obrazka - użyj „Pobierz”.'; } };
+  const sh = bg.querySelector('#mShare');
+  if(sh) sh.onclick = async () => { try { await navigator.share({files:[file], title:a.title}); } catch(e){ if(e.name !== 'AbortError') msg.textContent = 'Nie udało się udostępnić - spróbuj „Pobierz”.'; } };
 }
 function listenRowHtml(uid, editable){
   const l = S.listen.filter(x => x.user_id === uid && S.albums.has(x.album_id)).sort((p, q) => (q.created_at || '').localeCompare(p.created_at || ''));
