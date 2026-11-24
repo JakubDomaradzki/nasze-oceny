@@ -1554,7 +1554,7 @@ function trackSumHtml(a){
   return `<div class="trsum"><div class="small muted" style="margin-bottom:4px">Oceniłeś ${n}/${total} ${pl(total,'utwór','utwory','utworów')} (bez pomijanych). Podpowiedź oceny albumu:</div>
     ${row('Średnia z piosenek', Sm)}
     ${row('Z bonusem za najlepsze utwory', W, 'średnia + 30% przewagi najlepszych − 15% straty najsłabszych')}
-    ${row('Po przeliczeniu skali', F, 'rozciągnięcie wokół 81 (wariant B z kalkulatora)')}</div>`;
+    ${row('Po przeliczeniu skali', F, 'rozciągnięcie wokół 80')}</div>`;
 }
 const gaHtml = (o, hid) => hid ? (o.others ? lockBadge() : '<small>-</small>') : o.n ? badge(o.sum / o.n, 'sm') + `<small>${o.n}${o.fav ? ' · ★' + o.fav : ''}</small>` : '<small>-</small>';
 function drawTracks(a){
