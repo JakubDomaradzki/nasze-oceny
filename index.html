@@ -479,6 +479,10 @@ tr.cl:hover td{background:var(--soft)}
 .tpop a{display:grid;grid-template-columns:24px 1fr auto;gap:8px;align-items:center;padding:5px 6px;border-radius:8px;font-size:14px}
 .tpop a:hover{background:var(--soft)}
 .tpop.wide{width:min(340px,calc(100vw - 16px));max-width:none}
+.tpop .tph a.link{display:inline!important;grid-template-columns:none}
+.tile .cw .tpb{position:absolute;right:6px;bottom:6px;line-height:0;cursor:pointer;border-radius:7px}
+.tile .cw .tpb .score{position:static;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.tile .cw .tpb:hover .score{filter:brightness(1.1);box-shadow:0 0 0 2px #fff,0 1px 4px rgba(0,0,0,.3)}
 .tpl{max-height:min(420px,60vh);overflow:auto}
 .tpr{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:8px;align-items:center;padding:5px 6px;font-size:14px;border-radius:8px}
 .tpr .n{color:var(--muted);font-weight:700;text-align:right;font-size:12.5px}
@@ -1033,10 +1037,10 @@ function render(){
   if(!S.user){ renderNav(); return viewLogin(); }
   const {page, arg, arg2} = route();
   if(page === 'aktywnosc') S.seenStart = true;
-  renderNav(['album','osoba','wykonawca','porownaj'].includes(page) ? null : page);
+  renderNav(['album','osoba','oceny','wykonawca','porownaj'].includes(page) ? null : page);
   if(page !== lastPage) window.scrollTo(0, 0);
   lastPage = page;
-  const V = {aktywnosc:viewActivity, start:viewHome, losuj:viewRandom, statystyki:viewStats, wykonawca:viewArtist, porownaj:viewCompare, ranking:viewRanking, lata:viewYears, album:viewAlbum, albumy:viewAlbums, dodaj:viewAdd, osoby:viewPeople,
+  const V = {oceny:viewRatings, aktywnosc:viewActivity, start:viewHome, losuj:viewRandom, statystyki:viewStats, wykonawca:viewArtist, porownaj:viewCompare, ranking:viewRanking, lata:viewYears, album:viewAlbum, albumy:viewAlbums, dodaj:viewAdd, osoby:viewPeople,
              osoba:viewPerson, import:viewImport, konto:viewAccount, edytuj:viewEdit}[page] || viewHome;
   try { V(arg, arg2); } catch(e){ console.error(e); app.innerHTML = `<div class="card err">Błąd: ${esc(e.message)}</div>`; }
 }
@@ -1552,9 +1556,9 @@ function viewPerson(id){
     <div class="pstats"><div><div class="v" style="color:${avg == null ? 'var(--muted)' : col(Math.round(avg))}">${avgN(avg)}</div><div class="l">Średnia</div></div>
       <div><div class="v">${kindR.length}</div><div class="l">${S.f.kind === 'singles' ? pl(kindR.length,'Ocena singla','Oceny singli','Ocen singli') : pl(kindR.length,'Ocena','Oceny','Ocen')}</div></div></div></div>
 
-  <section class="card"><div class="shead"><h2>Ostatnie oceny</h2></div>
+  <section class="card"><div class="shead"><h2>Ostatnie oceny</h2>${allR.length ? `<a class="link small" href="#/oceny/${id}">Pokaż wszystkie →</a>` : ''}</div>
     ${recent.length ? `<div class="hx">${recent.map(r => { const a = S.albums.get(r.album_id);
-      return `<a class="tile" href="#/album/${a.id}"><div class="cw">${coverHtml(a, 'cfull')}${badge(r.score, 'sm')}</div><div><div class="t">${esc(a.title)}</div><div class="a">${esc(a.artist)}</div><div class="a">${timeAgo(r.updated_at || r.created_at)}</div></div></a>`; }).join('')}</div>`
+      return `<a class="tile" href="#/album/${a.id}"><div class="cw">${coverHtml(a, 'cfull')}${tpBadge(a.id, r.user_id, r.score)}</div><div><div class="t">${esc(a.title)}</div><div class="a">${esc(a.artist)}</div><div class="a">${timeAgo(r.updated_at || r.created_at)}</div></div></a>`; }).join('')}</div>`
       : '<div class="empty">Brak ocen.</div>'}
   </section>
 
@@ -1869,7 +1873,8 @@ async function showUserTracksPop(a, u, el){
   const pop = document.createElement('div'); pop.id = 'tpop'; pop.className = 'tpop wide'; pop.dataset.u = u; pop.setAttribute('role', 'dialog');
   const mine = T && T.state === 'ok' ? new Map(T.ratings.filter(r => r.user_id === u).map(r => [r.position, r])) : new Map();
   const any = [...mine.values()].some(r => r.score != null || r.fav);
-  pop.innerHTML = `<div class="tph" style="display:flex;align-items:center;gap:8px">${avatar(u, 22)}<span style="overflow:hidden;text-overflow:ellipsis">${esc(pname(u))} · piosenki</span></div>` +
+  const onAlbum = route().page === 'album' && Number(route().arg) === a.id;
+  pop.innerHTML = `<div class="tph" style="display:flex;align-items:center;gap:8px">${avatar(u, 22)}<span style="overflow:hidden;text-overflow:ellipsis;flex:1">${onAlbum ? esc(pname(u)) + ' · piosenki' : `${esc(pname(u))} · <a class="link" href="#/album/${a.id}" style="display:inline;padding:0">${esc(a.title)}</a>`}</span></div>` +
     (!T || T.state !== 'ok' || !T.tracks.length ? '<div class="muted small" style="padding:8px 6px">Ten album nie ma jeszcze tracklisty.</div>'
     : !any ? `<div class="muted small" style="padding:8px 6px">${esc(pname(u))} nie ocenił(a) piosenek z tego albumu.</div>`
     : `<div class="tpl">${T.tracks.map(t => { const r = mine.get(t.position);
@@ -2184,7 +2189,7 @@ function statsYear(tabs){
         + (minNote === 2 ? '<p class="note">Albumy z min. 2 ocenami.</p>' : '') : '<div class="empty">Brak danych.</div>'}</section>
       <div style="display:grid;gap:18px;align-content:start">
         <section class="card"><h2>Numer 1 każdego z was</h2>${per.length ? `<div class="p1">${per.map(x => { const a = S.albums.get(x.top.album_id);
-          return `<div><div class="who">${avatar(x.p.id, 22)}${nm(x.p)}</div><a class="tile" href="#/album/${a.id}"><div class="cw">${coverHtml(a, 'cfull')}${badge(x.top.score, 'sm')}</div><div class="t">${esc(a.title)}</div><div class="a">${esc(a.artist)}</div></a></div>`; }).join('')}</div>` : '<div class="empty">Brak danych.</div>'}</section>
+          return `<div><div class="who">${avatar(x.p.id, 22)}${nm(x.p)}</div><a class="tile" href="#/album/${a.id}"><div class="cw">${coverHtml(a, 'cfull')}${tpBadge(a.id, x.p.id, x.top.score)}</div><div class="t">${esc(a.title)}</div><div class="a">${esc(a.artist)}</div></a></div>`; }).join('')}</div>` : '<div class="empty">Brak danych.</div>'}</section>
         ${singles.length ? `<section class="card"><h2>Top single ${y}</h2>${singles.slice(0, 5).map((x, i) => statRow(i + 1, x.a, badge(x.st.avg, 'sm'), ocen(x.st.n))).join('')}</section>` : ''}
       </div>
     </div>`;
@@ -2415,6 +2420,37 @@ async function openShareImg(gen, name, alt, heading, note){
   const sh = bg.querySelector('#mShare');
   if(sh) sh.onclick = async () => { try { await navigator.share({files:[file], title:heading}); } catch(e){ if(e.name !== 'AbortError') msg.textContent = 'Nie udało się udostępnić - spróbuj „Pobierz”.'; } };
 }
+// ocena na okładce: klik pokazuje oceny piosenek tej osoby (zamiast przechodzić do albumu)
+const tpBadge = (aid, uid, score) => `<span class="tpb" data-tp="${aid}" data-tu="${esc(uid)}" title="Pokaż oceny piosenek" role="button" tabindex="0">${badge(score, 'sm')}</span>`;
+function viewRatings(uid){
+  const p = S.profiles.get(uid);
+  if(!p){ app.innerHTML = '<div class="card">Nie ma takiej osoby.</div>'; return; }
+  const O = (S.orat && S.orat.uid === uid) ? S.orat : (S.orat = {uid, sort:'new', kind:'albums', limit:60, q:''});
+  const name = p.display_name || p.username;
+  const all = (S.byUser.get(uid) || []).filter(r => S.albums.has(r.album_id) && !isHidden(r) && kindOk(S.albums.get(r.album_id), O.kind));
+  const q = norm(O.q);
+  const l = all.filter(r => { const a = S.albums.get(r.album_id); return !q || norm(a.artist).includes(q) || norm(a.title).includes(q); });
+  const cmp = {new:(x, y) => tsOf(y) - tsOf(x), high:(x, y) => y.score - x.score || tsOf(y) - tsOf(x), low:(x, y) => x.score - y.score || tsOf(y) - tsOf(x),
+    year:(x, y) => (S.albums.get(y.album_id).year || 0) - (S.albums.get(x.album_id).year || 0) || y.score - x.score}[O.sort];
+  l.sort(cmp);
+  app.innerHTML = `<div class="phead" style="margin-bottom:16px"><a href="#/osoba/${uid}">${avatar(uid, 56)}</a><div><h1 style="font-size:28px">Oceny: ${esc(name)}</h1><p class="sub" style="margin:2px 0 0"><a class="link" href="#/osoba/${uid}">← wróć do profilu</a> · ${all.length} ${O.kind === 'singles' ? pl(all.length,'singiel','single','singli') : pl(all.length,'album','albumy','albumów')}</p></div></div>
+    <div class="filters">${segHtml('okind', O.kind)}
+      <label>Szukaj<input type="search" id="oq" value="${esc(O.q)}" placeholder="wykonawca lub tytuł"></label>
+      <label>Sortuj<select id="osort">${[['new','Najnowsze'],['high','Najwyżej ocenione'],['low','Najniżej ocenione'],['year','Rok wydania']].map(([v, t]) => `<option value="${v}" ${O.sort === v ? 'selected' : ''}>${t}</option>`).join('')}</select></label></div>
+    <div id="ogrid"></div>`;
+  const draw = () => {
+    const shown = l.slice(0, O.limit);
+    document.getElementById('ogrid').innerHTML = l.length ? `<div class="grid">${shown.map(r => { const a = S.albums.get(r.album_id);
+      return `<a class="tile" href="#/album/${a.id}"><div class="cw">${coverHtml(a, 'cfull')}${tpBadge(a.id, uid, r.score)}</div><div><div class="t">${esc(a.title)}</div><div class="a">${esc(a.artist)}${a.year ? ' · ' + a.year : ''}</div><div class="a">${timeAgo(r.updated_at || r.created_at)}</div></div></a>`; }).join('')}</div>
+      ${l.length > shown.length ? `<div style="text-align:center;margin-top:18px"><button id="omore">Pokaż więcej (${l.length - shown.length})</button></div>` : ''}`
+      : '<div class="card empty">Brak ocen.</div>';
+    const m = document.getElementById('omore'); if(m) m.onclick = () => { O.limit += 120; draw(); };
+  };
+  draw();
+  bindSeg('okind', v => { O.kind = v; O.limit = 60; render(); });
+  document.getElementById('osort').onchange = e => { O.sort = e.target.value; O.limit = 60; render(); };
+  const qi = document.getElementById('oq'); qi.oninput = () => { O.q = qi.value; O.limit = 60; const pos = qi.selectionStart; render(); const q2 = document.getElementById('oq'); q2.focus(); q2.setSelectionRange(pos, pos); };
+}
 function listenRowHtml(uid, editable){
   const l = S.listen.filter(x => x.user_id === uid && S.albums.has(x.album_id)).sort((p, q) => (q.created_at || '').localeCompare(p.created_at || ''));
   if(!l.length) return `<div class="empty">${uid === S.user.id ? 'Lista jest pusta. Dodaj albumy powyżej, przyciskiem „+ Do posłuchania” na stronie albumu albo przez losowanie.' : 'Lista jest pusta.'}</div>`;
@@ -2448,7 +2484,7 @@ function viewHome(){
       <section class="card">
         <div class="shead"><h2>Ostatnio ocenione</h2><a class="link small" href="#/osoba/${uid}">Wszystkie moje oceny →</a></div>
         ${recentMine.length ? `<div class="hx">${recentMine.map(r => { const a = S.albums.get(r.album_id);
-          return `<a class="tile" href="#/album/${a.id}"><div class="cw">${coverHtml(a, 'cfull')}${badge(r.score, 'sm')}</div><div><div class="t">${esc(a.title)}</div><div class="a">${esc(a.artist)}</div><div class="a">${timeAgo(r.updated_at || r.created_at)}</div></div></a>`; }).join('')}</div>`
+          return `<a class="tile" href="#/album/${a.id}"><div class="cw">${coverHtml(a, 'cfull')}${tpBadge(a.id, r.user_id, r.score)}</div><div><div class="t">${esc(a.title)}</div><div class="a">${esc(a.artist)}</div><div class="a">${timeAgo(r.updated_at || r.created_at)}</div></div></a>`; }).join('')}</div>`
           : '<div class="empty">Nie oceniłeś jeszcze żadnego albumu.</div>'}
       </section>
 
@@ -2908,7 +2944,12 @@ async function init(){
   if(session){ S.user = session.user; app.innerHTML = '<div class="loading">Ładowanie ocen…</div>'; await safeLoad(); initSeen(); }
   render();
   sb.auth.onAuthStateChange((ev, session) => { if(ev === 'SIGNED_OUT' && S.user){ S.user = null; render(); } });
-  window.addEventListener('hashchange', render);
+  window.addEventListener('hashchange', () => { closePop(); render(); });
+  // klik w ocenę na okładce -> okienko z ocenami piosenek (nie przechodzi do albumu)
+  const tpOpen = e => { const t = e.target.closest && e.target.closest('[data-tp]'); if(!t) return false;
+    e.preventDefault(); e.stopPropagation(); const a = S.albums.get(Number(t.dataset.tp)); if(a) showUserTracksPop(a, t.dataset.tu, t); return true; };
+  document.addEventListener('click', tpOpen, true);
+  document.addEventListener('keydown', e => { if((e.key === 'Enter' || e.key === ' ') && e.target.matches && e.target.matches('[data-tp]')) tpOpen(e); if(e.key === 'Escape') closePop(); });
   // po powrocie do karty odśwież dane (tylko na stronach bez formularzy)
   document.addEventListener('visibilitychange', async () => {
     if(document.visibilityState !== 'visible' || !S.user || Date.now() - S.loadedAt < 120000) return;
