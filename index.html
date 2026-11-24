@@ -623,7 +623,7 @@ function listenLinks(a){
   const q = encodeURIComponent(a.artist + ' ' + a.title);
   return `<div class="listen">${[['Spotify','#1db954',`https://open.spotify.com/search/${q}`],['Apple Music','#fa2d48',`https://music.apple.com/pl/search?term=${q}`],
     ['YouTube Music','#ff0000',`https://music.youtube.com/search?q=${q}`]]
-    .map(([l, c, u]) => `<a class="lk" href="${u}" target="_blank" rel="noopener"><svg class="pl" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="${c}"/><path d="M8 6.2v7.6l6-3.8z" fill="#fff"/></svg>${l}</a>`).join('')}</div>`;
+    .map(([l, c, u]) => `<a class="lk" href="${u}" target="_blank" rel="noopener"><svg class="pl" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="${c}"/><path d="M8 6.2v7.6l6-3.8z" fill="${l === 'Spotify' ? '#000' : '#fff'}"/></svg>${l}</a>`).join('')}</div>`;
 }
 const HEART = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.6-4.5-9.6-9.2C.9 7.6 3.3 4 6.9 4c2.1 0 3.7 1.1 5.1 3 1.4-1.9 3-3 5.1-3 3.6 0 6 3.6 4.5 7.3-2 4.7-9.6 9.2-9.6 9.2z"/></svg>';
 
@@ -1718,7 +1718,7 @@ function aotwHtml(){
     : `<div class="muted small">Oceniło <b>${raters.size}/${people.length}</b> · oceny odsłonią się w niedzielę albo gdy wszyscy ocenią</div>
       <div class="avs">${people.map(p => `<span class="av ${raters.has(p.id) ? '' : 'off'}" title="${esc(p.display_name || p.username)}${raters.has(p.id) ? ' ✓' : ''}" style="width:30px;height:30px;padding:0;background:none">${avatar(p.id, 30)}</span>`).join('')}</div>`}
     <div class="btns" style="margin-top:6px">${mine ? `<span class="small">Twoja ocena: <b>${num(mine.score)}</b></span><a href="#/album/${a.id}"><button>Zmień</button></a>` : `<a href="#/album/${a.id}"><button class="btn-p">Oceń</button></a>`}
-      <a class="lk" href="https://open.spotify.com/search/${encodeURIComponent(a.artist + ' ' + a.title)}" target="_blank" rel="noopener"><svg class="pl" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="#1db954"/><path d="M8 6.2v7.6l6-3.8z" fill="#fff"/></svg>Spotify</a>
+      <a class="lk" href="https://open.spotify.com/search/${encodeURIComponent(a.artist + ' ' + a.title)}" target="_blank" rel="noopener"><svg class="pl" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="#1db954"/><path d="M8 6.2v7.6l6-3.8z" fill="#000"/></svg>Spotify</a>
       ${canEdit ? '<button id="wedit" title="Zmień album tygodnia">✎</button>' : ''}</div>
     ${archive}</section>`;
 }
