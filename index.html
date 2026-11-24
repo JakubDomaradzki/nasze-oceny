@@ -401,6 +401,33 @@ tr.cl:hover td{background:var(--soft)}
 .p1 .who{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;margin-bottom:6px}
 .note{font-size:12.5px;color:var(--muted);margin-top:10px}
 
+/* tracklista */
+.trk{margin-top:18px}
+.trh,.trw{display:grid;grid-template-columns:28px minmax(0,1fr) 76px 34px 76px;gap:10px;align-items:center}
+.trh{font-size:12.5px;color:var(--muted);font-weight:600;padding:0 0 6px;border-bottom:1px solid var(--line)}
+.trh span:nth-child(n+3){text-align:center}
+.trw{padding:7px 0;border-bottom:1px solid var(--line)}
+.trw:last-of-type{border-bottom:none}
+.trw .no{color:var(--muted);font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
+.trw .tt{min-width:0}
+.trw .tt b{font-weight:600;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trw .tt small{color:var(--muted);font-size:12px}
+.trw.skip .tt b{color:var(--muted);font-weight:500}
+.trw.best .tt b::after{content:' 👑';font-size:13px}
+.trw .ga{display:flex;flex-direction:column;align-items:center;gap:1px}
+.trw .ga small{font-size:11px;color:var(--muted);white-space:nowrap}
+.star{border:none;background:none;padding:2px;font-size:20px;line-height:1;color:var(--line);border-radius:6px}
+.star.on{color:#f5b301}
+.star:hover{color:#f5b301;border:none}
+.tin{text-align:center;font-weight:700;font-size:15px;padding:6px 4px;font-variant-numeric:tabular-nums}
+.tin.saved{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.trsum{margin-top:14px;padding:14px;border-radius:12px;background:var(--soft);border:1px solid var(--line)}
+.trsum .sr{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:5px 0;font-size:14px}
+.trsum .sr b{font-size:17px;font-variant-numeric:tabular-nums}
+.trsum .sr button{padding:5px 12px;font-size:13px}
+.tred textarea{min-height:260px;font-size:14px;line-height:1.55}
+@media (max-width:560px){.trh,.trw{grid-template-columns:22px minmax(0,1fr) 50px 28px 64px;gap:7px}.trw .ga small{display:none}.trw .tt b{white-space:normal;line-height:1.25}}
+
 /* login */
 .login{max-width:360px;margin:9vh auto 0}
 .login h1{text-align:center;margin-bottom:4px}
@@ -521,7 +548,7 @@ async function loadData(){
   S.profiles = new Map(p.map(x => [x.id, x]));
   S.albums = new Map(a.map(x => [Number(x.id), {...x, id:Number(x.id)}]));
   S.ratings = r.map(x => ({...x, album_id:Number(x.album_id), score:Number(x.score)}));
-  reindex(); S.loadedAt = Date.now();
+  reindex(); S.loadedAt = Date.now(); S.tr = {}; S.allTr = null;
 }
 function reindex(){
   S.byAlbum = new Map(); S.byUser = new Map();
@@ -716,6 +743,17 @@ async function mbSearch(query){
     }));
   }
   throw new Error('MusicBrainz jest przeciążony. Spróbuj za chwilę.');
+}
+async function mbGet(path){
+  for(let attempt = 0; attempt < 5; attempt++){
+    const wait = mbNext - Date.now(); mbNext = Math.max(Date.now(), mbNext) + 1100;
+    if(wait > 0) await sleep(wait);
+    let r; try { r = await fetch('https://musicbrainz.org/ws/2/' + path, {headers:{Accept:'application/json'}}); } catch(e){ await sleep(1500 * (attempt + 1)); continue; }
+    if(r.status === 503 || r.status === 429 || r.status >= 500){ mbNext = Date.now() + 2000 * (attempt + 1); continue; }
+    if(!r.ok) throw new Error('MusicBrainz ' + r.status);
+    return r.json();
+  }
+  throw new Error('MusicBrainz jest przeciążony');
 }
 const luc = s => String(s).replace(/([+\-!(){}\[\]^"~*?:\\\/]|&&|\|\|)/g, '\\$1');
 function testImage(url, ms = 15000){
@@ -1044,7 +1082,8 @@ function viewAlbum(arg){
         <div class="err" id="rerr"></div>
       </form>
     </div>
-  </div>`;
+  </div>
+  <section class="card trk" id="trk"><div class="shead"><h2>Utwory</h2><span id="trkTools"></span></div><div id="trkBody"><div class="muted small">Ładowanie tracklisty…</div></div></section>`;
   document.getElementById('rf').onsubmit = async e => {
     e.preventDefault();
     const sc = parseScore(document.getElementById('rs').value), er = document.getElementById('rerr');
@@ -1062,6 +1101,7 @@ function viewAlbum(arg){
     if(await (was ? removeFav(id) : addFav(id))){ b.classList.toggle('on', !was); b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop');
       b.title = was ? 'Dodaj do ulubionych' : 'Usuń z ulubionych'; b.setAttribute('aria-pressed', String(!was)); toast(was ? 'Usunięto z ulubionych' : 'Dodano do ulubionych ♥'); } };
   document.getElementById('lisB').onclick = async () => { if(await (inListen(id) ? removeListen(id) : addListen(id))) render(); };
+  initTracks(a);
   const rk = document.getElementById('rkLink'); if(rk) rk.onclick = () => { S.f.kind = kind; S.f.type = 'all'; S.f.min = 1; };
   const rky = document.getElementById('rkYLink'); if(rky) rky.onclick = () => { S.f.kind = kind; S.f.type = 'all'; S.f.min = 1; };
   const rd = document.getElementById('rdel');
@@ -1424,6 +1464,219 @@ function viewPerson(id){
   bindSeg('pkind', v => { S.f.kind = v; render(); });
 }
 
+/* ----- tracklisty i oceny piosenek ----- */
+S.tr = {};
+const fmtDur = t => t ? `${Math.floor(t / 60)}:${String(t % 60).padStart(2, '0')}` : '';
+const autoSkip = t => ({...t, skip:/\b(intro|interlude|skit|prelude|interludium)\b/i.test(t.title) || (t.duration != null && t.duration > 0 && t.duration < 60)});
+async function loadTracks(id, force){
+  const T = S.tr[id] || (S.tr[id] = {});
+  if(T.state === 'ok' && !force) return T;
+  const [x, y] = await Promise.all([sb.from('tracks').select('*').eq('album_id', id).order('position'), sb.from('track_ratings').select('*').eq('album_id', id)]);
+  const e = x.error || y.error;
+  if(e){ T.state = /tracks|track_ratings|relation|schema cache/i.test(e.message || '') ? 'missing' : 'error'; T.err = e; return T; }
+  T.tracks = (x.data || []).map(t => ({...t, position:Number(t.position)})).sort((p, q) => p.position - q.position);
+  T.ratings = (y.data || []).map(r => ({...r, position:Number(r.position), score:r.score == null ? null : Number(r.score)}));
+  T.state = 'ok'; return T;
+}
+async function fetchTracklist(a){
+  try { // 1. Deezer
+    let r = (await deezerSearch(`artist:"${a.artist}" album:"${cleanT(a.title)}"`)).find(x => matches(x, a.artist, a.title));
+    if(!r) r = (await deezerSearch(a.artist + ' ' + cleanT(a.title))).find(x => matches(x, a.artist, a.title));
+    if(r && r.dzId){
+      const d = await jsonp('https://api.deezer.com/album/' + r.dzId + '/tracks?limit=300&output=jsonp');
+      const t = ((d && d.data) || []).sort((p, q) => ((p.disk_number || 1) - (q.disk_number || 1)) || ((p.track_position || 0) - (q.track_position || 0)));
+      if(t.length) return {src:'Deezer', tracks:t.map(x => ({title:x.title_short || x.title, duration:x.duration || null}))};
+    }
+  } catch(e){ console.warn(e); }
+  try { // 2. MusicBrainz
+    let rg = a.mbid;
+    if(!rg){ const res = (await mbSearch(`releasegroup:"${luc(a.title)}" AND artist:"${luc(a.artist)}"`)).filter(r => r.score >= 85); rg = res[0] && res[0].id; }
+    if(rg){
+      const j = await mbGet(`release?release-group=${rg}&inc=recordings&fmt=json&limit=15`);
+      const rels = (j.releases || []).filter(r => r.media && r.media.some(m => (m.tracks || []).length))
+        .sort((p, q) => (p.status === 'Official' ? 0 : 1) - (q.status === 'Official' ? 0 : 1) || (p.date || '9999').localeCompare(q.date || '9999'));
+      if(rels[0]) return {src:'MusicBrainz', tracks:rels[0].media.flatMap(m => m.tracks || []).map(x => ({title:x.title, duration:x.length ? Math.round(x.length / 1000) : null}))};
+    }
+  } catch(e){ console.warn(e); }
+  return null;
+}
+// zapisz tracklistę, zachowując oceny utworów na tych samych pozycjach
+async function saveTracklist(id, list){
+  const T = S.tr[id] || {tracks:[]}, old = new Map((T.tracks || []).map(t => [t.position, t]));
+  const rows = list.map((t, i) => ({album_id:id, position:i + 1, title:String(t.title).trim().slice(0, 300), duration:t.duration || null, skip:!!t.skip}));
+  const changed = rows.filter(r => { const o = old.get(r.position); return !o || o.title !== r.title || !!o.skip !== r.skip || (o.duration || null) !== r.duration; });
+  if(changed.length){ const { error } = await sb.from('tracks').upsert(changed, {onConflict:'album_id,position'}); if(error) return error; }
+  if(old.size > rows.length){ const { error } = await sb.from('tracks').delete().eq('album_id', id).gt('position', rows.length); if(error) return error; }
+  return null;
+}
+async function initTracks(a){
+  const body = () => document.getElementById('trkBody');
+  const here = () => route().page === 'album' && Number(route().arg) === a.id && body();
+  const T = await loadTracks(a.id);
+  if(!here()) return;
+  if(T.state === 'missing'){ body().innerHTML = '<div class="muted small">Żeby oceniać piosenki, uruchom <b>update3.sql</b> w Supabase.</div>'; return; }
+  if(T.state === 'error'){ body().innerHTML = `<div class="err">Nie udało się wczytać utworów: ${esc(errMsg(T.err))}</div>`; return; }
+  if(!T.tracks.length && !T.tried){
+    T.tried = true; body().innerHTML = '<div class="muted small">Szukam tracklisty w Deezerze i MusicBrainz…</div>';
+    const r = await fetchTracklist(a);
+    if(r){ const err = await saveTracklist(a.id, r.tracks.map(autoSkip)); if(!err){ T.src = r.src; await loadTracks(a.id, true); } else console.warn(err); }
+    if(!here()) return;
+  }
+  drawTracks(a);
+}
+function trackStats(a){
+  const T = S.tr[a.id], hid = hiddenAlbum(a.id), uid = S.user.id;
+  const by = new Map(T.tracks.map(t => [t.position, {n:0, sum:0, fav:0, mine:null, myFav:false, others:0}]));
+  for(const r of T.ratings){ const o = by.get(r.position); if(!o) continue;
+    if(r.user_id === uid){ o.mine = r.score; o.myFav = r.fav; } else if(r.score != null) o.others++;
+    if(hid) continue;
+    if(r.score != null){ o.n++; o.sum += r.score; } if(r.fav) o.fav++; }
+  let best = null;
+  for(const t of T.tracks){ const o = by.get(t.position); if(!t.skip && o.n >= 2 && (!best || o.sum / o.n > best.avg)) best = {pos:t.position, avg:o.sum / o.n}; }
+  return {by, best, hid};
+}
+function mapB(x, c = 81){
+  const A = [[0,0],[50,40],[60,50],[c-12,c-20],[c-6,c-12],[c-2,c-6],[c,c-3],[c+2,c+1],[c+4,c+6],[c+6,c+9],[c+8,c+11],[95,97],[100,100]];
+  for(let i = 0; i < A.length - 1; i++) if(x <= A[i + 1][0]){ const [x0, y0] = A[i], [x1, y1] = A[i + 1]; return y0 + (x - x0) * (y1 - y0) / (x1 - x0); }
+  return 100;
+}
+function trackSumHtml(a){
+  const T = S.tr[a.id], {by} = trackStats(a);
+  const vals = T.tracks.filter(t => !t.skip).map(t => by.get(t.position).mine).filter(v => v != null);
+  const total = T.tracks.filter(t => !t.skip).length;
+  if(!vals.length) return `<div class="trsum muted small">Oceń piosenki, a strona podpowie ocenę albumu.</div>`;
+  const sorted = [...vals].sort((p, q) => q - p), n = vals.length, k = Math.min(n, Math.max(2, Math.ceil(n * .25)));
+  const avg = l => l.reduce((s2, v) => s2 + v, 0) / l.length;
+  const Sm = avg(vals), Tp = avg(sorted.slice(0, k)), D = avg(sorted.slice(n - k));
+  const W = Math.max(0, Math.min(100, Sm + .3 * (Tp - Sm) - .15 * (Sm - D))), F = mapB(W);
+  const r1 = v => Math.round(v * 10) / 10;
+  const row = (label, v, hint) => `<div class="sr"><span>${label}${hint ? `<br><small class="muted">${hint}</small>` : ''}</span><span class="btns"><b>${num(r1(v))}</b><button type="button" data-put="${r1(v)}">Wstaw</button></span></div>`;
+  return `<div class="trsum"><div class="small muted" style="margin-bottom:4px">Oceniłeś ${n}/${total} ${pl(total,'utwór','utwory','utworów')} (bez pomijanych). Podpowiedź oceny albumu:</div>
+    ${row('Średnia z piosenek', Sm)}
+    ${row('Z bonusem za najlepsze utwory', W, 'średnia + 30% przewagi najlepszych − 15% straty najsłabszych')}
+    ${row('Po przeliczeniu skali', F, 'rozciągnięcie wokół 81 (wariant B z kalkulatora)')}</div>`;
+}
+const gaHtml = (o, hid) => hid ? (o.others ? lockBadge() : '<small>-</small>') : o.n ? badge(o.sum / o.n, 'sm') + `<small>${o.n}${o.fav ? ' · ★' + o.fav : ''}</small>` : '<small>-</small>';
+function drawTracks(a){
+  const T = S.tr[a.id], body = document.getElementById('trkBody'), tools = document.getElementById('trkTools');
+  if(!body) return;
+  if(T.edit) return drawTrackEditor(a);
+  tools.innerHTML = T.tracks.length ? '<button type="button" id="trEdit">Edytuj tracklistę</button>' : '';
+  if(!T.tracks.length){
+    body.innerHTML = `<div class="empty" style="padding:14px 0">Nie znaleziono tracklisty w Deezerze ani MusicBrainz.</div>
+      <div class="btns" style="justify-content:center"><button class="btn-p" id="trManual">Wpisz tracklistę</button><button id="trRetry">Szukaj ponownie</button></div>`;
+    document.getElementById('trManual').onclick = () => { T.edit = true; drawTracks(a); };
+    document.getElementById('trRetry').onclick = () => { T.tried = false; initTracks(a); };
+    return;
+  }
+  const {by, best, hid} = trackStats(a);
+  body.innerHTML = `<div class="trh"><span></span><span>Utwór</span><span>Grupa</span><span title="Ulubiony utwór">★</span><span>Twoja</span></div>
+    ${T.tracks.map(t => { const o = by.get(t.position);
+      return `<div class="trw ${t.skip ? 'skip' : ''} ${best && best.pos === t.position ? 'best' : ''}" data-p="${t.position}">
+        <span class="no">${t.position}</span>
+        <span class="tt"><b title="${esc(t.title)}">${esc(t.title)}</b><small>${fmtDur(t.duration)}${t.skip ? (t.duration ? ' · ' : '') + 'pomijany w ocenie albumu' : ''}</small></span>
+        <span class="ga">${gaHtml(o, hid)}</span>
+        <button type="button" class="star ${o.myFav ? 'on' : ''}" data-fav="${t.position}" title="${o.myFav ? 'Twój ulubiony utwór' : 'Oznacz jako ulubiony'}" aria-pressed="${o.myFav}">★</button>
+        <input class="tin" data-pos="${t.position}" inputmode="decimal" enterkeyhint="next" value="${o.mine == null ? '' : num(o.mine)}" placeholder="-" aria-label="Twoja ocena: ${esc(t.title)}">
+      </div>`; }).join('')}
+    <div id="trkSum">${trackSumHtml(a)}</div>
+    ${T.src ? `<p class="note">Tracklista pobrana z: ${T.src}. Błąd? Kliknij „Edytuj tracklistę”.</p>` : ''}`;
+  document.getElementById('trEdit').onclick = () => { T.edit = true; drawTracks(a); };
+  const inputs = [...body.querySelectorAll('.tin')];
+  inputs.forEach((inp, i) => {
+    inp.onkeydown = e => { if(e.key === 'Enter'){ e.preventDefault(); (inputs[i + 1] || inp).focus(); if(!inputs[i + 1]) inp.blur(); } };
+    inp.onchange = () => saveTrackScore(a, +inp.dataset.pos, inp);
+  });
+  body.querySelectorAll('[data-fav]').forEach(b => b.onclick = () => toggleFavTrack(a, +b.dataset.fav));
+  bindPut();
+}
+function bindPut(){
+  document.querySelectorAll('[data-put]').forEach(b => b.onclick = () => {
+    const rs = document.getElementById('rs'); if(!rs) return;
+    rs.value = num(+b.dataset.put); rs.scrollIntoView({behavior:'smooth', block:'center'}); setTimeout(() => rs.focus({preventScroll:true}), 350);
+    toast('Wpisano ' + num(+b.dataset.put) + ' - kliknij „Zapisz”, żeby zatwierdzić');
+  });
+}
+function refreshTrackRow(a, pos){
+  const T = S.tr[a.id], {by, best, hid} = trackStats(a), body = document.getElementById('trkBody'); if(!body) return;
+  body.querySelectorAll('.trw').forEach(row => {
+    const p = +row.dataset.p, o = by.get(p);
+    row.classList.toggle('best', !!best && best.pos === p);
+    const st = row.querySelector('.star'); st.classList.toggle('on', o.myFav); st.setAttribute('aria-pressed', String(o.myFav));
+    row.querySelector('.ga').innerHTML = gaHtml(o, hid);
+  });
+  document.getElementById('trkSum').innerHTML = trackSumHtml(a); bindPut();
+}
+async function saveTrackScore(a, pos, inp){
+  const T = S.tr[a.id], uid = S.user.id, raw = inp.value.trim();
+  const cur = T.ratings.find(r => r.user_id === uid && r.position === pos);
+  let score = null;
+  if(raw){ score = parseScore(raw); if(score == null){ toast('Ocena piosenki: liczba od 0 do 100', true); inp.value = cur && cur.score != null ? num(cur.score) : ''; return; } }
+  let error;
+  if(score == null && !(cur && cur.fav)){
+    if(!cur) return;
+    ({ error } = await sb.from('track_ratings').delete().eq('user_id', uid).eq('album_id', a.id).eq('position', pos));
+    if(!error) T.ratings = T.ratings.filter(r => r !== cur);
+  } else {
+    const row = {user_id:uid, album_id:a.id, position:pos, score, fav:!!(cur && cur.fav)};
+    let data; ({ data, error } = await sb.from('track_ratings').upsert(row, {onConflict:'user_id,album_id,position'}).select().single());
+    if(!error){ const nr = {...data, position:Number(data.position), score:data.score == null ? null : Number(data.score)}; T.ratings = T.ratings.filter(r => r !== cur).concat(nr); }
+  }
+  if(error) return toast(errMsg(error), true);
+  if(score != null) inp.value = num(score);
+  inp.classList.add('saved'); setTimeout(() => inp.classList.remove('saved'), 700);
+  refreshTrackRow(a, pos);
+}
+async function toggleFavTrack(a, pos){
+  const T = S.tr[a.id], uid = S.user.id, mine = T.ratings.filter(r => r.user_id === uid);
+  const cur = mine.find(r => r.position === pos), on = !(cur && cur.fav);
+  const rows = [];
+  if(on) for(const r of mine) if(r.fav && r.position !== pos) rows.push({user_id:uid, album_id:a.id, position:r.position, score:r.score, fav:false});
+  rows.push({user_id:uid, album_id:a.id, position:pos, score:cur ? cur.score : null, fav:on});
+  const { data, error } = await sb.from('track_ratings').upsert(rows, {onConflict:'user_id,album_id,position'}).select();
+  if(error) return toast(errMsg(error), true);
+  for(const d of data){ const nr = {...d, position:Number(d.position), score:d.score == null ? null : Number(d.score)};
+    T.ratings = T.ratings.filter(r => !(r.user_id === uid && r.position === nr.position)).concat(nr); }
+  // wiersz tylko z gwiazdką (bez oceny) po odznaczeniu - usuń
+  if(!on && cur && cur.score == null){ await sb.from('track_ratings').delete().eq('user_id', uid).eq('album_id', a.id).eq('position', pos);
+    T.ratings = T.ratings.filter(r => !(r.user_id === uid && r.position === pos)); }
+  refreshTrackRow(a, pos);
+  if(on) toast('Ulubiony utwór: ' + (T.tracks.find(t => t.position === pos) || {}).title);
+}
+function drawTrackEditor(a){
+  const T = S.tr[a.id], body = document.getElementById('trkBody'), tools = document.getElementById('trkTools');
+  tools.innerHTML = '';
+  const text = (T.tracks || []).map(t => (t.skip ? '* ' : '') + t.title + (t.duration ? '  [' + fmtDur(t.duration) + ']' : '')).join('\n');
+  body.innerHTML = `<div class="form tred">
+    <label>Jeden utwór w wierszu, w kolejności. Gwiazdka <code>*</code> na początku = utwór pomijany w ocenie albumu (intro, skit). Długość w nawiasie <code>[3:21]</code> jest opcjonalna.
+      <textarea id="trTxt" placeholder="Green Light  [3:54]&#10;Sober  [3:17]&#10;* Interlude">${esc(text)}</textarea></label>
+    <div class="btns"><button class="btn-p" id="trSave">Zapisz tracklistę</button><button id="trFetch">Pobierz z internetu</button><button id="trCancel">Anuluj</button><span class="small" id="trMsg"></span></div>
+    <p class="note">Oceny piosenek są przypisane do numeru utworu. Zmiana tytułu ich nie usuwa; usunięcie utworu z końca listy usuwa jego oceny.</p></div>`;
+  const parse = () => document.getElementById('trTxt').value.split(/\r?\n/).map(l => l.trim()).filter(Boolean).map(l => {
+    const skip = l.startsWith('*'); l = l.replace(/^\*\s*/, '');
+    let duration = null; const m = l.match(/\s*\[(\d+):(\d{2})\]\s*$/); if(m){ duration = +m[1] * 60 + +m[2]; l = l.slice(0, m.index); }
+    l = l.replace(/^\d+[.)]\s+/, ''); return {title:l, duration, skip}; }).filter(t => t.title);
+  document.getElementById('trCancel').onclick = () => { T.edit = false; drawTracks(a); };
+  document.getElementById('trFetch').onclick = async () => {
+    const msg = document.getElementById('trMsg'); msg.textContent = 'Szukam…';
+    const r = await fetchTracklist(a);
+    if(!r){ msg.textContent = 'Nie znaleziono.'; return; }
+    document.getElementById('trTxt').value = r.tracks.map(autoSkip).map(t => (t.skip ? '* ' : '') + t.title + (t.duration ? '  [' + fmtDur(t.duration) + ']' : '')).join('\n');
+    msg.textContent = `Pobrano z ${r.src} - sprawdź i kliknij „Zapisz tracklistę”.`; T.src = r.src;
+  };
+  const sv = document.getElementById('trSave');
+  sv.onclick = async () => {
+    const list = parse(), msg = document.getElementById('trMsg');
+    if(!list.length){ msg.textContent = 'Wpisz co najmniej jeden utwór.'; return; }
+    const lost = T.ratings.filter(r => r.position > list.length).length;
+    if(lost && !sv.classList.contains('armed')){ sv.classList.add('armed', 'btn-d'); sv.classList.remove('btn-p'); sv.textContent = `Zapisz (usunie ${ocen(lost)} utworów z końca)`; return; }
+    sv.disabled = true;
+    const err = await saveTracklist(a.id, list);
+    if(err){ sv.disabled = false; msg.innerHTML = `<span class="err">${esc(errMsg(err))}</span>`; return; }
+    await loadTracks(a.id, true); T.edit = false; toast('Zapisano tracklistę'); drawTracks(a);
+  };
+}
+
 /* ----- statystyki ----- */
 const MONTHS = ['sty','lut','mar','kwi','maj','cze','lip','sie','wrz','paź','lis','gru'];
 function statRow(i, a, right, sub){
@@ -1431,10 +1684,10 @@ function statRow(i, a, right, sub){
     <span class="meta"><b>${esc(a.title)}</b><span>${esc(a.artist)}</span>${sub ? `<small>${sub}</small>` : ''}</span><span class="r2">${right}</span></a>`;
 }
 function viewStats(arg){
-  const tab = ['zgodnosc','kontrowersyjne','podsumowanie'].includes(arg) ? arg : 'przeglad';
-  const tabs = `<div class="chips" style="margin-bottom:18px">${[['przeglad','Przegląd'],['zgodnosc','Zgodność gustu'],['kontrowersyjne','Kontrowersyjne'],['podsumowanie','Podsumowanie roku']]
+  const tab = ['zgodnosc','kontrowersyjne','podsumowanie','piosenki'].includes(arg) ? arg : 'przeglad';
+  const tabs = `<div class="chips" style="margin-bottom:18px">${[['przeglad','Przegląd'],['piosenki','Piosenki'],['zgodnosc','Zgodność gustu'],['kontrowersyjne','Kontrowersyjne'],['podsumowanie','Podsumowanie roku']]
     .map(([k, l]) => `<a class="chip ${tab === k ? 'on' : ''}" href="#/statystyki${k === 'przeglad' ? '' : '/' + k}">${l}</a>`).join('')}</div>`;
-  ({przeglad:statsOverview, zgodnosc:statsCompat, kontrowersyjne:statsControversial, podsumowanie:statsYear})[tab](tabs);
+  ({przeglad:statsOverview, piosenki:statsSongs, zgodnosc:statsCompat, kontrowersyjne:statsControversial, podsumowanie:statsYear})[tab](tabs);
 }
 function statsOverview(tabs){
   const T = S.st, who = T.who === 'all' || S.profiles.has(T.who) ? T.who : 'all';
@@ -1487,6 +1740,40 @@ function statsOverview(tabs){
     </div>`;
   app.querySelectorAll('[data-w]').forEach(el => el.onclick = e => { e.preventDefault(); T.who = el.dataset.w; render(); });
   bindSeg('skind', v => { T.kind = v; render(); });
+}
+async function statsSongs(tabs){
+  const T = S.st, who = T.who === 'all' || S.profiles.has(T.who) ? T.who : 'all';
+  app.innerHTML = `<h1>Piosenki</h1><p class="sub">Najlepsze utwory według waszych ocen piosenek.</p>${tabs}<div class="loading">Wczytuję oceny piosenek…</div>`;
+  if(!S.allTr){
+    try { const [t, r] = await Promise.all([fetchAll('tracks'), fetchAll('track_ratings')]); S.allTr = {tracks:t, ratings:r}; }
+    catch(e){ if(route().page === 'statystyki'){ app.querySelector('.loading').outerHTML = /tracks|track_ratings|relation|schema cache/i.test(e.message || '') ? '<div class="card muted">Żeby oceniać piosenki, uruchom <b>update3.sql</b> w Supabase.</div>' : `<div class="card err">${esc(errMsg(e))}</div>`; } return; }
+  }
+  if(route().page !== 'statystyki' || route().arg !== 'piosenki') return;
+  const titles = new Map(S.allTr.tracks.map(t => [t.album_id + '|' + t.position, t]));
+  const agg = new Map();
+  for(const r of S.allTr.ratings){
+    const aid = Number(r.album_id), k = aid + '|' + r.position, t = titles.get(k);
+    if(!t || !S.albums.has(aid) || (r.user_id !== S.user.id && hiddenAlbum(aid))) continue;
+    if(who !== 'all' && r.user_id !== who) continue;
+    let o = agg.get(k); if(!o){ o = {aid, pos:Number(r.position), title:t.title, sum:0, n:0, fav:0}; agg.set(k, o); }
+    if(r.score != null){ o.sum += Number(r.score); o.n++; } if(r.fav) o.fav++;
+  }
+  const L = [...agg.values()];
+  const min = who === 'all' ? (T.songMin || 2) : 1;
+  const top = L.filter(o => o.n >= min).map(o => ({...o, avg:o.sum / o.n})).sort((p, q) => q.avg - p.avg || q.n - p.n).slice(0, 50);
+  const favs = L.filter(o => o.fav).sort((p, q) => q.fav - p.fav || (q.n ? q.sum / q.n : 0) - (p.n ? p.sum / p.n : 0)).slice(0, 15);
+  const people = [...S.profiles.values()];
+  const row = (o, i, right) => { const a = S.albums.get(o.aid);
+    return `<a class="mrow" href="#/album/${a.id}"><span class="rk">${i + 1}</span>${coverHtml(a, 'c48')}<span class="meta"><b>${esc(o.title)}</b><span>${esc(a.artist)} · ${esc(a.title)}</span></span><span class="r2">${right}</span></a>`; };
+  app.innerHTML = `<h1>Piosenki</h1><p class="sub">Najlepsze utwory według waszych ocen piosenek.</p>${tabs}
+    <div class="who-pick"><a href="javascript:void 0" class="all ${who === 'all' ? 'on' : ''}" data-w="all">Cała grupa</a>${people.map(p => `<a href="javascript:void 0" data-w="${esc(p.id)}" class="${who === p.id ? 'on' : ''}">${avatar(p.id, 24)}${esc(p.display_name || p.username)}</a>`).join('')}</div>
+    ${who === 'all' ? `<div class="filters"><label>Min. liczba ocen<select id="smin">${[1,2,3,4,5].map(n => `<option value="${n}" ${min === n ? 'selected' : ''}>${n}+</option>`).join('')}</select></label></div>` : ''}
+    <div class="sgrid">
+      <section class="card"><h2>${who === 'all' ? 'Top 50 piosenek grupy' : 'Top 50 piosenek: ' + esc(pname(who))}</h2>${top.length ? top.map((o, i) => row(o, i, `${who === 'all' ? `<span class="grp">${ocen(o.n)}</span>` : ''}${badge(o.avg, 'big')}`)).join('') : '<div class="empty">Jeszcze nikt nie ocenił piosenek' + (who === 'all' && min > 1 ? ` (albo żadna nie ma ${min}+ ocen)` : '') + '. Oceny piosenek wystawia się na stronie albumu, w sekcji „Utwory”.</div>'}</section>
+      <section class="card"><h2>${who === 'all' ? 'Najczęściej ulubione' : 'Ulubione utwory'}</h2>${favs.length ? favs.map((o, i) => row(o, i, `<span class="grp">★ ${o.fav}</span>${o.n ? badge(o.sum / o.n, 'sm') : ''}`)).join('') : '<div class="empty">Nikt jeszcze nie oznaczył ulubionego utworu (★ na stronie albumu).</div>'}</section>
+    </div>`;
+  app.querySelectorAll('[data-w]').forEach(el => el.onclick = e => { e.preventDefault(); T.who = el.dataset.w; render(); });
+  const sm = document.getElementById('smin'); if(sm) sm.onchange = e => { T.songMin = +e.target.value; render(); };
 }
 function statsCompat(tabs){
   const P = [...S.profiles.values()].filter(p => (S.byUser.get(p.id) || []).length);
