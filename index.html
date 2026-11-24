@@ -2195,6 +2195,7 @@ function viewImport(){
     <p class="small muted" style="margin-top:0" id="tlInfo">Sprawdzam, które albumy nie mają tracklisty…</p>
     <div class="btns"><button id="tlGo" disabled>Pobierz brakujące tracklisty</button><button id="tlStop" style="display:none">Zatrzymaj</button></div>
     <div class="small" id="tlSt" style="margin-top:8px"></div>
+    <div id="tlList"></div>
   </div>
   <div class="card" style="margin-top:18px">
     <h2>4. Kopia zapasowa</h2>
@@ -2271,6 +2272,10 @@ function viewImport(){
   // tracklisty hurtem
   let tlStop = false, have = null;
   const tlTodo = () => [...S.albums.values()].filter(a => !have.has(a.id) && !(S.tr[a.id] && S.tr[a.id].noneFound));
+  const tlMissing = () => [...S.albums.values()].filter(a => !have.has(a.id)).sort((p, q) => p.artist.localeCompare(q.artist, 'pl') || (p.year || 0) - (q.year || 0));
+  const drawTlList = open => { const box = document.getElementById('tlList'); if(!box) return; const l = tlMissing();
+    box.innerHTML = l.length ? `<details style="margin-top:12px" ${open ? 'open' : ''}><summary class="small" style="cursor:pointer;font-weight:600">Pokaż albumy bez tracklisty (${l.length})</summary>
+      <div class="hscroll" style="margin-top:8px">${l.map(a => `<a class="hitem" href="#/album/${a.id}">${coverHtml(a, 'c40')}<span class="meta"><b>${esc(a.title)}</b><span>${esc(a.artist)}${a.year ? ' · ' + a.year : ''} · ${esc(a.type || '')}</span></span><span class="r2 small muted">${S.tr[a.id] && S.tr[a.id].noneFound ? 'nie znaleziono' : ''}</span></a>`).join('')}</div></details>` : ''; };
   (async () => {
     try { const t = await fetchAll('tracks'); have = new Set(t.map(x => Number(x.album_id))); }
     catch(e){ const i = document.getElementById('tlInfo'); if(i) i.innerHTML = /tracks|relation|schema cache/i.test(e.message || '') ? 'Najpierw uruchom <b>update3.sql</b> w Supabase.' : esc(errMsg(e)); return; }
@@ -2279,6 +2284,7 @@ function viewImport(){
     i.textContent = n ? `${n} ${pl(n,'album nie ma','albumy nie mają','albumów nie ma')} jeszcze tracklisty. Tracklisty pobierają się też same przy wejściu na stronę albumu - ten przycisk pobierze wszystkie naraz (Deezer, a gdy go nie ma - MusicBrainz). Przy kilkuset albumach potrwa to kilka minut.`
       : 'Wszystkie albumy mają już tracklisty.';
     document.getElementById('tlGo').disabled = !n;
+    drawTlList(false);
   })();
   document.getElementById('tlGo').onclick = async () => {
     const go = document.getElementById('tlGo'), sp = document.getElementById('tlStop'), st = document.getElementById('tlSt');
@@ -2299,7 +2305,7 @@ function viewImport(){
     await Promise.all([worker(), worker()]);
     if(!document.getElementById('tlSt')) return;
     st.innerHTML = `<b>${tlStop ? 'Zatrzymano' : 'Gotowe'}:</b> pobrano ${ok} ${pl(ok,'tracklistę','tracklisty','tracklist')}.` + (none ? ` Dla ${none} ${pl(none,'albumu','albumów','albumów')} nie znaleziono tracklisty - można ją wpisać ręcznie na stronie albumu (Utwory → Wpisz tracklistę).` : '');
-    sp.style.display = 'none'; go.disabled = !tlTodo().length;
+    sp.style.display = 'none'; go.disabled = !tlTodo().length; drawTlList(true);
   };
   document.getElementById('tlStop').onclick = () => { tlStop = true; };
 }
