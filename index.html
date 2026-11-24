@@ -251,7 +251,7 @@ const CONFIG = Object.assign({
 }, window.OCENY_CONFIG || {}); // dane z pliku config.js
 /* ===================================================================== */
 
-const TYPES = ['LP','EP','Mixtape','Kompilacja','Live','Single','Inne'];
+const TYPES = ['LP','EP','Mixtape','Kompilacja','Live','Singiel','Inne'];
 const app = document.getElementById('app');
 const top_ = document.getElementById('top');
 let sb = null;
@@ -294,7 +294,7 @@ function avatar(id, size = 36){
   return u ? `<span class="av" style="${st}"><img src="${esc(u)}" alt="" loading="lazy" referrerpolicy="no-referrer"></span>`
            : `<span class="av" style="${st}">${esc(pname(id).charAt(0).toUpperCase())}</span>`;
 }
-const isSingle = a => a.type === 'Single';
+const isSingle = a => a.type === 'Singiel';
 const kindOk = (a, kind) => kind === 'all' || (kind === 'singles' ? isSingle(a) : !isSingle(a));
 function timeAgo(d){
   if(!d) return ''; const s = (Date.now() - new Date(d)) / 1000;
@@ -446,7 +446,7 @@ function mbType(rg){
   if(sec.includes('live')) return 'Live';
   if(sec.includes('mixtape/street')) return 'Mixtape';
   const p = (rg['primary-type'] || '').toLowerCase();
-  return p === 'ep' ? 'EP' : p === 'single' ? 'Single' : 'LP';
+  return p === 'ep' ? 'EP' : p === 'single' ? 'Singiel' : 'LP';
 }
 const mbArtist = rg => (rg['artist-credit'] || []).map(c => (c.name || (c.artist && c.artist.name) || '') + (c.joinphrase || '')).join('');
 const mbCover = (id, size = 500) => `https://coverartarchive.org/release-group/${id}/front-${size}`;
@@ -491,7 +491,7 @@ function jsonp(url, ms = 12000){
     document.head.appendChild(sc);
   });
 }
-const dzType = t => t === 'ep' ? 'EP' : t === 'single' ? 'Single' : t === 'compile' ? 'Kompilacja' : 'LP';
+const dzType = t => t === 'ep' ? 'EP' : t === 'single' ? 'Singiel' : t === 'compile' ? 'Kompilacja' : 'LP';
 async function deezerSearch(q){
   const d = await jsonp('https://api.deezer.com/search/album?limit=12&output=jsonp&q=' + encodeURIComponent(q));
   return ((d && d.data) || []).filter(a => a.cover_xl || a.cover_big).map(a => ({
@@ -504,7 +504,7 @@ async function itunesSearch(q){
   const d = await jsonp('https://itunes.apple.com/search?media=music&entity=album&country=PL&limit=12&term=' + encodeURIComponent(q));
   return ((d && d.results) || []).filter(a => a.artworkUrl100).map(a => ({
     src:'Apple Music', title:String(a.collectionName || '').replace(/ - (EP|Single)$/i, ''), artist:a.artistName || '',
-    type:/ - EP$/i.test(a.collectionName || '') ? 'EP' : / - Single$/i.test(a.collectionName || '') ? 'Single' : 'LP',
+    type:/ - EP$/i.test(a.collectionName || '') ? 'EP' : / - Single$/i.test(a.collectionName || '') ? 'Singiel' : 'LP',
     year:parseInt(String(a.releaseDate || '').slice(0, 4)) || null,
     cover:a.artworkUrl100.replace(/\/\d+x\d+bb\./, '/600x600bb.'), thumb:a.artworkUrl100 }));
 }
@@ -933,25 +933,54 @@ function viewPeople(){
 function viewPerson(id){
   const p = S.profiles.get(id);
   if(!p){ app.innerHTML = '<div class="card">Nie ma takiej osoby.</div>'; return; }
-  const name = p.display_name || p.username;
+  if(!S.pv || S.pv.id !== id) S.pv = {id, year:new Date().getFullYear(), all:false};
+  const V = S.pv, name = p.display_name || p.username;
   const allR = (S.byUser.get(id) || []).filter(r => S.albums.has(r.album_id));
-  const rs = allR.filter(r => kindOk(S.albums.get(r.album_id), S.f.kind)).sort((a, b) => b.score - a.score);
   const avg = allR.length ? allR.reduce((s, r) => s + r.score, 0) / allR.length : null;
   // jak bardzo ta osoba odbiega od średniej grupy
   const diffs = allR.map(r => { const st = stats(r.album_id); return st.n > 1 ? r.score - (st.avg * st.n - r.score) / (st.n - 1) : null; }).filter(d => d != null);
   const dAvg = diffs.length ? diffs.reduce((s, d) => s + d, 0) / diffs.length : null;
+  const kindR = allR.filter(r => kindOk(S.albums.get(r.album_id), S.f.kind));
+  const ys = new Set(kindR.map(r => S.albums.get(r.album_id).year).filter(Boolean)).add(new Date().getFullYear());
+  if(V.year !== 'all') ys.add(V.year);
+  const years = [...ys].sort((a, b) => b - a);
+  const list = kindR.filter(r => V.year === 'all' || S.albums.get(r.album_id).year === V.year).sort((a, b) => b.score - a.score);
+  const shown = V.all ? list : list.slice(0, 15);
+  const recent = [...allR].sort((a, b) => (b.updated_at || b.created_at || '').localeCompare(a.updated_at || a.created_at || '')).slice(0, 100);
   const favs = favsOf(id);
-  app.innerHTML = `<div class="hello">${avatar(id, 72)}<div><h1>${esc(name)}</h1>
+  const what = S.f.kind === 'singles' ? 'singli' : 'albumów';
+  app.innerHTML = `<div class="hello">${avatar(id, 72)}<div><h1>${esc(name)}${id === S.user.id ? ' <span class="muted small" style="font-weight:500">(Ty)</span>' : ''}</h1>
     <p class="sub" style="margin:2px 0 0">${ocen(allR.length)}${avg != null ? ' · średnia ' + num(avg) : ''}${dAvg != null ? ` · ocenia średnio <b>${dAvg >= 0 ? '+' : ''}${num(dAvg)}</b> względem reszty grupy` : ''}</p></div></div>
-    ${favs.length ? `<div class="card" style="margin-bottom:18px"><h2>Ulubione albumy</h2><div class="favs">${favs.map(f => { const a = S.albums.get(f.album_id);
-      return `<a class="tile" href="#/album/${a.id}">${coverHtml(a, 'cfull')}<div><div class="t">${esc(a.title)}</div><div class="a">${esc(a.artist)}</div></div></a>`; }).join('')}</div></div>` : ''}
-    <div class="filters">${segHtml('pkind', S.f.kind)}</div>
-    ${rs.length ? `<div class="list">${rs.map((r, i) => { const a = S.albums.get(r.album_id), st = stats(a.id);
-      return `<a class="row" href="#/album/${a.id}"><span class="rk">${i + 1}</span>${coverHtml(a)}
-        <span class="meta"><b>${esc(a.title)}</b><span>${esc(a.artist)}</span><small>${a.year ?? '—'} · ${esc(a.type || '')}</small></span>
-        <span class="sc">${badge(r.score, 'big')}<small>${esc(name)}</small></span>
-        <span class="mine">grupa: <b>${num(st.avg)}</b><br>${ocen(st.n)}</span></a>`; }).join('')}</div>`
-      : '<div class="list"><div class="empty">Brak ocen.</div></div>'}`;
+  <div class="home">
+    <div class="hmain">
+      <section class="card">
+        <div class="shead"><h2>Ranking ${V.year === 'all' ? 'wszech czasów' : V.year}</h2>
+          <div class="btns">${segHtml('pkind', S.f.kind)}
+          <select id="py"><option value="all" ${V.year === 'all' ? 'selected' : ''}>Wszystkie lata</option>${years.map(y => `<option ${y === V.year ? 'selected' : ''}>${y}</option>`).join('')}</select></div></div>
+        ${list.length ? shown.map((r, i) => { const a = S.albums.get(r.album_id), st = stats(a.id);
+          return `<a class="mrow ${i < 3 ? 'top' + (i + 1) : ''}" href="#/album/${a.id}"><span class="rk">${i + 1}</span>${coverHtml(a, 'c48')}
+            <span class="meta"><b>${esc(a.title)}</b><span>${esc(a.artist)}</span><small>${a.year ?? '—'} · ${esc(a.type || '')}</small></span>
+            <span class="r2"><span class="grp">grupa ${num(st.avg)}<br>${ocen(st.n)}</span>${badge(r.score, 'big')}</span></a>`; }).join('')
+          : `<div class="empty">${esc(name)} nie ma jeszcze ocenionych ${what}${V.year === 'all' ? '' : ' z ' + V.year + ' roku'}.</div>`}
+        ${list.length > 15 ? `<div style="text-align:center;margin-top:10px"><button id="pall">${V.all ? 'Pokaż mniej' : `Pokaż wszystkie (${list.length})`}</button></div>` : ''}
+      </section>
+      <section class="card"><div class="shead"><h2>Ulubione albumy</h2></div>
+        ${favs.length ? `<div class="favs">${favs.map(f => { const a = S.albums.get(f.album_id);
+          return `<a class="tile" href="#/album/${a.id}">${coverHtml(a, 'cfull')}<div><div class="t">${esc(a.title)}</div><div class="a">${esc(a.artist)}</div></div></a>`; }).join('')}</div>`
+          : `<div class="empty">${id === S.user.id ? 'Nie masz jeszcze ulubionych – dodasz je na stronie Start.' : esc(name) + ' nie wybrał(a) jeszcze ulubionych.'}</div>`}
+      </section>
+    </div>
+    <aside class="card feed"><h2>Ostatnie oceny</h2>
+      <div class="feedl">${recent.length ? recent.map(r => { const a = S.albums.get(r.album_id);
+        return `<div class="fi" style="grid-template-columns:1fr"><div>
+          <div class="who"><a class="alb" style="margin:0" href="#/album/${a.id}">${coverHtml(a, 'c40')}<div><b>${esc(a.title)}</b><span>${esc(a.artist)}</span></div></a>${badge(r.score, 'sm')}</div>
+          ${r.comment ? `<div class="cm">„${esc(r.comment)}”</div>` : ''}
+          <time>${timeAgo(r.updated_at || r.created_at)}</time></div></div>`; }).join('')
+        : '<div class="empty">Brak ocen.</div>'}</div>
+    </aside>
+  </div>`;
+  document.getElementById('py').onchange = e => { V.year = e.target.value === 'all' ? 'all' : +e.target.value; V.all = false; render(); };
+  const pa = document.getElementById('pall'); if(pa) pa.onclick = () => { V.all = !V.all; render(); };
   bindSeg('pkind', v => { S.f.kind = v; render(); });
 }
 
