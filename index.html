@@ -947,7 +947,7 @@ function bulkHtml(items, opts){
     <div class="list">${vis.length ? vis.map(it => `<label class="row" style="grid-template-columns:28px 48px minmax(0,1fr) auto;cursor:${it.exists ? 'default' : 'pointer'}">
       <input type="checkbox" data-i="${items.indexOf(it)}" ${it.exists ? 'disabled checked' : it.checked ? 'checked' : ''} style="width:18px;height:18px">
       ${coverHtml({title:it.title, cover_url:it.thumb}, 'c48')}
-      <span class="meta"><b>${esc(it.title)}</b><span>${esc(it.artist)}</span><small>${it.year || ''}${it.year ? ' · ' : ''}${esc(it.type)}</small></span>
+      <span class="meta"><b>${esc(it.title)}</b><span>${esc(it.artist)}</span><small>${it.year || ''}${it.year ? ' · ' : ''}${esc(it.type)}${it.genre ? ' · ' + esc(it.genre) : ''}</small></span>
       <span class="small ${it.exists ? 'st-old' : it.added ? 'st-new' : 'muted'}">${it.exists ? (it.added ? 'dodano ✓' : 'już w bazie') : ''}</span></label>`).join('')
       : '<div class="empty">Brak pozycji.</div>'}</div>
     <div class="btns bulkbar"><button class="btn-p" id="bAdd" ${sel ? '' : 'disabled'}>Dodaj zaznaczone (${sel})</button><span class="small" id="bSt"></span></div>`;
@@ -1014,18 +1014,43 @@ function viewDisco(tabs){
   };
   drawArtists(); drawAlbums();
 }
+const US_GENRES = [[14,'Pop'],[17,'Dance'],[7,'Elektronika'],[15,'R&B/Soul'],[20,'Alternatywa'],[10,'Singer/Songwriter'],[51,'K-Pop'],[18,'Hip-Hop/Rap']];
+async function appleTop(genre){
+  const r = await fetch(`https://itunes.apple.com/us/rss/topalbums/limit=100/genre=${genre}/json`);
+  if(!r.ok) throw new Error('Apple ' + r.status);
+  const j = await r.json(), e = (j.feed && j.feed.entry) || [];
+  return (Array.isArray(e) ? e : [e]).map(x => {
+    const raw = (x['im:name'] && x['im:name'].label) || '', imgs = x['im:image'] || [];
+    const img = (imgs[imgs.length - 1] && imgs[imgs.length - 1].label) || '';
+    return {title:raw.replace(/ - (EP|Single)$/i, ''), artist:(x['im:artist'] && x['im:artist'].label) || '',
+      type:/ - EP$/i.test(raw) ? 'EP' : / - Single$/i.test(raw) ? 'Singiel' : 'LP',
+      year:parseInt(String((x['im:releaseDate'] && x['im:releaseDate'].label) || '').slice(0, 4)) || null,
+      cover:img.replace(/\/\d+x\d+bb\./, '/600x600bb.'), thumb:img,
+      genre:(x.category && x.category.attributes && x.category.attributes.label) || ''};
+  });
+}
 function viewChart(tabs){
-  const C = S.chart || (S.chart = {items:null, show:{Singiel:false, Kompilacja:false}});
-  app.innerHTML = `<h1>Popularne teraz</h1><p class="sub">Top 100 albumów z listy przebojów Deezera (dla Twojego kraju). Zaznacz te, które warto mieć w bazie.</p>${tabs}
-    <div class="card"><div class="muted small" id="chst"></div><div id="chl"></div></div>`;
-  const draw = () => { const box = document.getElementById('chl'); if(!C.items) return; box.innerHTML = bulkHtml(C.items, C); bindBulk(box, C.items, C, draw); };
-  if(C.items) return draw();
-  document.getElementById('chst').textContent = 'Pobieram listę…';
-  jsonp('https://api.deezer.com/chart/0/albums?limit=100&output=jsonp').then(d => {
-    C.items = dedupeEditions(((d && d.data) || []).map(x => dzAlbum(x)));
-    C.items.forEach(it => { it.exists = !!findAlbum(it.artist, it.title); it.checked = false; });
-    const st = document.getElementById('chst'); if(st){ st.textContent = ''; draw(); }
-  }).catch(() => { const st = document.getElementById('chst'); if(st) st.textContent = 'Deezer nie odpowiada – spróbuj za chwilę.'; });
+  const C = S.chart || (S.chart = {genres:new Set([14]), items:null, key:'', show:{Singiel:false, Kompilacja:false}});
+  app.innerHTML = `<h1>Popularne teraz (USA)</h1><p class="sub">Top albumy z amerykańskiej listy Apple Music. Wybierz gatunki i zaznacz albumy, które warto mieć w bazie.</p>${tabs}
+    <div class="card"><div class="chips" id="chg" style="margin-bottom:6px">${US_GENRES.map(([g, l]) => `<button type="button" class="chip ${C.genres.has(g) ? 'on' : ''}" data-g="${g}">${l}</button>`).join('')}</div>
+    <div class="muted small" id="chst"></div><div id="chl"></div></div>`;
+  document.querySelectorAll('#chg [data-g]').forEach(b => b.onclick = () => {
+    const g = +b.dataset.g; if(C.genres.has(g)){ if(C.genres.size > 1) C.genres.delete(g); } else C.genres.add(g); render(); });
+  const draw = () => { const box = document.getElementById('chl'); if(box && C.items){ box.innerHTML = bulkHtml(C.items, C); bindBulk(box, C.items, C, draw); } };
+  const key = [...C.genres].sort().join(',');
+  if(C.items && C.key === key) return draw();
+  const st = document.getElementById('chst'); st.textContent = 'Pobieram listę…';
+  Promise.all([...C.genres].map(g => appleTop(g).catch(() => null))).then(lists => {
+    const ok = lists.filter(Boolean);
+    if(!ok.length){ const s2 = document.getElementById('chst'); if(s2) s2.textContent = 'Apple nie odpowiada – spróbuj za chwilę.'; return; }
+    // przeplataj listy gatunków według miejsca w rankingu, bez powtórek
+    const seen = new Set(), out = [];
+    for(let i = 0; i < 100; i++) for(const l of ok){ const it = l[i]; if(!it) continue;
+      const k = simp(it.artist) + '|' + simp(cleanT(it.title)); if(seen.has(k)) continue; seen.add(k); out.push(it); }
+    out.forEach(it => { it.exists = !!findAlbum(it.artist, it.title); it.checked = false; });
+    C.items = out; C.key = key;
+    const s2 = document.getElementById('chst'); if(s2){ s2.textContent = `${out.length} ${pl(out.length,'album','albumy','albumów')}`; draw(); }
+  });
 }
 function viewEdit(arg){
   const a = S.albums.get(Number(arg));
