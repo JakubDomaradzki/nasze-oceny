@@ -1361,9 +1361,9 @@ function viewPeople(){
       last:rs.reduce((m, r) => (r.updated_at || '') > m ? r.updated_at : m, ''), c:p.id === S.user.id ? null : compat(S.user.id, p.id)}; })
     .sort((a, b) => b.n - a.n);
   app.innerHTML = `<h1>Osoby</h1><p class="sub">Kto ile ocenił, jak surowo i jak bardzo macie podobny gust</p>
-    <div class="list"><table><thead><tr><th></th><th>Osoba</th><th class="n">Ocen</th><th class="n">Średnia ocen</th><th class="n">Zgodność z Tobą</th><th class="n">Ostatnio</th></tr></thead><tbody>
+    <div class="list"><table><thead><tr><th></th><th>Osoba</th><th class="n">Ocen</th><th class="n">Średnia ocen</th><th class="n">Zgodność z Tobą</th></tr></thead><tbody>
     ${rows.map(r => `<tr class="cl" data-id="${esc(r.p.id)}"><td style="width:48px">${avatar(r.p.id)}</td><td><b>${esc(r.p.display_name || r.p.username)}</b>${r.p.id === S.user.id ? ' <span class="muted small">(Ty)</span>' : ''}</td>
-      <td class="n">${r.n}</td><td class="n">${r.avg == null ? '-' : badge(r.avg, 'sm')}</td><td class="n">${r.c ? pctBadge(r.c) : ''}</td><td class="n muted">${fmtDate(r.last)}</td></tr>`).join('')}
+      <td class="n">${r.n}</td><td class="n">${r.avg == null ? '-' : badge(r.avg, 'sm')}</td><td class="n">${r.c ? pctBadge(r.c) : ''}</td></tr>`).join('')}
     </tbody></table></div>
     <p class="note">Zgodność liczona z albumów ocenionych przez obie osoby (min. 3). 100% = identyczne oceny; każdy punkt średniej różnicy odejmuje 3%. Pełna tabela: <a class="link" href="#/statystyki/zgodnosc">Statystyki → Zgodność gustu</a>.</p>`;
   app.querySelectorAll('tr.cl').forEach(tr => tr.onclick = () => location.hash = '#/osoba/' + tr.dataset.id);
