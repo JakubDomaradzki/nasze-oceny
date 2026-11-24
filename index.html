@@ -286,6 +286,10 @@ tr.cl:hover td{background:var(--soft)}
 .fi:last-child{border-bottom:none}
 .feedh{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));column-gap:24px;padding-left:10px}
 .feedh .fi{border-bottom:1px solid var(--line)}
+.only-m{display:none!important}
+@media (max-width:900px){.only-m{display:block!important}.only-d{display:none!important}}
+.side .feedh{grid-template-columns:1fr}
+.side .feedh .fi:last-child{border-bottom:none}
 @media (max-width:620px){.feedh .fi:last-child{border-bottom:none}}
 .fi .who{display:flex;justify-content:space-between;align-items:center;gap:6px;font-size:13.5px}
 .fi .alb{display:flex;gap:8px;align-items:center;margin-top:5px;font-size:13px;min-width:0}
@@ -2025,6 +2029,9 @@ function viewHome(){
     .sort((a, b) => (b.updated_at || b.created_at || '').localeCompare(a.updated_at || a.created_at || '')).slice(0, 150);
   const hour = new Date().getHours(), hi = hour < 5 ? 'Dobranoc' : hour < 18 ? 'Cześć' : 'Dobry wieczór';
   const newCount2 = feed.filter(r => tsOf(r) > S.prevSeen).length;
+  // na komputerze aktywność jest w prawej kolumnie, na telefonie pod „Do posłuchania”
+  const actCard = (cls, n) => `<section class="card ${cls}"><div class="shead"><h2>Aktywność znajomych${newCount2 ? ` <span class="nb">${newCount2} nowe</span>` : ''}</h2><a class="link small" href="#/aktywnosc">Zobacz wszystko →</a></div>
+    ${feed.length ? `<div class="feedh">${feed.slice(0, n).map(feedItem).join('')}</div>` : '<div class="empty">Znajomi jeszcze nic nie ocenili.</div>'}</section>`;
   app.innerHTML = `
   <div class="hello">${avatar(uid, 56)}<div><h1>${hi}, ${esc(me().display_name)}!</h1>
     <div class="muted small">${ocen((S.byUser.get(uid) || []).length)} · ${favs.length} ulubionych · ${listen.length} do posłuchania</div></div></div>
@@ -2043,9 +2050,7 @@ function viewHome(){
         ${listenRowHtml(uid, true)}
       </section>
 
-      <section class="card"><div class="shead"><h2>Aktywność znajomych${newCount2 ? ` <span class="nb">${newCount2} nowe</span>` : ''}</h2><a class="link small" href="#/aktywnosc">Zobacz wszystko →</a></div>
-        ${feed.length ? `<div class="feedh">${feed.slice(0, 6).map(feedItem).join('')}</div>` : '<div class="empty">Znajomi jeszcze nic nie ocenili.</div>'}
-      </section>
+      ${actCard('only-m', 6)}
 
       <section class="card">
         <div class="shead"><h2>Twój ranking ${H.year}</h2>
@@ -2070,6 +2075,7 @@ function viewHome(){
     </div>
 
     <aside class="side">
+      ${actCard('only-d', 8)}
       ${aotwHtml()}
     </aside>
   </div>`;
