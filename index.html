@@ -775,7 +775,9 @@ function testImage(url, ms = 15000){
     i.referrerPolicy = 'no-referrer'; i.src = url; });
 }
 const simp = s => norm(s).normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '');
-const similar = (a, b) => { a = simp(a); b = simp(b); return !!a && !!b && (a === b || a.includes(b) || b.includes(a)); };
+const similar = (a, b) => { const x = simp(a), y = simp(b);
+  if(!x || !y) return norm(a).replace(/\s+/g, '') === norm(b).replace(/\s+/g, '') && !!norm(a); // np. tytuł „???”
+  return x === y || x.includes(y) || y.includes(x); };
 // JSONP - Deezer i Apple nie pozwalają na zwykłe zapytania z innej strony, ale obsługują ten sposób
 let jsonpN = 0;
 function jsonp(url, ms = 12000){
@@ -808,7 +810,7 @@ async function itunesSearch(q){
   const wait = itNext - Date.now(); itNext = Math.max(Date.now(), itNext) + 3200; if(wait > 0) await sleep(wait);
   const d = await jsonp('https://itunes.apple.com/search?media=music&entity=album&country=PL&limit=12&term=' + encodeURIComponent(q));
   return ((d && d.results) || []).filter(a => a.artworkUrl100).map(a => ({
-    src:'Apple Music', title:String(a.collectionName || '').replace(/ - (EP|Single)$/i, ''), artist:a.artistName || '',
+    src:'Apple Music', itId:a.collectionId, nb:a.trackCount || 0, title:String(a.collectionName || '').replace(/ - (EP|Single)$/i, ''), artist:a.artistName || '',
     type:/ - EP$/i.test(a.collectionName || '') ? 'EP' : / - Single$/i.test(a.collectionName || '') ? 'Singiel' : 'LP',
     year:parseInt(String(a.releaseDate || '').slice(0, 4)) || null,
     cover:a.artworkUrl100.replace(/\/\d+x\d+bb\./, '/600x600bb.'), thumb:a.artworkUrl100 }));
@@ -1492,18 +1494,18 @@ async function loadTracks(id, force){
   T.state = 'ok'; return T;
 }
 async function fetchTracklist(a){
-  const wantSingle = a.type === 'Singiel';
+  const wantSingle = a.type === 'Singiel', shortOk = wantSingle || ['EP','Mixtape','Inne'].includes(a.type);
   try { // 1. Deezer - wśród pasujących wybierz album/EP (nie singiel o tej samej nazwie), najlepiej z największą liczbą utworów
     const rank = x => x.type === 'Singiel' ? (wantSingle ? 3 : 0) : x.type === 'LP' ? 2 : 1;
     const exact = x => simp(x.title) === simp(a.title) ? 1 : 0; // podstawowa wersja przed Deluxe
     const pick = l => l.filter(x => matches(x, a.artist, a.title)).sort((p, q) => rank(q) - rank(p) || exact(q) - exact(p) || q.nb - p.nb)[0];
     let r = pick(await deezerSearch(`artist:"${a.artist}" album:"${cleanT(a.title)}"`));
     if(!r || (!wantSingle && r.type === 'Singiel')){ const r2 = pick(await deezerSearch(a.artist + ' ' + cleanT(a.title))); if(r2 && (!r || rank(r2) > rank(r))) r = r2; }
-    if(r && r.dzId && (wantSingle || r.type !== 'Singiel')){
+    if(r && r.dzId && (shortOk || r.type !== 'Singiel' || r.nb >= 4)){
       const d = await jsonp('https://api.deezer.com/album/' + r.dzId + '/tracks?limit=300&output=jsonp');
       const t = ((d && d.data) || []).sort((p, q) => ((p.disk_number || 1) - (q.disk_number || 1)) || ((p.track_position || 0) - (q.track_position || 0)));
       // 1-2 utwory przy albumie to prawie na pewno singiel - wtedy spróbuj MusicBrainz
-      if(t.length && (wantSingle || t.length > 2)) return {src:'Deezer', tracks:t.map(x => ({title:x.title_short || x.title, duration:x.duration || null}))};
+      if(t.length && (shortOk || t.length > 2)) return {src:'Deezer', tracks:t.map(x => ({title:x.title_short || x.title, duration:x.duration || null}))};
     }
   } catch(e){ console.warn(e); }
   try { // 2. MusicBrainz
@@ -1515,6 +1517,16 @@ async function fetchTracklist(a){
         .sort((p, q) => (p.status === 'Official' ? 0 : 1) - (q.status === 'Official' ? 0 : 1) || (p.date || '9999').localeCompare(q.date || '9999'));
       const rel = wantSingle ? rels[0] : (rels.find(r => r.media.reduce((n, m) => n + (m.tracks || []).length, 0) > 2) || rels[0]);
       if(rel) return {src:'MusicBrainz', tracks:rel.media.flatMap(m => m.tracks || []).map(x => ({title:x.title, duration:x.length ? Math.round(x.length / 1000) : null}))};
+    }
+  } catch(e){ console.warn(e); }
+  try { // 3. Apple Music
+    const l = (await itunesSearch(a.artist + ' ' + cleanT(a.title))).filter(x => matches(x, a.artist, a.title) && x.itId)
+      .sort((p, q) => (simp(q.title) === simp(a.title)) - (simp(p.title) === simp(a.title)) || q.nb - p.nb);
+    const r = l.find(x => shortOk || x.nb > 2);
+    if(r){
+      const d = await jsonp('https://itunes.apple.com/lookup?entity=song&country=PL&limit=300&id=' + r.itId);
+      const t = ((d && d.results) || []).filter(x => x.wrapperType === 'track').sort((p, q) => (p.discNumber || 1) - (q.discNumber || 1) || (p.trackNumber || 0) - (q.trackNumber || 0));
+      if(t.length) return {src:'Apple Music', tracks:t.map(x => ({title:x.trackName, duration:x.trackTimeMillis ? Math.round(x.trackTimeMillis / 1000) : null}))};
     }
   } catch(e){ console.warn(e); }
   return null;
@@ -1536,7 +1548,7 @@ async function initTracks(a){
   if(T.state === 'missing'){ body().innerHTML = '<div class="muted small">Żeby oceniać piosenki, uruchom <b>update3.sql</b> w Supabase.</div>'; return; }
   if(T.state === 'error'){ body().innerHTML = `<div class="err">Nie udało się wczytać utworów: ${esc(errMsg(T.err))}</div>`; return; }
   if(!T.tracks.length && !T.tried){
-    T.tried = true; body().innerHTML = '<div class="muted small">Szukam tracklisty w Deezerze i MusicBrainz…</div>';
+    T.tried = true; body().innerHTML = '<div class="muted small">Szukam tracklisty w Deezerze, MusicBrainz i Apple Music…</div>';
     const r = await fetchTracklist(a);
     if(r){ const err = await saveTracklist(a.id, r.tracks.map(autoSkip)); if(!err){ T.src = r.src; await loadTracks(a.id, true); } else console.warn(err); }
     if(!here()) return;
@@ -1582,7 +1594,7 @@ function drawTracks(a){
   if(T.edit) return drawTrackEditor(a);
   tools.innerHTML = T.tracks.length ? '<button type="button" id="trEdit">Edytuj tracklistę</button>' : '';
   if(!T.tracks.length){
-    body.innerHTML = `<div class="empty" style="padding:14px 0">Nie znaleziono tracklisty w Deezerze ani MusicBrainz.</div>
+    body.innerHTML = `<div class="empty" style="padding:14px 0">Nie znaleziono tracklisty w Deezerze, MusicBrainz ani Apple Music.</div>
       <div class="btns" style="justify-content:center"><button class="btn-p" id="trManual">Wpisz tracklistę</button><button id="trRetry">Szukaj ponownie</button></div>`;
     document.getElementById('trManual').onclick = () => { T.edit = true; drawTracks(a); };
     document.getElementById('trRetry').onclick = () => { T.tried = false; initTracks(a); };
@@ -2281,7 +2293,7 @@ function viewImport(){
     catch(e){ const i = document.getElementById('tlInfo'); if(i) i.innerHTML = /tracks|relation|schema cache/i.test(e.message || '') ? 'Najpierw uruchom <b>update3.sql</b> w Supabase.' : esc(errMsg(e)); return; }
     const i = document.getElementById('tlInfo'); if(!i) return;
     const n = tlTodo().length;
-    i.textContent = n ? `${n} ${pl(n,'album nie ma','albumy nie mają','albumów nie ma')} jeszcze tracklisty. Tracklisty pobierają się też same przy wejściu na stronę albumu - ten przycisk pobierze wszystkie naraz (Deezer, a gdy go nie ma - MusicBrainz). Przy kilkuset albumach potrwa to kilka minut.`
+    i.textContent = n ? `${n} ${pl(n,'album nie ma','albumy nie mają','albumów nie ma')} jeszcze tracklisty. Tracklisty pobierają się też same przy wejściu na stronę albumu - ten przycisk pobierze wszystkie naraz (Deezer, MusicBrainz, Apple Music). Przy kilkuset albumach potrwa to kilka minut.`
       : 'Wszystkie albumy mają już tracklisty.';
     document.getElementById('tlGo').disabled = !n;
     drawTlList(false);
