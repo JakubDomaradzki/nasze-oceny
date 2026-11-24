@@ -2162,7 +2162,13 @@ function viewImport(){
     <div class="small" id="cvst" style="margin-top:8px"></div>
   </div>
   <div class="card" style="margin-top:18px">
-    <h2>3. Kopia zapasowa</h2>
+    <h2>3. Tracklisty</h2>
+    <p class="small muted" style="margin-top:0" id="tlInfo">Sprawdzam, które albumy nie mają tracklisty…</p>
+    <div class="btns"><button id="tlGo" disabled>Pobierz brakujące tracklisty</button><button id="tlStop" style="display:none">Zatrzymaj</button></div>
+    <div class="small" id="tlSt" style="margin-top:8px"></div>
+  </div>
+  <div class="card" style="margin-top:18px">
+    <h2>4. Kopia zapasowa</h2>
     <p class="small muted" style="margin-top:0">Pobierz wszystkie albumy i oceny całej grupy jako plik CSV (otworzysz go w Excelu lub Google Sheets).</p>
     <button id="exp">Pobierz CSV</button>
   </div>`;
@@ -2233,6 +2239,40 @@ function viewImport(){
     b.disabled = false; sbtn.style.display = 'none';
   };
   document.getElementById('cvs').onclick = () => { stop = true; };
+  // tracklisty hurtem
+  let tlStop = false, have = null;
+  const tlTodo = () => [...S.albums.values()].filter(a => !have.has(a.id) && !(S.tr[a.id] && S.tr[a.id].noneFound));
+  (async () => {
+    try { const t = await fetchAll('tracks'); have = new Set(t.map(x => Number(x.album_id))); }
+    catch(e){ const i = document.getElementById('tlInfo'); if(i) i.innerHTML = /tracks|relation|schema cache/i.test(e.message || '') ? 'Najpierw uruchom <b>update3.sql</b> w Supabase.' : esc(errMsg(e)); return; }
+    const i = document.getElementById('tlInfo'); if(!i) return;
+    const n = tlTodo().length;
+    i.textContent = n ? `${n} ${pl(n,'album nie ma','albumy nie mają','albumów nie ma')} jeszcze tracklisty. Tracklisty pobierają się też same przy wejściu na stronę albumu - ten przycisk pobierze wszystkie naraz (Deezer, a gdy go nie ma - MusicBrainz). Przy kilkuset albumach potrwa to kilka minut.`
+      : 'Wszystkie albumy mają już tracklisty.';
+    document.getElementById('tlGo').disabled = !n;
+  })();
+  document.getElementById('tlGo').onclick = async () => {
+    const go = document.getElementById('tlGo'), sp = document.getElementById('tlStop'), st = document.getElementById('tlSt');
+    go.disabled = true; sp.style.display = ''; tlStop = false;
+    const todo = tlTodo(); let i = 0, ok = 0, none = 0, done = 0;
+    const worker = async () => {
+      while(!tlStop && i < todo.length){
+        const a = todo[i++];
+        try {
+          const r = await fetchTracklist(a);
+          if(r && !have.has(a.id)){ const err = await saveTracklist(a.id, r.tracks.map(autoSkip)); if(!err){ ok++; have.add(a.id); delete S.tr[a.id]; } }
+          else if(!r){ none++; (S.tr[a.id] = S.tr[a.id] || {}).noneFound = true; }
+        } catch(e){ console.warn(e); }
+        done++; if(document.getElementById('tlSt')) st.textContent = `${done}/${todo.length} · pobrano ${ok} · nie znaleziono ${none}`;
+        await sleep(250);
+      }
+    };
+    await Promise.all([worker(), worker()]);
+    if(!document.getElementById('tlSt')) return;
+    st.innerHTML = `<b>${tlStop ? 'Zatrzymano' : 'Gotowe'}:</b> pobrano ${ok} ${pl(ok,'tracklistę','tracklisty','tracklist')}.` + (none ? ` Dla ${none} ${pl(none,'albumu','albumów','albumów')} nie znaleziono tracklisty - można ją wpisać ręcznie na stronie albumu (Utwory → Wpisz tracklistę).` : '');
+    sp.style.display = 'none'; go.disabled = !tlTodo().length;
+  };
+  document.getElementById('tlStop').onclick = () => { tlStop = true; };
 }
 async function runImport(rows, btn){
   const st = document.getElementById('ist'), overwrite = document.getElementById('iov').checked;
