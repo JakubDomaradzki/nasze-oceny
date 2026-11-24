@@ -1987,6 +1987,13 @@ function viewHome(){
   <div class="home">
     <div class="hmain">
       <section class="card">
+        <div class="shead"><h2>Ostatnio ocenione</h2><a class="link small" href="#/osoba/${uid}">Wszystkie moje oceny →</a></div>
+        ${recentMine.length ? `<div class="favs">${recentMine.map(r => { const a = S.albums.get(r.album_id);
+          return `<a class="tile" href="#/album/${a.id}"><div class="cw">${coverHtml(a, 'cfull')}${badge(r.score, 'sm')}</div><div><div class="t">${esc(a.title)}</div><div class="a">${esc(a.artist)}</div><div class="a">${timeAgo(r.updated_at || r.created_at)}</div></div></a>`; }).join('')}</div>`
+          : '<div class="empty">Nie oceniłeś jeszcze żadnego albumu.</div>'}
+      </section>
+
+      <section class="card">
         <div class="shead"><h2>Twój ranking ${H.year}</h2>
           <select id="hy">${years.map(y => `<option ${y === H.year ? 'selected' : ''}>${y}</option>`).join('')}</select></div>
         ${yearList.length ? shown.map((r, i) => { const a = S.albums.get(r.album_id), st = stats(a.id);
@@ -1995,13 +2002,6 @@ function viewHome(){
             <span class="r2"><span class="grp">grupa ${avgN(st.avg)}<br>${ocen(st.n)}</span>${badge(r.score, 'big')}</span></a>`; }).join('')
           : `<div class="empty">Nie oceniłeś jeszcze żadnego albumu z ${H.year} roku.</div>`}
         ${yearList.length > 10 ? `<div style="text-align:center;margin-top:10px"><button id="hall">${H.all ? 'Pokaż mniej' : `Pokaż wszystkie (${yearList.length})`}</button></div>` : ''}
-      </section>
-
-      <section class="card">
-        <div class="shead"><h2>Ostatnio ocenione</h2><a class="link small" href="#/osoba/${uid}">Wszystkie moje oceny →</a></div>
-        ${recentMine.length ? `<div class="favs">${recentMine.map(r => { const a = S.albums.get(r.album_id);
-          return `<a class="tile" href="#/album/${a.id}"><div class="cw">${coverHtml(a, 'cfull')}${badge(r.score, 'sm')}</div><div><div class="t">${esc(a.title)}</div><div class="a">${esc(a.artist)}</div><div class="a">${timeAgo(r.updated_at || r.created_at)}</div></div></a>`; }).join('')}</div>`
-          : '<div class="empty">Nie oceniłeś jeszcze żadnego albumu.</div>'}
       </section>
 
       <section class="card">
@@ -2025,7 +2025,6 @@ function viewHome(){
     </div>
 
     <aside class="side">
-      ${aotwHtml()}
       <section class="card feed"><h2>Aktywność znajomych${newCount2 ? ` <span class="nb">${newCount2} nowe</span>` : ''}</h2>
       <div class="feedl">${feed.length ? feed.map(r => { const a = S.albums.get(r.album_id), hid = isHidden(r);
         return `<div class="fi ${tsOf(r) > S.prevSeen ? 'new' : ''}"><a href="#/osoba/${r.user_id}">${avatar(r.user_id, 34)}</a><div>
@@ -2035,6 +2034,7 @@ function viewHome(){
           <time>${timeAgo(r.updated_at || r.created_at)}</time></div></div>`; }).join('')
         : '<div class="empty">Znajomi jeszcze nic nie ocenili.</div>'}</div>
       </section>
+      ${aotwHtml()}
     </aside>
   </div>`;
   document.getElementById('hy').onchange = e => { H.year = +e.target.value; H.all = false; render(); };
