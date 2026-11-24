@@ -77,6 +77,8 @@ h2{font-size:13px;letter-spacing:1.2px;text-transform:uppercase;color:var(--mute
 .filters label{font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:3px}
 .filters select,.filters input{width:auto;min-width:130px;padding:6px 9px}
 .filters input[type=search]{min-width:220px}
+.filters input[type=checkbox]{min-width:0;width:16px;height:16px}
+.bulkbar{position:sticky;bottom:0;background:var(--card);padding:12px 0 4px;margin-top:6px;border-top:1px solid var(--line)}
 
 /* ranking rows */
 .list{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:var(--shadow)}
@@ -914,9 +916,116 @@ function bindAlbumForm(a, isNew){
     location.hash = '#/album/' + saved.id;
   };
 }
-function viewAdd(){
-  app.innerHTML = `<h1>Dodaj album</h1><p class="sub">Wyszukaj album, żeby automatycznie uzupełnić wykonawcę, rok i okładkę, albo wpisz wszystko ręcznie.</p>` + albumFormHtml({}, true);
-  bindAlbumForm({}, true);
+function viewAdd(arg){
+  const mode = ['dyskografia','popularne'].includes(arg) ? arg : 'jeden';
+  const tabs = `<div class="chips" style="margin-bottom:18px">${[['jeden','Jeden album'],['dyskografia','Cała dyskografia'],['popularne','Popularne teraz']]
+    .map(([k, l]) => `<a class="chip ${mode === k ? 'on' : ''}" href="#/dodaj${k === 'jeden' ? '' : '/' + k}">${l}</a>`).join('')}</div>`;
+  if(mode === 'jeden'){
+    app.innerHTML = `<h1>Dodaj album</h1><p class="sub">Wyszukaj album, żeby automatycznie uzupełnić wykonawcę, rok i okładkę, albo wpisz wszystko ręcznie.</p>` + tabs + albumFormHtml({}, true);
+    bindAlbumForm({}, true); return;
+  }
+  if(mode === 'dyskografia') return viewDisco(tabs);
+  return viewChart(tabs);
+}
+
+/* ----- dodawanie hurtowe (Deezer) ----- */
+const dzAlbum = (a, artistName) => ({dzId:a.id, title:a.title, artist:artistName || (a.artist && a.artist.name) || '',
+  year:parseInt(String(a.release_date || '').slice(0, 4)) || null, type:dzType(a.record_type), cover:a.cover_xl || a.cover_big || '', thumb:a.cover_medium || a.cover_xl || ''});
+// ta sama płyta w kilku wersjach (Deluxe, Remaster…) – zostaw najstarszą
+function dedupeEditions(list){
+  const m = new Map();
+  for(const a of list){ const k = simp(a.artist) + '|' + simp(cleanT(a.title));
+    const o = m.get(k); if(!o || (a.year && (!o.year || a.year < o.year)) || (a.year === o.year && a.title.length < o.title.length)) m.set(k, a); }
+  return [...m.values()];
+}
+function bulkHtml(items, opts){
+  const vis = items.filter(it => opts.show[it.type] !== false);
+  const sel = vis.filter(it => it.checked && !it.exists).length;
+  return `<div class="filters" style="margin:12px 0">
+      ${[['Singiel','Pokaż single'],['Kompilacja','Pokaż kompilacje']].map(([t, l]) => `<label style="flex-direction:row;align-items:center;gap:6px;font-size:13.5px;color:var(--text)"><input type="checkbox" data-show="${t}" ${opts.show[t] ? 'checked' : ''} style="width:auto"> ${l}</label>`).join('')}
+      <button type="button" id="bAll">Zaznacz wszystkie</button><button type="button" id="bNone">Odznacz</button></div>
+    <div class="list">${vis.length ? vis.map(it => `<label class="row" style="grid-template-columns:28px 48px minmax(0,1fr) auto;cursor:${it.exists ? 'default' : 'pointer'}">
+      <input type="checkbox" data-i="${items.indexOf(it)}" ${it.exists ? 'disabled checked' : it.checked ? 'checked' : ''} style="width:18px;height:18px">
+      ${coverHtml({title:it.title, cover_url:it.thumb}, 'c48')}
+      <span class="meta"><b>${esc(it.title)}</b><span>${esc(it.artist)}</span><small>${it.year || ''}${it.year ? ' · ' : ''}${esc(it.type)}</small></span>
+      <span class="small ${it.exists ? 'st-old' : it.added ? 'st-new' : 'muted'}">${it.exists ? (it.added ? 'dodano ✓' : 'już w bazie') : ''}</span></label>`).join('')
+      : '<div class="empty">Brak pozycji.</div>'}</div>
+    <div class="btns bulkbar"><button class="btn-p" id="bAdd" ${sel ? '' : 'disabled'}>Dodaj zaznaczone (${sel})</button><span class="small" id="bSt"></span></div>`;
+}
+function bindBulk(box, items, opts, rerender){
+  box.querySelectorAll('[data-show]').forEach(c => c.onchange = () => { opts.show[c.dataset.show] = c.checked; rerender(); });
+  box.querySelectorAll('input[data-i]').forEach(c => c.onchange = () => { items[+c.dataset.i].checked = c.checked; const sel = items.filter(it => opts.show[it.type] !== false && it.checked && !it.exists).length;
+    const b = document.getElementById('bAdd'); b.disabled = !sel; b.textContent = `Dodaj zaznaczone (${sel})`; });
+  document.getElementById('bAll').onclick = () => { items.forEach(it => { if(opts.show[it.type] !== false) it.checked = true; }); rerender(); };
+  document.getElementById('bNone').onclick = () => { items.forEach(it => it.checked = false); rerender(); };
+  document.getElementById('bAdd').onclick = async () => {
+    const b = document.getElementById('bAdd'), st = document.getElementById('bSt'); b.disabled = true;
+    const todo = items.filter(it => opts.show[it.type] !== false && it.checked && !it.exists && !findAlbum(it.artist, it.title));
+    try {
+      for(let i = 0; i < todo.length; i++){ if(!todo[i].year){ st.textContent = `Sprawdzam lata wydania ${i + 1}/${todo.length}…`; await deezerYear(todo[i]); await sleep(130); } }
+      let added = 0;
+      for(let i = 0; i < todo.length; i += 50){
+        st.textContent = `Dodaję ${Math.min(i + 50, todo.length)}/${todo.length}…`;
+        const rows = todo.slice(i, i + 50).map(it => ({artist:it.artist, title:it.title, year:it.year, type:it.type, cover_url:safeUrl(it.cover) || null}));
+        let { data, error } = await sb.from('albums').insert(rows).select();
+        if(error){ data = []; for(const r of rows){ const x = await sb.from('albums').insert(r).select().single(); if(!x.error) data.push(x.data); } }
+        data.forEach(d => S.albums.set(Number(d.id), {...d, id:Number(d.id)})); added += data.length;
+      }
+      items.forEach(it => { if(findAlbum(it.artist, it.title)){ if(!it.exists) it.added = true; it.exists = true; } });
+      toast(`Dodano ${added} ${pl(added,'album','albumy','albumów')}`); rerender();
+    } catch(e){ st.innerHTML = `<span class="err">${esc(errMsg(e))}</span>`; b.disabled = false; }
+  };
+}
+function viewDisco(tabs){
+  const D = S.disco || (S.disco = {q:'', artists:null, artist:null, items:null, show:{Singiel:false, Kompilacja:false}});
+  app.innerHTML = `<h1>Dodaj dyskografię</h1><p class="sub">Wyszukaj wykonawcę, a strona pobierze z Deezera wszystkie jego albumy i EP-ki z okładkami i latami. Zaznacz, co dodać – bez wystawiania ocen.</p>${tabs}
+    <div class="card"><form class="btns" id="dsf" style="flex-wrap:nowrap"><input id="dsq" placeholder="np. Katy Perry" value="${esc(D.q)}"><button class="btn-p">Szukaj</button></form>
+    <div class="muted small" id="dsst" style="margin-top:8px"></div><div id="dsar" class="mbres"></div><div id="dsal"></div></div>`;
+  const drawArtists = () => {
+    const box = document.getElementById('dsar');
+    if(!D.artists || D.artist){ box.innerHTML = ''; return; }
+    box.innerHTML = D.artists.length ? D.artists.map((a, i) => `<button type="button" class="mbitem" data-a="${i}">
+      <span class="av" style="width:48px;height:48px;background:#999">${safeUrl(a.picture_medium) ? `<img src="${esc(a.picture_medium)}" alt="" referrerpolicy="no-referrer">` : ''}</span>
+      <span><b>${esc(a.name)}</b><br><small>${a.nb_album || 0} wydawnictw · ${(a.nb_fan || 0).toLocaleString('pl-PL')} fanów</small></span></button>`).join('') : '<div class="empty">Nie znaleziono wykonawcy.</div>';
+    box.querySelectorAll('[data-a]').forEach(b => b.onclick = () => loadArtist(D.artists[+b.dataset.a]));
+  };
+  const drawAlbums = () => {
+    const box = document.getElementById('dsal');
+    if(!D.items){ box.innerHTML = ''; return; }
+    box.innerHTML = `<div class="shead" style="margin-top:16px"><h2>${esc(D.artist.name)} – ${D.items.length} ${pl(D.items.length,'pozycja','pozycje','pozycji')}</h2><button type="button" id="dsback">← Inny wykonawca</button></div>` + bulkHtml(D.items, D);
+    document.getElementById('dsback').onclick = () => { D.artist = null; D.items = null; drawArtists(); drawAlbums(); };
+    bindBulk(box, D.items, D, drawAlbums);
+  };
+  async function loadArtist(a){
+    D.artist = a; drawArtists(); const st = document.getElementById('dsst'); st.textContent = 'Pobieram dyskografię…';
+    try {
+      const d = await jsonp('https://api.deezer.com/artist/' + a.id + '/albums?limit=300&output=jsonp');
+      const list = dedupeEditions(((d && d.data) || []).map(x => dzAlbum(x, a.name))).sort((x, y) => (y.year || 0) - (x.year || 0));
+      list.forEach(it => { it.exists = !!findAlbum(it.artist, it.title); it.checked = !it.exists && it.type !== 'Singiel' && it.type !== 'Kompilacja'; });
+      D.items = list; st.textContent = ''; drawAlbums();
+    } catch(e){ st.textContent = 'Deezer nie odpowiada – spróbuj za chwilę.'; D.artist = null; drawArtists(); }
+  }
+  document.getElementById('dsf').onsubmit = async e => {
+    e.preventDefault(); D.q = document.getElementById('dsq').value.trim(); if(!D.q) return;
+    D.artist = null; D.items = null; drawAlbums(); const st = document.getElementById('dsst'); st.textContent = 'Szukam…';
+    try { const d = await jsonp('https://api.deezer.com/search/artist?limit=8&output=jsonp&q=' + encodeURIComponent(D.q)); D.artists = (d && d.data) || []; st.textContent = D.artists.length ? 'Wybierz wykonawcę:' : ''; }
+    catch(err){ D.artists = null; st.textContent = 'Deezer nie odpowiada – spróbuj za chwilę.'; }
+    drawArtists();
+  };
+  drawArtists(); drawAlbums();
+}
+function viewChart(tabs){
+  const C = S.chart || (S.chart = {items:null, show:{Singiel:false, Kompilacja:false}});
+  app.innerHTML = `<h1>Popularne teraz</h1><p class="sub">Top 100 albumów z listy przebojów Deezera (dla Twojego kraju). Zaznacz te, które warto mieć w bazie.</p>${tabs}
+    <div class="card"><div class="muted small" id="chst"></div><div id="chl"></div></div>`;
+  const draw = () => { const box = document.getElementById('chl'); if(!C.items) return; box.innerHTML = bulkHtml(C.items, C); bindBulk(box, C.items, C, draw); };
+  if(C.items) return draw();
+  document.getElementById('chst').textContent = 'Pobieram listę…';
+  jsonp('https://api.deezer.com/chart/0/albums?limit=100&output=jsonp').then(d => {
+    C.items = dedupeEditions(((d && d.data) || []).map(x => dzAlbum(x)));
+    C.items.forEach(it => { it.exists = !!findAlbum(it.artist, it.title); it.checked = false; });
+    const st = document.getElementById('chst'); if(st){ st.textContent = ''; draw(); }
+  }).catch(() => { const st = document.getElementById('chst'); if(st) st.textContent = 'Deezer nie odpowiada – spróbuj za chwilę.'; });
 }
 function viewEdit(arg){
   const a = S.albums.get(Number(arg));
