@@ -78,6 +78,8 @@ button:disabled{opacity:.5;cursor:default}
 .ico-l{display:inline-flex;align-items:center;justify-content:center;width:34px;height:32px;border-radius:10px;border:1px solid var(--line);background:var(--raise);color:var(--muted);transition:color .15s,border-color .15s}
 .bell{position:relative}
 .bell .nb{position:absolute;top:-6px;right:-7px;margin:0;box-shadow:0 0 0 2px var(--card)}
+.ico-b{width:36px;height:34px;padding:0;display:inline-flex;align-items:center;justify-content:center;color:var(--muted)}
+.ico-b:hover{color:var(--text)}
 .ico-l:hover,.ico-l.on{color:var(--text);border-color:color-mix(in srgb,var(--line),var(--text) 25%)}
 /* iPhone powiększa stronę przy polach z czcionką < 16 px - na dotykowych ekranach zawsze min. 16 px */
 @media (hover:none) and (pointer:coarse){input,select,textarea{font-size:max(16px,1em)}}
@@ -2122,29 +2124,75 @@ async function makeShareImage(a){
   ctx.textAlign = 'right'; ctx.fillStyle = '#7c828d'; ctx.font = `500 26px ${F}`; ctx.fillText(new Date(mine.updated_at || mine.created_at || Date.now()).toLocaleDateString('pl-PL', {day:'numeric', month:'long', year:'numeric'}), W - P, fy + 12);
   return new Promise(res => c.toBlob(b => res({blob:b, hasTr, cover:!!cover}), 'image/png'));
 }
-async function openShare(a){
+async function makeTopImage(year){
+  const F = '"Bricolage Grotesque", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
+  try { await Promise.all([document.fonts.load(`800 60px ${F}`), document.fonts.load(`600 30px ${F}`)]); } catch(e){}
+  const list = (S.byUser.get(S.user.id) || []).filter(r => { const a = S.albums.get(r.album_id); return a && !isSingle(a) && a.year === year; })
+    .sort((p, q) => q.score - p.score || S.albums.get(p.album_id).title.localeCompare(S.albums.get(q.album_id).title, 'pl')).slice(0, 10);
+  const covers = await Promise.all(list.map(r => safeCover(S.albums.get(r.album_id).cover_url)));
+  const logo = await safeCover(new URL('icon-192.png', location.href).href);
+  const W = 1080, P = 64, rowH = 124, headH = 250, H = headH + list.length * rowH + 130;
+  const c = document.createElement('canvas'); c.width = W; c.height = H; const ctx = c.getContext('2d');
+  ctx.fillStyle = '#101215'; ctx.fillRect(0, 0, W, H);
+  const g = ctx.createRadialGradient(W * .85, 0, 0, W * .85, 0, W); g.addColorStop(0, '#3fbf6044'); g.addColorStop(1, '#10121500'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+  ctx.fillStyle = '#9097a3'; ctx.font = `600 30px ${F}`; ctx.fillText(pname(S.user.id), P, P + 30);
+  ctx.fillStyle = '#ffffff'; ctx.font = `800 84px ${F}`; ctx.fillText(`Top ${list.length} · ${year}`, P, P + 128);
+  ctx.fillStyle = '#9097a3'; ctx.font = `500 28px ${F}`; ctx.fillText('najlepsze albumy roku', P, P + 172);
+  const medal = ['#f5c542', '#c7ccd4', '#d08a4c'];
+  list.forEach((r, i) => {
+    const a = S.albums.get(r.album_id), y = headH + i * rowH, cy = y + rowH / 2, sc = Math.round(r.score);
+    if(i){ ctx.fillStyle = 'rgba(255,255,255,.07)'; ctx.fillRect(P, y, W - 2 * P, 2); }
+    ctx.textAlign = 'center'; ctx.font = `800 46px ${F}`; ctx.fillStyle = medal[i] || '#6b717c'; ctx.fillText(String(i + 1), P + 28, cy + 16);
+    const cx = P + 76, cs = 92, ccy = cy - cs / 2;
+    ctx.save(); rrect(ctx, cx, ccy, cs, cs, 12); ctx.clip();
+    if(covers[i]) ctx.drawImage(covers[i], cx, ccy, cs, cs);
+    else { const gg = ctx.createLinearGradient(cx, ccy, cx + cs, ccy + cs); gg.addColorStop(0, '#8f96a3'); gg.addColorStop(1, '#4d535e'); ctx.fillStyle = gg; ctx.fillRect(cx, ccy, cs, cs);
+      ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.font = `800 44px ${F}`; ctx.textAlign = 'center'; ctx.fillText((a.title || '?').trim().charAt(0).toUpperCase(), cx + cs / 2, cy + 16); }
+    ctx.restore();
+    const tx = cx + cs + 28, tw = W - P - 150 - tx;
+    ctx.textAlign = 'left'; ctx.fillStyle = '#ffffff'; ctx.font = `700 36px ${F}`; ctx.fillText(wrapLines(ctx, a.title, tw, 1)[0] || '', tx, cy - 4);
+    ctx.fillStyle = '#a7adb7'; ctx.font = `500 28px ${F}`; ctx.fillText(wrapLines(ctx, a.artist, tw, 1)[0] || '', tx, cy + 34);
+    const bw = 112, bh = 76, bx = W - P - bw, by = cy - bh / 2;
+    rrect(ctx, bx, by, bw, bh, 16); ctx.fillStyle = SC(sc); ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.font = `800 46px ${F}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(String(sc), bx + bw / 2, cy + 3); ctx.textBaseline = 'alphabetic';
+  });
+  const fy = H - 64; ctx.fillStyle = 'rgba(255,255,255,.08)'; ctx.fillRect(P, fy - 40, W - 2 * P, 2);
+  if(logo){ ctx.save(); rrect(ctx, P, fy - 18, 44, 44, 11); ctx.clip(); ctx.drawImage(logo, P, fy - 18, 44, 44); ctx.restore(); }
+  ctx.textAlign = 'left'; ctx.font = `800 30px ${F}`; ctx.fillStyle = '#3fbf60'; const n1 = (CONFIG.SITE_NAME || '').split(' ')[0] || '';
+  ctx.fillText(n1, P + (logo ? 58 : 0), fy + 14); const w1 = ctx.measureText(n1 + ' ').width;
+  ctx.fillStyle = '#ffffff'; ctx.fillText((CONFIG.SITE_NAME || '').split(' ').slice(1).join(' '), P + (logo ? 58 : 0) + w1, fy + 14);
+  ctx.textAlign = 'right'; ctx.fillStyle = '#7c828d'; ctx.font = `500 26px ${F}`; ctx.fillText(new Date().toLocaleDateString('pl-PL', {day:'numeric', month:'long', year:'numeric'}), W - P, fy + 12);
+  const missing = list.filter((r, i) => !covers[i] && safeUrl(S.albums.get(r.album_id).cover_url)).length;
+  return new Promise(res => c.toBlob(b => res({blob:b, missing}), 'image/png'));
+}
+function openShare(a){
+  return openShareImg(() => makeShareImage(a), a.artist + ' - ' + a.title, 'Grafika z oceną albumu ' + a.title, 'Grafika z oceną',
+    r => !r.cover && safeUrl(a.cover_url) ? 'Serwer okładki nie pozwolił jej skopiować - w grafice jest litera zamiast okładki.' : '');
+}
+async function openShareImg(gen, name, alt, heading, note){
   const bg = document.createElement('div'); bg.className = 'modal-bg';
-  bg.innerHTML = `<div class="modal" role="dialog" aria-label="Grafika z oceną"><div class="shead" style="margin:0"><h2 style="margin:0">Grafika z oceną</h2><button type="button" class="link" id="mClose">Zamknij</button></div>
+  bg.innerHTML = `<div class="modal" role="dialog" aria-label="${esc(heading)}"><div class="shead" style="margin:0"><h2 style="margin:0">${esc(heading)}</h2><button type="button" class="link" id="mClose">Zamknij</button></div>
     <div class="pv"><div class="muted small" style="padding:40px 10px">Tworzę grafikę…</div></div><div class="btns" id="mBtns"></div><div class="small muted" id="mMsg" style="text-align:center"></div></div>`;
   document.body.appendChild(bg);
   const close = () => { bg.remove(); document.removeEventListener('keydown', esc_); };
   const esc_ = e => { if(e.key === 'Escape') close(); };
   document.addEventListener('keydown', esc_);
   bg.onclick = e => { if(e.target === bg) close(); }; bg.querySelector('#mClose').onclick = close;
-  let r; try { r = await makeShareImage(a); } catch(e){ console.error(e); bg.querySelector('.pv').innerHTML = `<div class="err" style="padding:20px">Nie udało się stworzyć grafiki: ${esc(e.message || e)}</div>`; return; }
+  let r; try { r = await gen(); } catch(e){ console.error(e); bg.querySelector('.pv').innerHTML = `<div class="err" style="padding:20px">Nie udało się stworzyć grafiki: ${esc(e.message || e)}</div>`; return; }
   if(!r || !r.blob){ bg.querySelector('.pv').innerHTML = '<div class="err" style="padding:20px">Nie udało się stworzyć grafiki.</div>'; return; }
-  const url = URL.createObjectURL(r.blob), fname = (a.artist + ' - ' + a.title).replace(/[\\/:*?"<>|]+/g, '').slice(0, 80) + '.png';
+  const url = URL.createObjectURL(r.blob), fname = name.replace(/[\\/:*?"<>|]+/g, '').slice(0, 80) + '.png';
   const file = new File([r.blob], fname, {type:'image/png'});
-  bg.querySelector('.pv').innerHTML = `<img src="${url}" alt="Grafika z oceną albumu ${esc(a.title)}">`;
+  bg.querySelector('.pv').innerHTML = `<img src="${url}" alt="${esc(alt)}">`;
   const canShare = !!(navigator.canShare && navigator.canShare({files:[file]}));
   const canCopy = !!(navigator.clipboard && window.ClipboardItem);
   bg.querySelector('#mBtns').innerHTML = `${canShare ? '<button class="btn-p" id="mShare">Udostępnij…</button>' : ''}${canCopy ? `<button ${canShare ? '' : 'class="btn-p"'} id="mCopy">Kopiuj obrazek</button>` : ''}<a href="${url}" download="${esc(fname)}"><button type="button">Pobierz</button></a>`;
   const msg = bg.querySelector('#mMsg');
-  if(!r.cover && safeUrl(a.cover_url)) msg.textContent = 'Serwer okładki nie pozwolił jej skopiować - w grafice jest litera zamiast okładki.';
+  msg.textContent = (note && note(r)) || '';
   const cp = bg.querySelector('#mCopy');
   if(cp) cp.onclick = async () => { try { await navigator.clipboard.write([new ClipboardItem({'image/png':r.blob})]); msg.textContent = 'Skopiowano - wklej obrazek w rozmowie (Ctrl+V / Wklej).'; toast('Skopiowano grafikę'); } catch(e){ msg.textContent = 'Przeglądarka nie pozwoliła skopiować obrazka - użyj „Pobierz”.'; } };
   const sh = bg.querySelector('#mShare');
-  if(sh) sh.onclick = async () => { try { await navigator.share({files:[file], title:a.title}); } catch(e){ if(e.name !== 'AbortError') msg.textContent = 'Nie udało się udostępnić - spróbuj „Pobierz”.'; } };
+  if(sh) sh.onclick = async () => { try { await navigator.share({files:[file], title:heading}); } catch(e){ if(e.name !== 'AbortError') msg.textContent = 'Nie udało się udostępnić - spróbuj „Pobierz”.'; } };
 }
 function listenRowHtml(uid, editable){
   const l = S.listen.filter(x => x.user_id === uid && S.albums.has(x.album_id)).sort((p, q) => (q.created_at || '').localeCompare(p.created_at || ''));
@@ -2193,7 +2241,8 @@ function viewHome(){
 
       <section class="card">
         <div class="shead"><h2>Twój ranking ${H.year}</h2>
-          <select id="hy">${years.map(y => `<option ${y === H.year ? 'selected' : ''}>${y}</option>`).join('')}</select></div>
+          <div class="btns">${yearList.length ? `<button type="button" class="ico-b" id="topShare" title="Udostępnij top ${Math.min(10, yearList.length)} z ${H.year} jako grafikę" aria-label="Udostępnij top 10 jako grafikę"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg></button>` : ''}
+          <select id="hy" style="width:auto">${years.map(y => `<option ${y === H.year ? 'selected' : ''}>${y}</option>`).join('')}</select></div></div>
         ${yearList.length ? shown.map((r, i) => { const a = S.albums.get(r.album_id), st = stats(a.id);
           return `<a class="mrow ${i < 3 ? 'top' + (i + 1) : ''}" href="#/album/${a.id}"><span class="rk">${i + 1}</span>${coverHtml(a, 'c48')}
             <span class="meta"><b>${esc(a.title)}</b><span>${esc(a.artist)}</span></span>
@@ -2219,6 +2268,8 @@ function viewHome(){
     </aside>
   </div>`;
   document.getElementById('hy').onchange = e => { H.year = +e.target.value; H.all = false; render(); };
+  const tsb = document.getElementById('topShare'); if(tsb) tsb.onclick = () => openShareImg(() => makeTopImage(H.year), `Top 10 ${H.year} - ${pname(S.user.id)}`, `Top 10 albumów ${H.year}`, `Top 10 · ${H.year}`,
+    r => r.missing ? `Przy ${r.missing} ${pl(r.missing,'albumie','albumach','albumach')} serwer nie pozwolił skopiować okładki - jest litera.` : '');
   const ha = document.getElementById('hall'); if(ha) ha.onclick = () => { H.all = !H.all; render(); };
   document.getElementById('fedit').onclick = () => { H.edit = !H.edit; render(); if(H.edit){ const i = document.getElementById('fpick'); if(i) i.focus(); } };
   if(H.edit) bindPicker('fpick', async a => { if(await addFav(a.id)){ toast('Dodano do ulubionych'); render(); const i = document.getElementById('fpick'); if(i) i.focus(); } }, a => isFav(a.id));
