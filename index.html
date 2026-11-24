@@ -251,7 +251,7 @@ const CONFIG = Object.assign({
 }, window.OCENY_CONFIG || {}); // dane z pliku config.js
 /* ===================================================================== */
 
-const TYPES = ['LP','EP','Mixtape','Kompilacja','Live','Singiel','Inne'];
+const TYPES = ['LP','EP','Mixtape','Kompilacja','Live','Single','Inne'];
 const app = document.getElementById('app');
 const top_ = document.getElementById('top');
 let sb = null;
@@ -294,7 +294,7 @@ function avatar(id, size = 36){
   return u ? `<span class="av" style="${st}"><img src="${esc(u)}" alt="" loading="lazy" referrerpolicy="no-referrer"></span>`
            : `<span class="av" style="${st}">${esc(pname(id).charAt(0).toUpperCase())}</span>`;
 }
-const isSingle = a => a.type === 'Singiel';
+const isSingle = a => a.type === 'Single';
 const kindOk = (a, kind) => kind === 'all' || (kind === 'singles' ? isSingle(a) : !isSingle(a));
 function timeAgo(d){
   if(!d) return ''; const s = (Date.now() - new Date(d)) / 1000;
@@ -446,7 +446,7 @@ function mbType(rg){
   if(sec.includes('live')) return 'Live';
   if(sec.includes('mixtape/street')) return 'Mixtape';
   const p = (rg['primary-type'] || '').toLowerCase();
-  return p === 'ep' ? 'EP' : p === 'single' ? 'Singiel' : 'LP';
+  return p === 'ep' ? 'EP' : p === 'single' ? 'Single' : 'LP';
 }
 const mbArtist = rg => (rg['artist-credit'] || []).map(c => (c.name || (c.artist && c.artist.name) || '') + (c.joinphrase || '')).join('');
 const mbCover = (id, size = 500) => `https://coverartarchive.org/release-group/${id}/front-${size}`;
@@ -491,7 +491,7 @@ function jsonp(url, ms = 12000){
     document.head.appendChild(sc);
   });
 }
-const dzType = t => t === 'ep' ? 'EP' : t === 'single' ? 'Singiel' : t === 'compile' ? 'Kompilacja' : 'LP';
+const dzType = t => t === 'ep' ? 'EP' : t === 'single' ? 'Single' : t === 'compile' ? 'Kompilacja' : 'LP';
 async function deezerSearch(q){
   const d = await jsonp('https://api.deezer.com/search/album?limit=12&output=jsonp&q=' + encodeURIComponent(q));
   return ((d && d.data) || []).filter(a => a.cover_xl || a.cover_big).map(a => ({
@@ -504,7 +504,7 @@ async function itunesSearch(q){
   const d = await jsonp('https://itunes.apple.com/search?media=music&entity=album&country=PL&limit=12&term=' + encodeURIComponent(q));
   return ((d && d.results) || []).filter(a => a.artworkUrl100).map(a => ({
     src:'Apple Music', title:String(a.collectionName || '').replace(/ - (EP|Single)$/i, ''), artist:a.artistName || '',
-    type:/ - EP$/i.test(a.collectionName || '') ? 'EP' : / - Single$/i.test(a.collectionName || '') ? 'Singiel' : 'LP',
+    type:/ - EP$/i.test(a.collectionName || '') ? 'EP' : / - Single$/i.test(a.collectionName || '') ? 'Single' : 'LP',
     year:parseInt(String(a.releaseDate || '').slice(0, 4)) || null,
     cover:a.artworkUrl100.replace(/\/\d+x\d+bb\./, '/600x600bb.'), thumb:a.artworkUrl100 }));
 }
