@@ -703,7 +703,7 @@ function compat(u1, u2){
   const mad = pairs.reduce((s, p) => s + Math.abs(p.a - p.b), 0) / pairs.length;
   return {n:pairs.length, pct:Math.max(0, Math.min(100, Math.round(100 - mad * 3))), mad, pairs};
 }
-const pctCol = p => p == null ? 'var(--none)' : p >= 80 ? 'var(--g)' : p >= 60 ? 'var(--y)' : 'var(--r)';
+const pctCol = p => p == null ? 'var(--none)' : p >= 70 ? 'var(--g)' : p >= 50 ? 'var(--y)' : 'var(--r)'; // te same progi co oceny
 const pctBadge = (c, cls = 'sm') => `<span class="score ${cls}" style="background:${pctCol(c.pct)}" title="${c.n} wspólnych albumów">${c.pct == null ? '-' : c.pct + '%'}</span>`;
 const sd = a => { if(a.length < 2) return 0; const m = a.reduce((s, x) => s + x, 0) / a.length; return Math.sqrt(a.reduce((s, x) => s + (x - m) ** 2, 0) / a.length); };
 /* ---------- wykonawcy ---------- */
