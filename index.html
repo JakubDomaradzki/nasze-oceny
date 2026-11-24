@@ -2,19 +2,21 @@
 <html lang="pl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Nasze oceny</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<meta name="theme-color" content="#2f9e44">
+<meta name="theme-color" content="#eceef2" id="tc">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Oceny">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&display=swap" rel="stylesheet">
-<script>try{var t=localStorage.getItem('oceny_theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t;}catch(e){}</script>
+<script>try{var t=localStorage.getItem('oceny_theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t;}catch(e){}
+function syncThemeColor(){var d=document.documentElement.dataset.theme,dark=d?d==='dark':matchMedia('(prefers-color-scheme: dark)').matches,m=document.getElementById('tc');if(m)m.content=dark?'#0f1114':'#eceef2';}
+syncThemeColor();try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',syncThemeColor);}catch(e){}</script>
 <style>
 :root{
   color-scheme:light;
@@ -73,7 +75,38 @@ button:disabled{opacity:.5;cursor:default}
 .me a{font-weight:600}
 .me button{padding:6px 10px;font-size:13px}
 .me .ico{width:34px;height:32px;padding:0;text-align:center;font-size:15px;line-height:1}
-@media (max-width:720px){.nav-in{flex-wrap:wrap;height:auto;padding:8px 12px;gap:6px}.links{order:3;flex-basis:100%}.me{margin-left:auto}}
+/* iPhone powiększa stronę przy polach z czcionką < 16 px - na dotykowych ekranach zawsze min. 16 px */
+@media (hover:none) and (pointer:coarse){input,select,textarea{font-size:max(16px,1em)}}
+
+/* dolny pasek zakładek na telefonie */
+.tabbar,.sheet-bg{display:none}
+@media (max-width:720px){
+  .nav-in{height:54px;padding:0 14px;padding-left:max(14px,env(safe-area-inset-left));padding-right:max(14px,env(safe-area-inset-right))}
+  .nav .links,.nav .me .hide-m{display:none}
+  .me{margin-left:auto}
+  main{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
+  .tabbar{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--navbg);
+    -webkit-backdrop-filter:saturate(1.6) blur(16px);backdrop-filter:saturate(1.6) blur(16px);border-top:1px solid var(--line);
+    padding:6px max(6px,env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom)) max(6px,env(safe-area-inset-left))}
+  .tabbar a,.tabbar button{display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 0 3px;border:none;background:none;border-radius:10px;
+    color:var(--muted);font-size:11px;font-weight:600;position:relative;-webkit-tap-highlight-color:transparent}
+  .tabbar svg{width:24px;height:24px}
+  .tabbar .on{color:var(--accent)}
+  .tabbar .nb{position:absolute;top:0;left:calc(50% + 6px);margin:0}
+  #toasts{bottom:calc(84px + env(safe-area-inset-bottom))!important}
+  .sheet-bg{display:block;position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.4);opacity:0;pointer-events:none;transition:opacity .2s}
+  .sheet-bg.open{opacity:1;pointer-events:auto}
+  .sheet{position:absolute;left:0;right:0;bottom:0;background:var(--card);border-radius:20px 20px 0 0;border-top:1px solid var(--line);
+    padding:10px 16px calc(18px + env(safe-area-inset-bottom));transform:translateY(100%);transition:transform .25s cubic-bezier(.2,.8,.2,1)}
+  .sheet-bg.open .sheet{transform:none}
+  .sheet .grab{width:40px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 14px}
+  .sheet-g{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+  .sheet-g a{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 6px;border-radius:14px;background:var(--soft);font-size:13px;font-weight:600}
+  .sheet-g a.on{background:var(--accent-soft);color:var(--accent)}
+  .sheet-g svg{width:24px;height:24px}
+  .sheet-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 2px;border-top:1px solid var(--line);font-size:14px;font-weight:600}
+}
+@media (prefers-reduced-motion:reduce){.sheet,.sheet-bg{transition:none}}
 
 main{max-width:1100px;margin:0 auto;padding:26px 16px 64px}
 h1{font-size:32px;line-height:1.1;margin:0 0 6px;letter-spacing:-.8px;font-weight:800}
@@ -162,18 +195,19 @@ h2{font-size:17px;letter-spacing:-.2px;color:var(--text);margin:0 0 12px;font-we
 .disc::after{content:'';position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 210deg,transparent 0 20%,rgba(255,255,255,.09) 25%,transparent 32% 70%,rgba(255,255,255,.06) 76%,transparent 82%)}
 @keyframes discout{to{transform:translateX(118px) rotate(40deg)}}
 @media (prefers-reduced-motion:reduce){.disc{animation:none;transform:translateX(118px)}}
-@media (max-width:640px){.sleeve{width:100%;height:auto}.sleeve .cover{width:100%!important;height:auto!important;aspect-ratio:1}.disc{display:none}}
+@media (max-width:640px){.avgnum{font-size:44px;letter-spacing:-1.5px;min-width:0!important;padding:12px 16px!important}.avgbox{gap:14px;padding:14px}.ainfo h1{font-size:32px}
+.sleeve{width:100%;height:auto}.sleeve .cover{width:100%!important;height:auto!important;aspect-ratio:1}.disc{display:none}}
 @media (max-width:640px){.ahead{grid-template-columns:1fr;gap:16px}}
 .ainfo h1{font-size:40px;line-height:1.05;letter-spacing:-1.2px}
 .artist{font-size:19px;font-weight:600;margin:0 0 6px}
 .facts{color:var(--muted);font-size:14px;margin-bottom:18px}
 .avgbox{display:flex;align-items:center;gap:18px;padding:16px 18px;border-radius:14px;background:var(--soft);border:1px solid var(--line);margin-bottom:16px}
-.avgnum{font-size:60px;font-weight:800;letter-spacing:-2px;line-height:1;color:#fff;border-radius:12px;padding:12px 16px;min-width:120px;text-align:center;font-variant-numeric:tabular-nums}
+.avgnum{flex:none;white-space:nowrap;font-size:60px;font-weight:800;letter-spacing:-2px;line-height:1;color:#fff;border-radius:12px;padding:12px 16px;min-width:120px;text-align:center;font-variant-numeric:tabular-nums}
 .avglbl{font-size:14px;color:var(--muted);font-weight:600}
 .avgsub{font-size:15px;margin-top:4px}
 .avgsub b{font-variant-numeric:tabular-nums}
 .ranks{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-.ranks a{font-size:12.5px;background:var(--card);border:1px solid var(--line);padding:3px 9px;border-radius:12px;font-weight:600}
+.ranks a{white-space:nowrap;font-size:12.5px;background:var(--card);border:1px solid var(--line);padding:3px 9px;border-radius:12px;font-weight:600}
 .cols{display:grid;grid-template-columns:1.3fr 1fr;gap:18px;margin-top:24px}
 @media (max-width:820px){.cols{grid-template-columns:1fr}}
 @media (min-width:641px) and (max-width:900px){.ahead{grid-template-columns:260px 1fr}.disc{display:none}}
@@ -803,17 +837,47 @@ function getTheme(){ try { const t = localStorage.getItem('oceny_theme'); return
 function setTheme(t){
   try { localStorage.setItem('oceny_theme', t); } catch(e){}
   if(t === 'auto') delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = t;
+  syncThemeColor();
 }
 
 /* ---------- layout ---------- */
 const NAV = [['start','Start'],['ranking','Ranking'],['lata','Lata'],['albumy','Albumy'],['losuj','🎲 Losuj'],['dodaj','+ Dodaj'],['osoby','Osoby'],['statystyki','Statystyki'],['import','Import']];
+const NI = {
+  start:'<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>',
+  ranking:'<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/>',
+  albumy:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5"/>',
+  losuj:'<rect x="3.5" y="3.5" width="17" height="17" rx="3.5"/><circle cx="8.5" cy="8.5" r="1.2" fill="currentColor"/><circle cx="15.5" cy="15.5" r="1.2" fill="currentColor"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/>',
+  more:'<circle cx="5" cy="12" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="19" cy="12" r="1.6" fill="currentColor"/>',
+  lata:'<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
+  dodaj:'<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>',
+  osoby:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a5.5 5.5 0 0 1 3.5 6"/>',
+  statystyki:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+  import:'<path d="M12 3v12M7 10l5 5 5-5M4 20h16"/>',
+  konto:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>'};
+const ni = k => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${NI[k]}</svg>`;
 function renderNav(cur){
   if(!S.user){ top_.innerHTML = ''; return; }
+  const TABS = [['start','Start'],['ranking','Ranking'],['albumy','Albumy'],['losuj','Losuj']];
+  const MORE = [['lata','Lata'],['dodaj','Dodaj'],['osoby','Osoby'],['statystyki','Statystyki'],['import','Import'],['konto','Konto']];
+  const nc = newCount();
   top_.innerHTML = `<header class="nav"><div class="nav-in">
-    <a class="brand" href="#/start"><img src="icon-192.png" alt="">${esc(CONFIG.SITE_NAME).replace(/^(\S+)/, '<b>$1</b>')}</a>
+    <a class="brand" href="#/start"><img src="icon-192.png" alt=""><span>${esc(CONFIG.SITE_NAME).replace(/^(\S+)/, '<b>$1</b>')}</span></a>
     <nav class="links">${NAV.map(([k, l]) => `<a href="#/${k}" class="${cur === k ? 'on' : ''}">${l}${k === 'start' && newCount() ? `<span class="nb" title="Nowe oceny znajomych">${newCount()}</span>` : ''}</a>`).join('')}</nav>
-    <div class="me"><button id="themeB" class="ico" title="Motyw: ${THEME_NAMES[getTheme()]} (kliknij, żeby zmienić)" aria-label="Zmień motyw">${THEME_ICONS[getTheme()]}</button><button id="reload" class="ico" title="Odśwież dane" aria-label="Odśwież dane">↻</button><a href="#/konto" title="Twoje konto" style="display:flex;align-items:center;gap:7px">${avatar(S.user.id, 26)}${esc(me().display_name)}</a><button id="logout">Wyloguj</button></div>
-  </div></header>`;
+    <div class="me"><button id="themeB" class="ico hide-m" title="Motyw: ${THEME_NAMES[getTheme()]} (kliknij, żeby zmienić)" aria-label="Zmień motyw">${THEME_ICONS[getTheme()]}</button><button id="reload" class="ico hide-m" title="Odśwież dane" aria-label="Odśwież dane">↻</button><a href="#/konto" title="Twoje konto" style="display:flex;align-items:center;gap:7px">${avatar(S.user.id, 26)}${esc(me().display_name)}</a><button id="logout" class="hide-m">Wyloguj</button></div>
+  </div></header>
+  <nav class="tabbar" aria-label="Menu">${TABS.map(([k, l]) => `<a href="#/${k}" class="${cur === k ? 'on' : ''}">${ni(k)}${l}${k === 'start' && nc ? `<span class="nb">${nc}</span>` : ''}</a>`).join('')}
+    <button type="button" id="moreB" class="${MORE.some(([k]) => k === cur) ? 'on' : ''}">${ni('more')}Więcej</button></nav>
+  <div class="sheet-bg" id="sheet"><div class="sheet" role="dialog" aria-label="Więcej"><div class="grab"></div>
+    <div class="sheet-g">${MORE.map(([k, l]) => `<a href="#/${k}" class="${cur === k ? 'on' : ''}">${ni(k)}${l}</a>`).join('')}</div>
+    <div class="sheet-row">Wygląd ${segHtml('thseg2', getTheme(), [['auto','Auto'],['light','Jasny'],['dark','Ciemny']])}</div>
+    <div class="sheet-row"><button type="button" id="reload2">↻ Odśwież dane</button><button type="button" class="btn-d" id="logout2">Wyloguj</button></div>
+  </div></div>`;
+  const sh = document.getElementById('sheet');
+  document.getElementById('moreB').onclick = () => sh.classList.add('open');
+  sh.onclick = e => { if(e.target === sh || e.target.closest('.sheet-g a')) sh.classList.remove('open'); };
+  bindSeg('thseg2', v => { setTheme(v); renderNav(cur); document.getElementById('sheet').classList.add('open'); });
+  document.getElementById('reload2').onclick = async () => { sh.classList.remove('open'); await safeLoad(); render(); toast('Odświeżono'); };
+  document.getElementById('logout2').onclick = () => document.getElementById('logout').click();
   document.getElementById('logout').onclick = async () => { await sb.auth.signOut(); S.user = null; location.hash = ''; render(); };
   document.getElementById('themeB').onclick = () => { const order = ['auto','light','dark']; setTheme(order[(order.indexOf(getTheme()) + 1) % 3]); toast('Motyw: ' + THEME_NAMES[getTheme()]); renderNav(document.querySelector('.links a.on') ? route().page : null); };
   document.getElementById('reload').onclick = async () => { await safeLoad(); render(); toast('Odświeżono'); };
