@@ -464,8 +464,12 @@ tr.cl:hover td{background:var(--soft)}
 .star{border:none;background:none;padding:2px;font-size:20px;line-height:1;color:var(--line);border-radius:6px}
 .star.on{color:#f5b301}
 .star:hover{color:#f5b301;border:none}
-.tin{text-align:center;font-weight:800;font-size:16px;padding:6px 4px;font-variant-numeric:tabular-nums;background:#fff!important;border-color:#cfd3da;color:#16181d}
-.tin::placeholder{color:#9aa0aa}
+:root{--tin-bg:#ffffff;--tin-bd:#cfd3da;--tin-tx:#16181d;--tin-ph:#9aa0aa;--tin-g:#2b8f3a;--tin-y:#b88a00;--tin-r:#cf4426}
+:root[data-theme=dark]{--tin-bg:#2c3038;--tin-bd:#3b4049;--tin-tx:#e9ebef;--tin-ph:#727884;--tin-g:#4cc05c;--tin-y:#e6b92a;--tin-r:#f06a4d}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--tin-bg:#2c3038;--tin-bd:#3b4049;--tin-tx:#e9ebef;--tin-ph:#727884;--tin-g:#4cc05c;--tin-y:#e6b92a;--tin-r:#f06a4d}}
+.tin{text-align:center;font-weight:800;font-size:16px;padding:6px 4px;font-variant-numeric:tabular-nums;background:var(--tin-bg)!important;border-color:var(--tin-bd);color:var(--tin-tx)}
+.tin.sg{color:var(--tin-g)}.tin.sy{color:var(--tin-y)}.tin.sr{color:var(--tin-r)}
+.tin::placeholder{color:var(--tin-ph)}
 .tin.saved{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
 .gab,.rbtn{border:none;background:none;padding:0;border-radius:8px;line-height:0;cursor:pointer}
 .gab:hover .score,.rbtn:hover .score{filter:brightness(1.1);box-shadow:0 0 0 2px var(--card),0 0 0 4px color-mix(in srgb,var(--text),transparent 70%)}
@@ -474,6 +478,12 @@ tr.cl:hover td{background:var(--soft)}
 .tpop .tph{font-weight:700;font-size:13.5px;padding:4px 6px 8px;border-bottom:1px solid var(--line);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tpop a{display:grid;grid-template-columns:24px 1fr auto;gap:8px;align-items:center;padding:5px 6px;border-radius:8px;font-size:14px}
 .tpop a:hover{background:var(--soft)}
+.tpop.wide{width:min(340px,calc(100vw - 16px));max-width:none}
+.tpl{max-height:min(420px,60vh);overflow:auto}
+.tpr{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:8px;align-items:center;padding:5px 6px;font-size:14px;border-radius:8px}
+.tpr .n{color:var(--muted);font-weight:700;text-align:right;font-size:12.5px}
+.tpr .t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tpr.skip .t{color:var(--muted)}
 .vf{color:#f5b301;font-size:12px;line-height:1.2}
 .vf.muted{color:var(--muted)}
 .viewbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 12px;margin-bottom:10px;border-radius:10px;background:var(--accent-soft);font-size:14px}
@@ -607,7 +617,10 @@ async function loadData(){
   S.profiles = new Map(p.map(x => [x.id, x]));
   S.albums = new Map(a.map(x => [Number(x.id), {...x, id:Number(x.id)}]));
   S.ratings = r.map(x => ({...x, album_id:Number(x.album_id), score:Number(x.score)}));
-  reindex(); S.loadedAt = Date.now(); S.tr = {}; S.allTr = null;
+  reindex(); S.loadedAt = Date.now(); S.allTr = null;
+  // tracklisty: zostaw tylko album otwarty na ekranie (jego oceny piosenek odświeżą się osobno)
+  const open = route().page === 'album' ? Number(route().arg) : null;
+  for(const k of Object.keys(S.tr)) if(Number(k) !== open) delete S.tr[k];
 }
 function reindex(){
   S.byAlbum = new Map(); S.byUser = new Map();
@@ -1164,14 +1177,7 @@ function viewAlbum(arg){
       b.title = was ? 'Dodaj do ulubionych' : 'Usuń z ulubionych'; b.setAttribute('aria-pressed', String(!was)); toast(was ? 'Usunięto z ulubionych' : 'Dodano do ulubionych ♥'); } };
   document.getElementById('lisB').onclick = async () => { if(await (inListen(id) ? removeListen(id) : addListen(id))) render(); };
   initTracks(a).then(() => markRaters(a));
-  document.querySelectorAll('.rlist [data-ru]').forEach(b => b.onclick = async () => {
-    const T = await loadTracks(a.id), u = b.dataset.ru;
-    if(T.state !== 'ok' || !T.tracks.length) return toast('Ten album nie ma jeszcze tracklisty', true);
-    if(T.view === u){ T.view = null; drawTracks(a); markRaters(a); return; }
-    if(!T.ratings.some(r => r.user_id === u && (r.score != null || r.fav))) return toast(`${pname(u)} nie ocenił(a) piosenek z tego albumu`);
-    T.view = u; T.edit = false; drawTracks(a); markRaters(a);
-    document.getElementById('trk').scrollIntoView({behavior:'smooth', block:'start'});
-  });
+  document.querySelectorAll('.rlist [data-ru]').forEach(b => b.onclick = async e => { e.stopPropagation(); showUserTracksPop(a, b.dataset.ru, b); });
   const rk = document.getElementById('rkLink'); if(rk) rk.onclick = () => { S.f.kind = kind; S.f.type = 'all'; S.f.min = 1; };
   const rky = document.getElementById('rkYLink'); if(rky) rky.onclick = () => { S.f.kind = kind; S.f.type = 'all'; S.f.min = 1; };
   const shb = document.getElementById('shareB'); if(shb) shb.onclick = () => openShare(a);
@@ -1659,7 +1665,7 @@ function trackSumHtml(a){
     ${row('Z bonusem za najlepsze utwory', W, 'średnia + 30% przewagi najlepszych − 15% straty najsłabszych')}
     ${row('Po przeliczeniu skali', F, 'rozciągnięcie wokół 80')}</div>`;
 }
-const tinCol = v => v == null ? '#16181d' : v >= 70 ? '#2b8f3a' : v >= 50 ? '#b88a00' : '#cf4426';
+const tinCls = v => v == null ? '' : v >= 70 ? 'sg' : v >= 50 ? 'sy' : 'sr';
 const gaHtml = (o, hid, pos, view) => {
   if(view){ const r = o.list.find(x => x.user_id === view) || (view === S.user.id && o.mine != null ? {score:o.mine, fav:o.myFav} : null);
     return r && r.score != null ? badge(r.score, 'sm') + (r.fav ? '<span class="vf">★</span>' : '') : r && r.fav ? '<span class="vf">★</span>' : '<span class="vf muted">-</span>'; }
@@ -1686,7 +1692,7 @@ function drawTracks(a){
         <span class="tt"><b title="${esc(t.title)}">${esc(t.title)}</b><small>${fmtDur(t.duration)}${t.skip ? (t.duration ? ' · ' : '') + 'pomijany w ocenie albumu' : ''}</small></span>
         <span class="ga">${gaHtml(o, hid, t.position, view)}</span>
         <button type="button" class="star ${o.myFav ? 'on' : ''}" data-fav="${t.position}" title="${o.myFav ? 'Twój ulubiony utwór' : 'Oznacz jako ulubiony'}" aria-pressed="${o.myFav}">★</button>
-        <input class="tin" data-pos="${t.position}" inputmode="decimal" enterkeyhint="next" style="color:${tinCol(o.mine)}" value="${o.mine == null ? '' : num(o.mine)}" placeholder="-" aria-label="Twoja ocena: ${esc(t.title)}">
+        <input class="tin ${tinCls(o.mine)}" data-pos="${t.position}" inputmode="decimal" enterkeyhint="next" value="${o.mine == null ? '' : num(o.mine)}" placeholder="-" aria-label="Twoja ocena: ${esc(t.title)}">
       </div>`; }).join('')}
     <div id="trkSum">${trackSumHtml(a)}</div>
     ${T.src ? `<p class="note">Tracklista pobrana z: ${T.src}. Błąd? Kliknij „Edytuj tracklistę”.</p>` : ''}`;
@@ -1695,7 +1701,7 @@ function drawTracks(a){
   inputs.forEach((inp, i) => {
     inp.onkeydown = e => { if(e.key === 'Enter'){ e.preventDefault(); (inputs[i + 1] || inp).focus(); if(!inputs[i + 1]) inp.blur(); } };
     inp.onchange = () => saveTrackScore(a, +inp.dataset.pos, inp);
-    inp.oninput = () => { inp.style.color = tinCol(parseScore(inp.value)); };
+    inp.oninput = () => { inp.classList.remove('sg', 'sy', 'sr'); const c = tinCls(parseScore(inp.value)); if(c) inp.classList.add(c); };
   });
   body.querySelectorAll('[data-fav]').forEach(b => b.onclick = () => toggleFavTrack(a, +b.dataset.fav));
   bindGab(a);
@@ -1719,6 +1725,26 @@ function showTrackPop(a, pos, el){
   pop.onclick = e => e.stopPropagation();
   setTimeout(() => { document.addEventListener('click', closePop); window.addEventListener('scroll', closePop, true); }, 0);
 }
+// dymek: oceny piosenek danej osoby z tego albumu
+async function showUserTracksPop(a, u, el){
+  const had = document.getElementById('tpop'); const same = had && had.dataset.u === u; closePop(); if(same) return;
+  const T = await trackData(a);
+  const pop = document.createElement('div'); pop.id = 'tpop'; pop.className = 'tpop wide'; pop.dataset.u = u; pop.setAttribute('role', 'dialog');
+  const mine = T && T.state === 'ok' ? new Map(T.ratings.filter(r => r.user_id === u).map(r => [r.position, r])) : new Map();
+  const any = [...mine.values()].some(r => r.score != null || r.fav);
+  pop.innerHTML = `<div class="tph" style="display:flex;align-items:center;gap:8px">${avatar(u, 22)}<span style="overflow:hidden;text-overflow:ellipsis">${esc(pname(u))} · piosenki</span></div>` +
+    (!T || T.state !== 'ok' || !T.tracks.length ? '<div class="muted small" style="padding:8px 6px">Ten album nie ma jeszcze tracklisty.</div>'
+    : !any ? `<div class="muted small" style="padding:8px 6px">${esc(pname(u))} nie ocenił(a) piosenek z tego albumu.</div>`
+    : `<div class="tpl">${T.tracks.map(t => { const r = mine.get(t.position);
+        return `<div class="tpr ${t.skip ? 'skip' : ''}"><span class="n">${t.position}</span><span class="t" title="${esc(t.title)}">${esc(t.title)}${r && r.fav ? ' <span style="color:#f5b301">★</span>' : ''}</span>${r && r.score != null ? badge(r.score, 'sm') : '<small class="muted">-</small>'}</div>`; }).join('')}</div>`);
+  document.body.appendChild(pop);
+  const rc = el.getBoundingClientRect(), pw = pop.offsetWidth, ph = pop.offsetHeight;
+  pop.style.left = Math.min(window.innerWidth - pw - 8, Math.max(8, rc.right - pw)) + 'px';
+  let top = rc.bottom + 8; if(top + ph > window.innerHeight - 8) top = Math.max(8, rc.top - ph - 8);
+  pop.style.top = top + 'px';
+  pop.onclick = ev => ev.stopPropagation();
+  setTimeout(() => { document.addEventListener('click', closePop); window.addEventListener('scroll', closePop, true); }, 0);
+}
 // podświetlenie wybranej osoby na liście ocen albumu
 function markRaters(a){ const T = S.tr[a.id]; document.querySelectorAll('.rlist [data-ru]').forEach(b => b.classList.toggle('on', !!T && T.view === b.dataset.ru)); }
 function bindPut(){
@@ -1739,8 +1765,14 @@ function refreshTrackRow(a, pos){
   bindGab(a);
   document.getElementById('trkSum').innerHTML = trackSumHtml(a); bindPut();
 }
+async function trackData(a){ const T = S.tr[a.id]; return T && T.state === 'ok' && T.tracks ? T : loadTracks(a.id, true); }
 async function saveTrackScore(a, pos, inp){
-  const T = S.tr[a.id], uid = S.user.id, raw = inp.value.trim();
+  try { return await saveTrackScore_(a, pos, inp); }
+  catch(e){ console.error(e); toast('Nie udało się zapisać oceny piosenki - sprawdź internet i spróbuj jeszcze raz', true); }
+}
+async function saveTrackScore_(a, pos, inp){
+  const T = await trackData(a), uid = S.user.id, raw = inp.value.trim();
+  if(!T || T.state !== 'ok') throw new Error('brak tracklisty');
   const cur = T.ratings.find(r => r.user_id === uid && r.position === pos);
   let score = null;
   if(raw){ score = parseScore(raw); if(score == null){ toast('Ocena piosenki: liczba od 0 do 100', true); inp.value = cur && cur.score != null ? num(cur.score) : ''; return; } }
@@ -1760,7 +1792,12 @@ async function saveTrackScore(a, pos, inp){
   refreshTrackRow(a, pos);
 }
 async function toggleFavTrack(a, pos){
-  const T = S.tr[a.id], uid = S.user.id, mine = T.ratings.filter(r => r.user_id === uid);
+  try { return await toggleFavTrack_(a, pos); }
+  catch(e){ console.error(e); toast('Nie udało się zapisać - sprawdź internet i spróbuj jeszcze raz', true); }
+}
+async function toggleFavTrack_(a, pos){
+  const T = await trackData(a), uid = S.user.id; if(!T || T.state !== 'ok') throw new Error('brak tracklisty');
+  const mine = T.ratings.filter(r => r.user_id === uid);
   const cur = mine.find(r => r.position === pos), on = !(cur && cur.fav);
   const rows = [];
   if(on) for(const r of mine) if(r.fav && r.position !== pos) rows.push({user_id:uid, album_id:a.id, position:r.position, score:r.score, fav:false});
@@ -2726,7 +2763,9 @@ async function init(){
     app.innerHTML = `<div class="card login"><h1>Prawie gotowe</h1><p>Brakuje pliku <code>config.js</code> obok <code>index.html</code> albo nie ma w nim adresu i klucza Supabase.</p></div>`;
     return;
   }
-  sb = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
+  sb = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY, {
+    auth:{persistSession:true, autoRefreshToken:true, lock:async (name, timeout, fn) => fn()}  // bez blokady przeglądarki - nie zawiesza zapytań po powrocie do karty
+  });
   const { data:{ session } } = await sb.auth.getSession();
   if(session){ S.user = session.user; app.innerHTML = '<div class="loading">Ładowanie ocen…</div>'; await safeLoad(); initSeen(); }
   render();
@@ -2737,6 +2776,8 @@ async function init(){
     if(document.visibilityState !== 'visible' || !S.user || Date.now() - S.loadedAt < 120000) return;
     const p = route().page; await safeLoad();
     if(['start','aktywnosc','ranking','lata','osoby','osoba','statystyki','wykonawca'].includes(p) && route().page === p) render();
+    if(p === 'album' && route().page === 'album'){ const a = S.albums.get(Number(route().arg));
+      if(a && S.tr[a.id] && S.tr[a.id].state === 'ok' && !S.tr[a.id].edit){ await loadTracks(a.id, true); refreshTrackRow(a, 0); } }
   });
 }
 init();
