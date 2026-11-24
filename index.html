@@ -495,8 +495,15 @@ const dzType = t => t === 'ep' ? 'EP' : t === 'single' ? 'Singiel' : t === 'comp
 async function deezerSearch(q){
   const d = await jsonp('https://api.deezer.com/search/album?limit=12&output=jsonp&q=' + encodeURIComponent(q));
   return ((d && d.data) || []).filter(a => a.cover_xl || a.cover_big).map(a => ({
-    src:'Deezer', title:a.title, artist:(a.artist && a.artist.name) || '', type:dzType(a.record_type), year:null,
+    src:'Deezer', dzId:a.id, title:a.title, artist:(a.artist && a.artist.name) || '', type:dzType(a.record_type), year:null,
     cover:a.cover_xl || a.cover_big, thumb:a.cover_medium || a.cover_xl }));
+}
+// rok wydania – wyszukiwarka Deezera go nie podaje, trzeba dopytać o szczegóły albumu
+async function deezerYear(r){
+  if(!r || r.year || !r.dzId) return r;
+  try { const d = await jsonp('https://api.deezer.com/album/' + r.dzId + '?output=jsonp', 8000);
+    r.year = parseInt(String((d && d.release_date) || '').slice(0, 4)) || null; } catch(e){}
+  return r;
 }
 let itNext = 0; // Apple: ok. 20 zapytań na minutę
 async function itunesSearch(q){
@@ -517,7 +524,7 @@ async function mbFindCover(artist, title){
   try {
     let r = (await deezerSearch(`artist:"${artist}" album:"${cleanT(title)}"`)).find(x => matches(x, artist, title));
     if(!r) r = (await deezerSearch(artist + ' ' + cleanT(title))).find(x => matches(x, artist, title));
-    if(r) return {...r, status:'found'};
+    if(r){ await deezerYear(r); return {...r, status:'found'}; }
   } catch(e){ flaky = true; }
   // 2. MusicBrainz / Cover Art Archive
   let mbYear = null, mbId = null;
@@ -861,7 +868,7 @@ function bindAlbumForm(a, isNew){
     try {
       const [mb, dz, it] = await Promise.all([
         mbSearch(q).then(r => r.map(x => ({...x, src:'MusicBrainz', cover:null, thumb:mbCover(x.id, 250)}))).catch(() => []),
-        deezerSearch(q).catch(() => []), itunesSearch(q).catch(() => [])]);
+        deezerSearch(q).then(l => Promise.all(l.map(deezerYear))).catch(() => []), itunesSearch(q).catch(() => [])]);
       // przeplataj źródła, żeby na górze były najlepsze wyniki z każdego
       const res = []; for(let i = 0; i < 12; i++) for(const l of [dz, mb, it]) if(l[i]) res.push(l[i]);
       $('mbst').textContent = res.length ? 'Kliknij właściwy album:' : 'Nic nie znaleziono – wpisz dane ręcznie.';
