@@ -793,7 +793,7 @@ const dzType = t => t === 'ep' ? 'EP' : t === 'single' ? 'Singiel' : t === 'comp
 async function deezerSearch(q){
   const d = await jsonp('https://api.deezer.com/search/album?limit=12&output=jsonp&q=' + encodeURIComponent(q));
   return ((d && d.data) || []).filter(a => a.cover_xl || a.cover_big).map(a => ({
-    src:'Deezer', dzId:a.id, title:a.title, artist:(a.artist && a.artist.name) || '', type:dzType(a.record_type), year:null,
+    src:'Deezer', dzId:a.id, nb:a.nb_tracks || 0, title:a.title, artist:(a.artist && a.artist.name) || '', type:dzType(a.record_type), year:null,
     cover:a.cover_xl || a.cover_big, thumb:a.cover_medium || a.cover_xl }));
 }
 // rok wydania - wyszukiwarka Deezera go nie podaje, trzeba dopytać o szczegóły albumu
@@ -1492,13 +1492,18 @@ async function loadTracks(id, force){
   T.state = 'ok'; return T;
 }
 async function fetchTracklist(a){
-  try { // 1. Deezer
-    let r = (await deezerSearch(`artist:"${a.artist}" album:"${cleanT(a.title)}"`)).find(x => matches(x, a.artist, a.title));
-    if(!r) r = (await deezerSearch(a.artist + ' ' + cleanT(a.title))).find(x => matches(x, a.artist, a.title));
-    if(r && r.dzId){
+  const wantSingle = a.type === 'Singiel';
+  try { // 1. Deezer - wśród pasujących wybierz album/EP (nie singiel o tej samej nazwie), najlepiej z największą liczbą utworów
+    const rank = x => x.type === 'Singiel' ? (wantSingle ? 3 : 0) : x.type === 'LP' ? 2 : 1;
+    const exact = x => simp(x.title) === simp(a.title) ? 1 : 0; // podstawowa wersja przed Deluxe
+    const pick = l => l.filter(x => matches(x, a.artist, a.title)).sort((p, q) => rank(q) - rank(p) || exact(q) - exact(p) || q.nb - p.nb)[0];
+    let r = pick(await deezerSearch(`artist:"${a.artist}" album:"${cleanT(a.title)}"`));
+    if(!r || (!wantSingle && r.type === 'Singiel')){ const r2 = pick(await deezerSearch(a.artist + ' ' + cleanT(a.title))); if(r2 && (!r || rank(r2) > rank(r))) r = r2; }
+    if(r && r.dzId && (wantSingle || r.type !== 'Singiel')){
       const d = await jsonp('https://api.deezer.com/album/' + r.dzId + '/tracks?limit=300&output=jsonp');
       const t = ((d && d.data) || []).sort((p, q) => ((p.disk_number || 1) - (q.disk_number || 1)) || ((p.track_position || 0) - (q.track_position || 0)));
-      if(t.length) return {src:'Deezer', tracks:t.map(x => ({title:x.title_short || x.title, duration:x.duration || null}))};
+      // 1-2 utwory przy albumie to prawie na pewno singiel - wtedy spróbuj MusicBrainz
+      if(t.length && (wantSingle || t.length > 2)) return {src:'Deezer', tracks:t.map(x => ({title:x.title_short || x.title, duration:x.duration || null}))};
     }
   } catch(e){ console.warn(e); }
   try { // 2. MusicBrainz
@@ -1508,7 +1513,8 @@ async function fetchTracklist(a){
       const j = await mbGet(`release?release-group=${rg}&inc=recordings&fmt=json&limit=15`);
       const rels = (j.releases || []).filter(r => r.media && r.media.some(m => (m.tracks || []).length))
         .sort((p, q) => (p.status === 'Official' ? 0 : 1) - (q.status === 'Official' ? 0 : 1) || (p.date || '9999').localeCompare(q.date || '9999'));
-      if(rels[0]) return {src:'MusicBrainz', tracks:rels[0].media.flatMap(m => m.tracks || []).map(x => ({title:x.title, duration:x.length ? Math.round(x.length / 1000) : null}))};
+      const rel = wantSingle ? rels[0] : (rels.find(r => r.media.reduce((n, m) => n + (m.tracks || []).length, 0) > 2) || rels[0]);
+      if(rel) return {src:'MusicBrainz', tracks:rel.media.flatMap(m => m.tracks || []).map(x => ({title:x.title, duration:x.length ? Math.round(x.length / 1000) : null}))};
     }
   } catch(e){ console.warn(e); }
   return null;
@@ -1661,7 +1667,7 @@ function drawTrackEditor(a){
   tools.innerHTML = '';
   const text = (T.tracks || []).map(t => (t.skip ? '* ' : '') + t.title + (t.duration ? '  [' + fmtDur(t.duration) + ']' : '')).join('\n');
   body.innerHTML = `<div class="form tred">
-    <label>Jeden utwór w wierszu, w kolejności. Gwiazdka <code>*</code> na początku = utwór pomijany w ocenie albumu (intro, skit). Długość w nawiasie <code>[3:21]</code> jest opcjonalna.
+    <label><span>Jeden utwór w wierszu, w kolejności. Gwiazdka <code>*</code> na początku = utwór pomijany w ocenie albumu (intro, skit). Długość w nawiasie <code>[3:21]</code> jest opcjonalna.</span>
       <textarea id="trTxt" placeholder="Green Light  [3:54]&#10;Sober  [3:17]&#10;* Interlude">${esc(text)}</textarea></label>
     <div class="btns"><button class="btn-p" id="trSave">Zapisz tracklistę</button><button id="trFetch">Pobierz z internetu</button><button id="trCancel">Anuluj</button><span class="small" id="trMsg"></span></div>
     <p class="note">Oceny piosenek są przypisane do numeru utworu. Zmiana tytułu ich nie usuwa; usunięcie utworu z końca listy usuwa jego oceny.</p></div>`;
