@@ -467,6 +467,17 @@ tr.cl:hover td{background:var(--soft)}
 .tin{text-align:center;font-weight:800;font-size:16px;padding:6px 4px;font-variant-numeric:tabular-nums;background:#fff!important;border-color:#cfd3da;color:#16181d}
 .tin::placeholder{color:#9aa0aa}
 .tin.saved{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.gab,.rbtn{border:none;background:none;padding:0;border-radius:8px;line-height:0;cursor:pointer}
+.gab:hover .score,.rbtn:hover .score{filter:brightness(1.1);box-shadow:0 0 0 2px var(--card),0 0 0 4px color-mix(in srgb,var(--text),transparent 70%)}
+.rbtn.on .score{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--text)}
+.tpop{position:fixed;z-index:70;min-width:220px;max-width:300px;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 32px rgba(0,0,0,.28);padding:8px}
+.tpop .tph{font-weight:700;font-size:13.5px;padding:4px 6px 8px;border-bottom:1px solid var(--line);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tpop a{display:grid;grid-template-columns:24px 1fr auto;gap:8px;align-items:center;padding:5px 6px;border-radius:8px;font-size:14px}
+.tpop a:hover{background:var(--soft)}
+.vf{color:#f5b301;font-size:12px;line-height:1.2}
+.vf.muted{color:var(--muted)}
+.viewbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 12px;margin-bottom:10px;border-radius:10px;background:var(--accent-soft);font-size:14px}
+.viewbar .link{margin-left:auto}
 .trsum{margin-top:14px;padding:14px;border-radius:12px;background:var(--soft);border:1px solid var(--line)}
 .trsum .sr{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:5px 0;font-size:14px}
 .trsum .sr b{font-size:17px;font-variant-numeric:tabular-nums}
@@ -1121,7 +1132,7 @@ function viewAlbum(arg){
           ${r.comment && !h ? `<div class="cm">${esc(r.comment)}</div>` : ''}
           ${h ? '<div class="dt">oceniono - wynik ukryty do niedzieli</div>' : `<div class="bar"><div style="width:${r.score}%;background:${col(r.score)}"></div></div>`}
           <div class="dt">${fmtDate(r.updated_at || r.created_at)}</div></div>
-        ${h ? lockBadge('') : badge(r.score)}</div>`; }).join('') : '<div class="empty">Nikt jeszcze nie ocenił tego albumu.</div>'}</div>
+        ${h ? lockBadge('') : `<button type="button" class="rbtn" data-ru="${r.user_id}" title="Pokaż oceny piosenek: ${esc(pname(r.user_id))}">${badge(r.score)}</button>`}</div>`; }).join('') : '<div class="empty">Nikt jeszcze nie ocenił tego albumu.</div>'}</div>
       ${notRated.length ? `<p class="muted small" style="margin:12px 0 0">Jeszcze nie ocenili: ${notRated.map(esc).join(', ')}</p>` : ''}
     </div>
     <div class="card"><h2>${mine ? 'Twoja ocena' : 'Oceń album'}</h2>
@@ -1152,7 +1163,15 @@ function viewAlbum(arg){
     if(await (was ? removeFav(id) : addFav(id))){ b.classList.toggle('on', !was); b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop');
       b.title = was ? 'Dodaj do ulubionych' : 'Usuń z ulubionych'; b.setAttribute('aria-pressed', String(!was)); toast(was ? 'Usunięto z ulubionych' : 'Dodano do ulubionych ♥'); } };
   document.getElementById('lisB').onclick = async () => { if(await (inListen(id) ? removeListen(id) : addListen(id))) render(); };
-  initTracks(a);
+  initTracks(a).then(() => markRaters(a));
+  document.querySelectorAll('.rlist [data-ru]').forEach(b => b.onclick = async () => {
+    const T = await loadTracks(a.id), u = b.dataset.ru;
+    if(T.state !== 'ok' || !T.tracks.length) return toast('Ten album nie ma jeszcze tracklisty', true);
+    if(T.view === u){ T.view = null; drawTracks(a); markRaters(a); return; }
+    if(!T.ratings.some(r => r.user_id === u && (r.score != null || r.fav))) return toast(`${pname(u)} nie ocenił(a) piosenek z tego albumu`);
+    T.view = u; T.edit = false; drawTracks(a); markRaters(a);
+    document.getElementById('trk').scrollIntoView({behavior:'smooth', block:'start'});
+  });
   const rk = document.getElementById('rkLink'); if(rk) rk.onclick = () => { S.f.kind = kind; S.f.type = 'all'; S.f.min = 1; };
   const rky = document.getElementById('rkYLink'); if(rky) rky.onclick = () => { S.f.kind = kind; S.f.type = 'all'; S.f.min = 1; };
   const shb = document.getElementById('shareB'); if(shb) shb.onclick = () => openShare(a);
@@ -1610,11 +1629,11 @@ async function initTracks(a){
 }
 function trackStats(a){
   const T = S.tr[a.id], hid = hiddenAlbum(a.id), uid = S.user.id;
-  const by = new Map(T.tracks.map(t => [t.position, {n:0, sum:0, fav:0, mine:null, myFav:false, others:0}]));
+  const by = new Map(T.tracks.map(t => [t.position, {n:0, sum:0, fav:0, mine:null, myFav:false, others:0, list:[]}]));
   for(const r of T.ratings){ const o = by.get(r.position); if(!o) continue;
     if(r.user_id === uid){ o.mine = r.score; o.myFav = r.fav; } else if(r.score != null) o.others++;
     if(hid) continue;
-    if(r.score != null){ o.n++; o.sum += r.score; } if(r.fav) o.fav++; }
+    if(r.score != null){ o.n++; o.sum += r.score; } if(r.fav) o.fav++; if(r.score != null || r.fav) o.list.push(r); }
   let best = null;
   for(const t of T.tracks){ const o = by.get(t.position); if(!t.skip && o.n >= 2 && (!best || o.sum / o.n > best.avg)) best = {pos:t.position, avg:o.sum / o.n}; }
   return {by, best, hid};
@@ -1641,7 +1660,11 @@ function trackSumHtml(a){
     ${row('Po przeliczeniu skali', F, 'rozciągnięcie wokół 80')}</div>`;
 }
 const tinCol = v => v == null ? '#16181d' : v >= 70 ? '#2b8f3a' : v >= 50 ? '#b88a00' : '#cf4426';
-const gaHtml = (o, hid) => hid ? (o.others ? lockBadge() : '<small>-</small>') : o.n ? badge(o.sum / o.n, 'sm') + `<small>${o.n}${o.fav ? ' · ★' + o.fav : ''}</small>` : '<small>-</small>';
+const gaHtml = (o, hid, pos, view) => {
+  if(view){ const r = o.list.find(x => x.user_id === view) || (view === S.user.id && o.mine != null ? {score:o.mine, fav:o.myFav} : null);
+    return r && r.score != null ? badge(r.score, 'sm') + (r.fav ? '<span class="vf">★</span>' : '') : r && r.fav ? '<span class="vf">★</span>' : '<span class="vf muted">-</span>'; }
+  return hid ? (o.others ? lockBadge() : '<small>-</small>') : o.n ? `<button type="button" class="gab" data-gp="${pos}" title="Kto jak ocenił" aria-label="Pokaż, kto jak ocenił ten utwór">${badge(o.sum / o.n, 'sm')}</button><small>${o.n}${o.fav ? ' · ★' + o.fav : ''}</small>` : '<small>-</small>';
+};
 function drawTracks(a){
   const T = S.tr[a.id], body = document.getElementById('trkBody'), tools = document.getElementById('trkTools');
   if(!body) return;
@@ -1654,13 +1677,14 @@ function drawTracks(a){
     document.getElementById('trRetry').onclick = () => { T.tried = false; initTracks(a); };
     return;
   }
-  const {by, best, hid} = trackStats(a);
-  body.innerHTML = `<div class="trh"><span></span><span>Utwór</span><span>Grupa</span><span title="Ulubiony utwór">★</span><span>Twoja</span></div>
+  const {by, best, hid} = trackStats(a), view = T.view && !(hid && T.view !== S.user.id) ? T.view : null;
+  body.innerHTML = `${view ? `<div class="viewbar">${avatar(view, 24)}<span>Pokazujesz oceny piosenek: <b>${esc(pname(view))}</b></span><button type="button" class="link small" id="viewOff">Pokaż średnie grupy</button></div>` : ''}
+    <div class="trh"><span></span><span>Utwór</span><span>${view ? esc(pname(view)) : 'Grupa'}</span><span title="Ulubiony utwór">★</span><span>Twoja</span></div>
     ${T.tracks.map(t => { const o = by.get(t.position);
       return `<div class="trw ${t.skip ? 'skip' : ''} ${best && best.pos === t.position ? 'best' : ''}" data-p="${t.position}">
         <span class="no">${t.position}</span>
         <span class="tt"><b title="${esc(t.title)}">${esc(t.title)}</b><small>${fmtDur(t.duration)}${t.skip ? (t.duration ? ' · ' : '') + 'pomijany w ocenie albumu' : ''}</small></span>
-        <span class="ga">${gaHtml(o, hid)}</span>
+        <span class="ga">${gaHtml(o, hid, t.position, view)}</span>
         <button type="button" class="star ${o.myFav ? 'on' : ''}" data-fav="${t.position}" title="${o.myFav ? 'Twój ulubiony utwór' : 'Oznacz jako ulubiony'}" aria-pressed="${o.myFav}">★</button>
         <input class="tin" data-pos="${t.position}" inputmode="decimal" enterkeyhint="next" style="color:${tinCol(o.mine)}" value="${o.mine == null ? '' : num(o.mine)}" placeholder="-" aria-label="Twoja ocena: ${esc(t.title)}">
       </div>`; }).join('')}
@@ -1674,8 +1698,29 @@ function drawTracks(a){
     inp.oninput = () => { inp.style.color = tinCol(parseScore(inp.value)); };
   });
   body.querySelectorAll('[data-fav]').forEach(b => b.onclick = () => toggleFavTrack(a, +b.dataset.fav));
+  bindGab(a);
+  const vo = document.getElementById('viewOff'); if(vo) vo.onclick = () => { T.view = null; drawTracks(a); markRaters(a); };
   bindPut();
 }
+function bindGab(a){ document.querySelectorAll('#trkBody .gab').forEach(b => b.onclick = e => { e.stopPropagation(); showTrackPop(a, +b.dataset.gp, b); }); }
+// dymek: kto jak ocenił utwór
+function closePop(){ const p = document.getElementById('tpop'); if(p) p.remove(); document.removeEventListener('click', closePop); window.removeEventListener('scroll', closePop, true); }
+function showTrackPop(a, pos, el){
+  const had = document.getElementById('tpop'); const same = had && had.dataset.p === String(pos); closePop(); if(same) return;
+  const T = S.tr[a.id], t = T.tracks.find(x => x.position === pos), {by} = trackStats(a), o = by.get(pos);
+  const rows = [...o.list].sort((p, q) => (q.score ?? -1) - (p.score ?? -1));
+  const pop = document.createElement('div'); pop.id = 'tpop'; pop.className = 'tpop'; pop.dataset.p = pos; pop.setAttribute('role', 'dialog');
+  pop.innerHTML = `<div class="tph">${esc(t ? t.title : '')}</div>${rows.map(r => `<a href="#/osoba/${r.user_id}">${avatar(r.user_id, 24)}<span>${esc(pname(r.user_id))}${r.fav ? ' <span style="color:#f5b301">★</span>' : ''}</span>${r.score != null ? badge(r.score, 'sm') : '<small class="muted">-</small>'}</a>`).join('')}`;
+  document.body.appendChild(pop);
+  const rc = el.getBoundingClientRect(), pw = pop.offsetWidth, ph = pop.offsetHeight;
+  let left = Math.min(window.innerWidth - pw - 8, Math.max(8, rc.left + rc.width / 2 - pw / 2));
+  let top = rc.bottom + 8; if(top + ph > window.innerHeight - 8) top = Math.max(8, rc.top - ph - 8);
+  pop.style.left = left + 'px'; pop.style.top = top + 'px';
+  pop.onclick = e => e.stopPropagation();
+  setTimeout(() => { document.addEventListener('click', closePop); window.addEventListener('scroll', closePop, true); }, 0);
+}
+// podświetlenie wybranej osoby na liście ocen albumu
+function markRaters(a){ const T = S.tr[a.id]; document.querySelectorAll('.rlist [data-ru]').forEach(b => b.classList.toggle('on', !!T && T.view === b.dataset.ru)); }
 function bindPut(){
   document.querySelectorAll('[data-put]').forEach(b => b.onclick = () => {
     const rs = document.getElementById('rs'); if(!rs) return;
@@ -1689,8 +1734,9 @@ function refreshTrackRow(a, pos){
     const p = +row.dataset.p, o = by.get(p);
     row.classList.toggle('best', !!best && best.pos === p);
     const st = row.querySelector('.star'); st.classList.toggle('on', o.myFav); st.setAttribute('aria-pressed', String(o.myFav));
-    row.querySelector('.ga').innerHTML = gaHtml(o, hid);
+    row.querySelector('.ga').innerHTML = gaHtml(o, hid, p, T.view && !(hid && T.view !== S.user.id) ? T.view : null);
   });
+  bindGab(a);
   document.getElementById('trkSum').innerHTML = trackSumHtml(a); bindPut();
 }
 async function saveTrackScore(a, pos, inp){
