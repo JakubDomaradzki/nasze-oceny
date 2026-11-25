@@ -301,7 +301,42 @@ tr.cl:hover td{background:var(--soft)}
 .btn-on{border-color:var(--accent);color:var(--accent);font-weight:600}
 
 /* strona główna */
-.hello{display:flex;align-items:center;gap:14px;margin-bottom:20px}
+.hello{display:flex;align-items:center;gap:14px;margin-bottom:20px;flex-wrap:wrap}
+/* zapowiedź Wrapped - ciemna zawsze, w obu motywach */
+.wrapt{position:relative;overflow:hidden;display:grid;grid-template-columns:minmax(0,1fr);align-items:center;gap:28px;width:100%;margin:0 0 20px;padding:24px 28px;border:0;border-radius:20px;text-align:left;font:inherit;color:#fff;cursor:pointer;
+  background:radial-gradient(90% 160% at 0% 0%,rgba(63,166,77,.62),transparent 58%),radial-gradient(70% 140% at 100% 110%,rgba(146,84,255,.55),transparent 62%),radial-gradient(40% 80% at 60% -20%,rgba(255,92,138,.28),transparent 70%),#0d0e12;
+  box-shadow:0 10px 30px -12px rgba(20,30,25,.5);transition:transform .2s,box-shadow .2s}
+.wrapt:hover{transform:translateY(-2px);box-shadow:0 16px 36px -12px rgba(20,30,25,.6)}
+.wrapt:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+.wrapt::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.22;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.wl{display:flex;flex-direction:column;gap:10px;position:relative;z-index:1}
+.wt{font-weight:800;font-size:clamp(40px,6.2vw,64px);line-height:.82;letter-spacing:-.045em;white-space:nowrap}
+.wy{color:transparent;-webkit-text-stroke:1.6px rgba(255,255,255,.95);margin-left:.06em;letter-spacing:-.02em}
+.ws{font-size:14.5px;font-weight:500;color:rgba(255,255,255,.78)}
+.wr{display:grid;grid-template-columns:1fr 1fr;gap:12px 22px;position:relative;z-index:1}
+.wst{display:flex;flex-direction:column;gap:6px;min-width:0}
+.wsl{font-size:12.5px;font-weight:600;color:rgba(255,255,255,.62);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.red{display:block;height:16px;border-radius:5px;background:linear-gradient(100deg,rgba(255,255,255,.14) 30%,rgba(255,255,255,.34) 50%,rgba(255,255,255,.14) 70%);background-size:300% 100%;animation:shim 3.2s ease-in-out infinite}
+.wst:nth-child(2) .red{animation-delay:.25s}.wst:nth-child(3) .red{animation-delay:.5s}.wst:nth-child(4) .red{animation-delay:.75s}
+@keyframes shim{0%{background-position:100% 0}100%{background-position:-50% 0}}
+.wpill{position:absolute;top:14px;right:16px;z-index:2;font-size:12px;font-weight:700;padding:5px 10px;border-radius:999px;background:rgba(255,255,255,.14);color:#fff;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.modal.wmodal{background:radial-gradient(120% 70% at 0% 0%,rgba(63,166,77,.5),transparent 60%),radial-gradient(90% 60% at 100% 100%,rgba(146,84,255,.45),transparent 65%),#0d0e12;color:#fff;border-color:rgba(255,255,255,.1);gap:12px;padding:24px}
+.wmodal .wmh{display:flex;flex-direction:column-reverse;align-items:flex-start;gap:12px;margin-bottom:4px}
+.wmodal .wmh .wpill{position:static}
+.wmodal .wt{font-size:clamp(38px,11vw,50px)}
+.wmodal p{margin:0;color:rgba(255,255,255,.85);line-height:1.5;font-size:15px}
+.wmodal ul{margin:0;padding-left:20px;color:rgba(255,255,255,.85);line-height:1.7;font-size:14.5px}
+.wmodal .wn{font-size:13.5px;color:rgba(255,255,255,.7);padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.08)}
+.wmodal .wn b{color:#fff}
+.wmodal .btn-p{align-self:stretch;margin-top:6px}
+/* komputer: obok powitania, wyrównane do prawej */
+@media (min-width:1000px){.hello .wrapt{width:auto;margin:0 0 0 auto;padding:16px 118px 16px 22px;gap:6px}.hello .wrapt .wt{font-size:44px}.hello .wrapt .ws{font-size:13.5px}.hello .wrapt .wl{gap:8px}.hello .wrapt .wpill{top:50%;transform:translateY(-50%);right:18px}}
+@media (max-width:999px){.hello .wrapt{flex:1 0 100%;margin:4px 0 0}}
+.hello .htx{flex:1 1 0;min-width:0}
+@media (min-width:1000px){.hello .htx{flex:0 1 auto}}
+@media (max-width:520px){.wrapt{padding:14px 16px;border-radius:16px;gap:10px}.wrapt .wt{font-size:clamp(32px,10.5vw,42px)}.wrapt .wl{gap:7px}.wrapt .ws{font-size:13.5px}.wr{gap:10px 14px}.wst:nth-child(n+3){display:none}.wrapt>.wpill{position:static;order:-1;justify-self:start;margin-bottom:-4px}}
+@media (prefers-reduced-motion:reduce){.red{animation:none}.wrapt{transition:none}}
 .hello h1{margin:0}
 .home{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:18px;align-items:start}
 @media (max-width:900px){.home{grid-template-columns:1fr}}
@@ -618,7 +653,7 @@ let sb = null;
 const S = {
   user:null, profiles:new Map(), albums:new Map(), ratings:[],
   byAlbum:new Map(), byUser:new Map(), loadedAt:0,
-  favs:[], listen:[], weekly:[], missing:false, prevSeen:0, seenStart:false,
+  favs:[], listen:[], weekly:[], missing:false, prevSeen:0, actPrev:null,
   st:{who:'all', kind:'albums', year:new Date().getFullYear()},
   f:{min:2, type:'all', kind:'albums'}, af:{q:'', f:'all', sort:'added', limit:120, kind:'albums'},
   home:{year:new Date().getFullYear(), all:false, edit:false},
@@ -823,13 +858,23 @@ async function setWeekly(albumId){
   S.weekly = S.weekly.filter(w => w.week_start !== ws).concat({...data, album_id:Number(data.album_id)}); return true;
 }
 /* ---------- nowe od ostatniej wizyty ---------- */
+// „widziane” zapisuje się w bazie (profiles.seen_at), więc działa na wszystkich urządzeniach naraz;
+// localStorage to tylko zapas, gdyby update5.sql nie był jeszcze uruchomiony
+const seenDb = () => { const p = S.user && S.profiles.get(S.user.id); return p && p.seen_at ? Date.parse(p.seen_at) || 0 : 0; };
 function initSeen(){
   let v = 0; try { v = +localStorage.getItem('oceny_seen_' + S.user.id) || 0; } catch(e){}
-  S.prevSeen = v || Date.now(); S.seenStart = false;
+  S.prevSeen = Math.max(v, seenDb()) || Date.now(); S.actPrev = null;
 }
-function markSeen(){ try { localStorage.setItem('oceny_seen_' + S.user.id, String(Date.now())); } catch(e){} }
+function markSeen(){
+  const t = Date.now(); S.prevSeen = t;
+  try { localStorage.setItem('oceny_seen_' + S.user.id, String(t)); } catch(e){}
+  const iso = new Date(t).toISOString(), p = S.profiles.get(S.user.id); if(p) p.seen_at = iso;
+  sb.from('profiles').update({seen_at:iso}).eq('id', S.user.id).then(({error}) => { if(error) console.warn('seen_at', error.message); });
+}
+// od kiedy podświetlać jako nowe: na stronie aktywności - stan sprzed wejścia na nią
+const hlSince = () => route().page === 'aktywnosc' && S.actPrev != null ? S.actPrev : S.prevSeen;
 const tsOf = r => Date.parse(r.updated_at || r.created_at || 0) || 0;
-const newCount = () => S.seenStart ? 0 : S.ratings.filter(r => r.user_id !== S.user.id && tsOf(r) > S.prevSeen).length;
+const newCount = () => S.ratings.filter(r => r.user_id !== S.user.id && tsOf(r) > S.prevSeen).length;
 /* ---------- zgodność gustu ---------- */
 function compat(u1, u2){
   const m = new Map((S.byUser.get(u1) || []).filter(r => !isHidden(r)).map(r => [r.album_id, r.score]));
@@ -1143,7 +1188,11 @@ let lastPage = null;
 function render(){
   if(!S.user){ renderNav(); return viewLogin(); }
   const {page, arg, arg2} = route();
-  if(page === 'aktywnosc') S.seenStart = true;
+  // wejście w aktywność (dzwoneczek albo „Zobacz wszystko”) oznacza wszystko jako widziane - wszędzie i na każdym urządzeniu
+  if(page === 'aktywnosc' && lastPage !== 'aktywnosc'){ S.actPrev = S.prevSeen; markSeen(); }
+  else if(page !== 'aktywnosc') S.actPrev = null;
+  // inne urządzenie mogło już oznaczyć aktywność jako widzianą
+  if(S.user && seenDb() > S.prevSeen) S.prevSeen = seenDb();
   renderNav(['album','osoba','oceny','wykonawca','porownaj'].includes(page) ? null : page);
   if(page !== lastPage) window.scrollTo(0, 0);
   // wpisane wyszukiwanie znika po przejściu do innej zakładki (zostaje tylko przy wejściu w album i powrocie)
@@ -2467,7 +2516,7 @@ function viewArtist(name){
 
 function feedItem(r){
   const a = S.albums.get(r.album_id), hid = isHidden(r), was = hid ? null : lastChange(r);
-  return `<div class="fi ${tsOf(r) > S.prevSeen ? 'new' : ''}"><a href="#/osoba/${r.user_id}">${avatar(r.user_id, 34)}</a><div>
+  return `<div class="fi ${tsOf(r) > hlSince() ? 'new' : ''}"><a href="#/osoba/${r.user_id}">${avatar(r.user_id, 34)}</a><div>
     <div class="who"><a href="#/osoba/${r.user_id}"><b>${esc(pname(r.user_id))}</b>${was != null ? ' <span class="muted" style="font-weight:500">zmienia ocenę</span>' : ''}</a><span class="wr">${was != null ? `<s class="was" title="Poprzednia ocena">${num(was)}</s><span class="ar">→</span>` : ''}${hid ? lockBadge('sm', a.id) : tpBadge(a.id, r.user_id, r.score)}</span></div>
     <a class="alb" href="#/album/${a.id}">${coverHtml(a, 'c40')}<div><b>${esc(a.title)}</b><span>${esc(a.artist)}</span></div></a>
     ${r.comment && !hid ? `<div class="cm">„${esc(r.comment)}”</div>` : ''}
@@ -2477,7 +2526,7 @@ function viewActivity(){
   const A = S.act || (S.act = {who:'all', limit:100});
   const people = [...S.profiles.values()].filter(p => p.id !== S.user.id);
   const all = S.ratings.filter(r => r.user_id !== S.user.id && S.albums.has(r.album_id) && (A.who === 'all' || r.user_id === A.who)).sort((p, q) => tsOf(q) - tsOf(p));
-  const list = all.slice(0, A.limit), nNew = all.filter(r => tsOf(r) > S.prevSeen).length;
+  const list = all.slice(0, A.limit), nNew = all.filter(r => tsOf(r) > hlSince()).length;
   const dayKey = r => { const d = new Date(r.updated_at || r.created_at); return d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate(); };
   const dayLabel = r => { const d = new Date(r.updated_at || r.created_at), t = new Date(); t.setHours(0, 0, 0, 0); const x = new Date(d); x.setHours(0, 0, 0, 0);
     const diff = Math.round((t - x) / 86400000); return diff === 0 ? 'Dzisiaj' : diff === 1 ? 'Wczoraj' : d.toLocaleDateString('pl-PL', {weekday:'long', day:'numeric', month:'long'}); };
@@ -2489,7 +2538,6 @@ function viewActivity(){
     ${all.length > list.length ? `<div style="text-align:center"><button id="actMore">Pokaż więcej (${all.length - list.length})</button></div>` : ''}`;
   app.querySelectorAll('[data-w]').forEach(el => el.onclick = e => { e.preventDefault(); A.who = el.dataset.w; A.limit = 100; render(); });
   const m = document.getElementById('actMore'); if(m) m.onclick = () => { A.limit += 200; const y = window.scrollY; render(); window.scrollTo(0, y); };
-  markSeen();
 }
 /* ----- grafika z oceną do udostępnienia ----- */
 const SC = v => v == null ? '#4a4f58' : v >= 70 ? '#3fa64d' : v >= 50 ? '#dcae1d' : '#df5235';
@@ -2709,6 +2757,31 @@ function listenRowHtml(uid, editable){
 }
 
 /* ----- strona główna ----- */
+/* ----- zapowiedź Wrapped ----- */
+const WRAP_YEAR = 2026;
+function wrapTeaserHtml(){
+  if(new Date() >= new Date(WRAP_YEAR + 1, 0, 20)) return ''; // po styczniu zapowiedź znika sama
+  return `<button type="button" class="wrapt" id="wrapT" aria-label="Wrapped ${WRAP_YEAR} - zapowiedź">
+    <span class="wl"><span class="wt">WRAPPED<span class="wy">’${String(WRAP_YEAR).slice(2)}</span></span>
+      <span class="ws">Twój rok w ocenach</span></span>
+    <span class="wpill">🔒 Wkrótce</span></button>`;
+}
+function openWrapTeaser(){
+  const uid = S.user.id, n = (S.byUser.get(uid) || []).filter(r => { const a = S.albums.get(r.album_id); return a && a.year === WRAP_YEAR && !isSingle(a); }).length;
+  const bg = document.createElement('div'); bg.className = 'modal-bg';
+  bg.innerHTML = `<div class="modal wmodal" role="dialog" aria-label="Wrapped ${WRAP_YEAR}">
+    <div class="wmh"><span class="wt">WRAPPED<span class="wy">’${String(WRAP_YEAR).slice(2)}</span></span><span class="wpill">🔒 Wkrótce</span></div>
+    <p>Pod koniec grudnia każdy dostanie swoje podsumowanie roku - slajd po slajdzie, do udostępnienia znajomym.</p>
+    <ul><li>Twój album nr 1 i cała topka roku</li><li>Ulubiony wykonawca roku</li><li>Ocena, w której najbardziej odstajesz od grupy</li><li>Twój muzyczny bliźniak</li><li>…i kilka niespodzianek</li></ul>
+    <p class="wn">${n ? `Na razie masz <b>${n}</b> ${pl(n,'oceniony album','ocenione albumy','ocenionych albumów')} z ${WRAP_YEAR} roku. Każda kolejna ocena trafi do podsumowania.` : `Oceń kilka albumów z ${WRAP_YEAR} roku - wszystkie trafią do podsumowania.`}</p>
+    <button type="button" class="btn-p" id="wOk">Zamknij</button></div>`;
+  document.body.appendChild(bg);
+  const close = () => { bg.remove(); document.removeEventListener('keydown', k); };
+  const k = e => { if(e.key === 'Escape') close(); };
+  document.addEventListener('keydown', k);
+  bg.onclick = e => { if(e.target === bg) close(); };
+  bg.querySelector('#wOk').onclick = close; bg.querySelector('#wOk').focus();
+}
 function viewHome(){
   const H = S.home, uid = S.user.id;
   const mineR = (S.byUser.get(uid) || []).filter(r => { const a = S.albums.get(r.album_id); return a && !isSingle(a); });
@@ -2725,9 +2798,10 @@ function viewHome(){
   // na komputerze aktywność jest w prawej kolumnie, na telefonie pod „Do posłuchania”
   const actCard = (cls, n) => `<section class="card ${cls}"><div class="shead"><h2>Aktywność znajomych${newCount2 ? ` <span class="nb">${newCount2} nowe</span>` : ''}</h2><a class="link small" href="#/aktywnosc">Zobacz wszystko →</a></div>
     ${feed.length ? `<div class="feedh">${feed.slice(0, n).map(feedItem).join('')}</div>` : '<div class="empty">Znajomi jeszcze nic nie ocenili.</div>'}</section>`;
+  setTimeout(() => { const w = document.getElementById('wrapT'); if(w) w.onclick = openWrapTeaser; }, 0);
   app.innerHTML = `
-  <div class="hello">${avatar(uid, 56)}<div><h1>${hi}, ${esc(me().display_name)}!</h1>
-    <div class="muted small">${ocen((S.byUser.get(uid) || []).length)} · ${favs.length} ulubionych · ${listen.length} do posłuchania</div></div></div>
+  <div class="hello">${avatar(uid, 56)}<div class="htx"><h1>${hi}, ${esc(me().display_name)}!</h1>
+    <div class="muted small">${ocen((S.byUser.get(uid) || []).length)} · ${favs.length} ulubionych · ${listen.length} do posłuchania</div></div>${wrapTeaserHtml()}</div>
   <div class="home">
     <div class="hmain">
       <section class="card">
