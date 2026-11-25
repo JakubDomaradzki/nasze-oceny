@@ -790,14 +790,25 @@ function aotwRevealed(w){
   return S.profiles.size > 0 && [...S.profiles.keys()].every(id => raters.has(id));
 }
 // oceny albumu tygodnia są ukryte do niedzieli (albo aż wszyscy ocenią) - poza własną
-function hiddenAlbum(id){ const w = curWeekly(); return !!w && w.album_id === id && !aotwRevealed(w); }
+function aotwHidden(id){ const w = curWeekly(); return !!w && w.album_id === id && !aotwRevealed(w); }
+// tryb „bez sugerowania”: oceny innych widać dopiero po wystawieniu własnej
+// tryb: 'off' - nic nie ukrywaj, 'songs' - tylko oceny piosenek, 'all' - oceny albumu i piosenek
+function blindMode(){ if(!S.user) return 'off'; if(S.blind === undefined){ let v = 'off'; try { v = localStorage.getItem('oceny_blind_' + S.user.id) || 'off'; } catch(e){}
+  S.blind = v === '1' ? 'all' : ['off','songs','all'].includes(v) ? v : 'off'; } return S.blind; }
+const blindOn = () => blindMode() === 'all';
+function setBlind(v){ S.blind = v; try { localStorage.setItem('oceny_blind_' + S.user.id, v); } catch(e){} }
+const blindHidden = id => blindOn() && !(S.byAlbum.get(id) || []).some(r => r.user_id === S.user.id);
+function hiddenAlbum(id){ return aotwHidden(id) || blindHidden(id); }
+// oceny piosenek innych osób
+const tracksHidden = id => hiddenAlbum(id) || (blindMode() === 'songs' && !(S.byAlbum.get(id) || []).some(r => r.user_id === S.user.id));
+const hideWhy = id => id != null && !aotwHidden(id) ? ', dopóki sam nie ocenisz' : ' do niedzieli';
 const isHidden = r => r.user_id !== S.user.id && hiddenAlbum(r.album_id);
 const visRatings = () => S.ratings.filter(r => S.albums.has(r.album_id) && !isHidden(r));
 function visStats(id){
   const rs = (S.byAlbum.get(id) || []).filter(r => !isHidden(r));
   return rs.length ? {n:rs.length, avg:rs.reduce((s, r) => s + r.score, 0) / rs.length, rs} : {n:0, avg:null, rs};
 }
-const lockBadge = (cls = 'sm') => `<span class="score ${cls} lock" title="Ukryte do niedzieli">🔒</span>`;
+const lockBadge = (cls = 'sm', id) => `<span class="score ${cls} lock" title="Ukryte${hideWhy(id)}">🔒</span>`;
 async function setWeekly(albumId){
   const ws = weekStart(), cur = S.weekly.find(w => w.week_start === ws);
   const q = cur ? sb.from('weekly_album').update({album_id:albumId}).eq('week_start', ws)
@@ -1121,7 +1132,7 @@ function renderNav(cur){
   bindSearch();
   document.getElementById('themeB').onclick = () => { const order = ['auto','light','dark']; setTheme(order[(order.indexOf(getTheme()) + 1) % 3]); toast('Motyw: ' + THEME_NAMES[getTheme()]); renderNav(document.querySelector('.links a.on') ? route().page : null); };
 }
-async function logout(){ closeSearch(); await sb.auth.signOut(); S.user = null; location.hash = ''; render(); }
+async function logout(){ closeSearch(); S.blind = undefined; await sb.auth.signOut(); S.user = null; location.hash = ''; render(); }
 function route(){
   const parts = location.hash.replace(/^#\/?/, '').split('/');
   return {page:parts[0] || 'start', arg:parts[1] ? decodeURIComponent(parts[1]) : null, arg2:parts[2] ? decodeURIComponent(parts[2]) : null};
@@ -1295,11 +1306,16 @@ const secTabs = (cur, items) => `<div class="chips" style="margin-bottom:18px">$
 const rankTabs = cur => secTabs(cur, [['ranking','Wszech czasów','#/ranking'],['lata','Według lat','#/lata']]);
 const discTabs = cur => secTabs(cur, [['losuj','🎲 Losuj','#/odkrywaj'],['dla-ciebie','Co mi się spodoba','#/odkrywaj/dla-ciebie'],['nowosci','Nowości','#/odkrywaj/nowosci']]);
 const addTabs = cur => secTabs(cur, [['jeden','Jeden album','#/dodaj'],['dyskografia','Cała dyskografia','#/dodaj/dyskografia'],['popularne','Popularne teraz','#/dodaj/popularne'],['import','Import ocen','#/import']]);
+function blindNote(){
+  if(!blindOn()) return '';
+  const n = [...S.albums.values()].filter(a => blindHidden(a.id) && stats(a.id).n).length;
+  return n ? `<p class="note" style="margin:-6px 0 14px">🔒 Ukrywanie ocen: ${n} ${pl(n,'album nieoceniony przez Ciebie jest ukryty','albumy nieocenione przez Ciebie są ukryte','albumów nieocenionych przez Ciebie jest ukrytych')}. <a class="link" href="#/konto">Zmień w ustawieniach</a></p>` : '';
+}
 function viewRanking(){
   const list = rankList();
   app.innerHTML = `<h1>${S.f.kind === 'singles' ? 'Ranking singli' : 'Ranking wszech czasów'}</h1>
     <p class="sub">${(() => { const n = [...S.albums.values()].filter(a => kindOk(a, S.f.kind)).length; return S.f.kind === 'singles' ? `${n} ${pl(n,'singiel','single','singli')}` : `${n} ${pl(n,'album','albumy','albumów')}`; })()} w bazie · kolejność według średniej grupy</p>
-    ${rankTabs('ranking')}${filtersHtml()}${listHtml(list)}`;
+    ${rankTabs('ranking')}${filtersHtml()}${blindNote()}${listHtml(list)}`;
   bindFilters();
 }
 
@@ -1318,7 +1334,7 @@ function viewYears(arg){
         ${t ? badge(t.st.avg, 'sm') : ''}</a>`;
     }).join('');
     app.innerHTML = `<h1>Rankingi roczne</h1><p class="sub">Najwyżej ${S.f.kind === 'singles' ? 'oceniony singiel' : 'oceniony album'} każdego roku. Kliknij rok, żeby zobaczyć pełny ranking.</p>
-      ${rankTabs('lata')}${filtersHtml()}<div class="years">${cards || '<div class="empty">Brak albumów z rokiem.</div>'}</div>`;
+      ${rankTabs('lata')}${filtersHtml()}${blindNote()}<div class="years">${cards || '<div class="empty">Brak albumów z rokiem.</div>'}</div>`;
     bindFilters(); return;
   }
   const list = rankList({year:y});
@@ -1351,7 +1367,7 @@ function viewAlbum(arg){
         <div class="avgnum" style="background:${hid ? 'var(--none)' : col(st.avg == null ? null : Math.round(st.avg))}">${hid ? '🔒' : avgN(st.avg)}</div>
         <div>
           <div class="avglbl">${isW ? '⭐ Album tygodnia · ' : ''}Średnia grupy</div>
-          ${hid ? `<div class="avgsub">Oceny ukryte do niedzieli · oceniło <b>${all_.n}/${S.profiles.size}</b></div>` : ''}
+          ${hid ? `<div class="avgsub">Oceny ukryte${hideWhy(id)} · oceniło <b>${all_.n}/${S.profiles.size}</b></div>` : ''}
           <div class="avgsub" ${hid ? 'hidden' : ''}><b>${ocen(st.n)}</b>${st.n > 1 ? ` · od <b>${num(Math.min(...scores))}</b> do <b>${num(Math.max(...scores))}</b>` : ''}</div>
           <div class="ranks">${pos >= 0 ? `<a href="#/ranking" id="rkLink">#${pos + 1} w rankingu ${kind === 'singles' ? 'singli' : 'ogólnym'}</a>` : ''}${ypos >= 0 ? `<a href="#/lata/${a.year}" id="rkYLink">#${ypos + 1} w roku ${a.year}</a>` : ''}</div>
         </div>
@@ -1368,9 +1384,9 @@ function viewAlbum(arg){
       <div class="rlist">${rs.length ? rs.map(r => { const h = isHidden(r); return `<div class="ri"><a href="#/osoba/${r.user_id}">${avatar(r.user_id)}</a>
         <div><a class="nm" href="#/osoba/${r.user_id}">${esc(pname(r.user_id))}</a>
           ${r.comment && !h ? `<div class="cm">${esc(r.comment)}</div>` : ''}
-          ${h ? '<div class="dt">oceniono - wynik ukryty do niedzieli</div>' : `<div class="bar"><div style="width:${r.score}%;background:${col(r.score)}"></div></div>`}
+          ${h ? `<div class="dt">oceniono - wynik ukryty${hideWhy(id)}</div>` : `<div class="bar"><div style="width:${r.score}%;background:${col(r.score)}"></div></div>`}
           <div class="dt">${fmtDate(r.updated_at || r.created_at)}${!h && scoreChain(a.id, r.user_id) ? ' · zmiany: ' + chainHtml(scoreChain(a.id, r.user_id)) : ''}</div></div>
-        ${h ? lockBadge('') : `<button type="button" class="rbtn" data-ru="${r.user_id}" title="Pokaż oceny piosenek: ${esc(pname(r.user_id))}">${badge(r.score)}</button>`}</div>`; }).join('') : '<div class="empty">Nikt jeszcze nie ocenił tego albumu.</div>'}</div>
+        ${h ? lockBadge('', id) : `<button type="button" class="rbtn" data-ru="${r.user_id}" title="Pokaż oceny piosenek: ${esc(pname(r.user_id))}">${badge(r.score)}</button>`}</div>`; }).join('') : '<div class="empty">Nikt jeszcze nie ocenił tego albumu.</div>'}</div>
       ${notRated.length ? `<p class="muted small" style="margin:12px 0 0">Jeszcze nie ocenili: ${notRated.map(esc).join(', ')}</p>` : ''}
     </div>
     <div class="card"><h2>${mine ? 'Twoja ocena' : 'Oceń album'}</h2>
@@ -1448,12 +1464,12 @@ function viewAlbums(){
       added:(x, y) => (y.created_at || '').localeCompare(x.created_at || '') || y.id - x.id,
       artist:(x, y) => x.artist.localeCompare(y.artist, 'pl') || (x.year || 0) - (y.year || 0),
       year:(x, y) => (y.year || 0) - (x.year || 0) || x.artist.localeCompare(y.artist, 'pl'),
-      avg:(x, y) => (stats(y.id).avg ?? -1) - (stats(x.id).avg ?? -1),
+      avg:(x, y) => (visStats(y.id).avg ?? -1) - (visStats(x.id).avg ?? -1),
     }[f.sort];
     l.sort(cmp);
     const shown = l.slice(0, f.limit);
-    document.getElementById('agrid').innerHTML = l.length ? `<div class="grid">${shown.map(a => { const st = stats(a.id), m = myRating(a.id);
-      return `<a class="tile" href="#/album/${a.id}"><div class="cw">${coverHtml(a, 'cfull')}${st.n ? badge(st.avg, 'sm') : ''}</div>
+    document.getElementById('agrid').innerHTML = l.length ? `<div class="grid">${shown.map(a => { const st = visStats(a.id), m = myRating(a.id), hd = hiddenAlbum(a.id);
+      return `<a class="tile" href="#/album/${a.id}"><div class="cw">${coverHtml(a, 'cfull')}${hd && stats(a.id).n ? lockBadge('sm', a.id) : st.n ? badge(st.avg, 'sm') : ''}</div>
         <div><div class="t">${esc(a.title)}</div><div class="a">${esc(a.artist)}${a.year ? ' · ' + a.year : ''}</div>
         <div class="a">${st.n ? ocen(st.n) : 'brak ocen'}${m ? ' · Ty: ' + num(m.score) : ''}</div></div></a>`; }).join('')}</div>
       ${l.length > shown.length ? `<div style="text-align:center;margin-top:18px"><button id="more">Pokaż więcej (${l.length - shown.length})</button></div>` : ''}`
@@ -1866,7 +1882,7 @@ async function initTracks(a){
   drawTracks(a);
 }
 function trackStats(a){
-  const T = S.tr[a.id], hid = hiddenAlbum(a.id), uid = S.user.id;
+  const T = S.tr[a.id], hid = tracksHidden(a.id), uid = S.user.id;
   const by = new Map(T.tracks.map(t => [t.position, {n:0, sum:0, fav:0, mine:null, myFav:false, others:0, list:[]}]));
   for(const r of T.ratings){ const o = by.get(r.position); if(!o) continue;
     if(r.user_id === uid){ o.mine = r.score; o.myFav = r.fav; } else if(r.score != null) o.others++;
@@ -2084,7 +2100,8 @@ async function showUserTracksPop(a, u, el){
   const any = [...mine.values()].some(r => r.score != null || r.fav);
   const onAlbum = route().page === 'album' && Number(route().arg) === a.id;
   pop.innerHTML = `<div class="tph" style="display:flex;align-items:center;gap:8px">${avatar(u, 22)}<span style="overflow:hidden;text-overflow:ellipsis;flex:1">${onAlbum ? esc(pname(u)) + ' · piosenki' : `${esc(pname(u))} · <a class="link" href="#/album/${a.id}" style="display:inline;padding:0">${esc(a.title)}</a>`}</span></div>` +
-    (!T || T.state !== 'ok' || !T.tracks.length ? '<div class="muted small" style="padding:8px 6px">Ten album nie ma jeszcze tracklisty.</div>'
+    (u !== S.user.id && tracksHidden(a.id) ? `<div class="muted small" style="padding:8px 6px">🔒 Oceny piosenek są ukryte${hideWhy(a.id)} albumu.</div>`
+    : !T || T.state !== 'ok' || !T.tracks.length ? '<div class="muted small" style="padding:8px 6px">Ten album nie ma jeszcze tracklisty.</div>'
     : !any ? `<div class="muted small" style="padding:8px 6px">${esc(pname(u))} nie ocenił(a) piosenek z tego albumu.</div>`
     : `<div class="tpl">${T.tracks.map(t => { const r = mine.get(t.position);
         return `<div class="tpr ${t.skip ? 'skip' : ''}"><span class="n">${t.position}</span><span class="t" title="${esc(t.title)}">${esc(t.title)}${r && r.fav ? ' <span style="color:#f5b301">★</span>' : ''}</span>${r && r.score != null ? badge(r.score, 'sm') : '<small class="muted">-</small>'}</div>`; }).join('')}</div>`);
@@ -2284,7 +2301,7 @@ async function statsSongs(tabs){
   const agg = new Map();
   for(const r of S.allTr.ratings){
     const aid = Number(r.album_id), k = aid + '|' + r.position, t = titles.get(k);
-    if(!t || !S.albums.has(aid) || (r.user_id !== S.user.id && hiddenAlbum(aid))) continue;
+    if(!t || !S.albums.has(aid) || (r.user_id !== S.user.id && tracksHidden(aid))) continue;
     if(who !== 'all' && r.user_id !== who) continue;
     let o = agg.get(k); if(!o){ o = {aid, pos:Number(r.position), title:t.title, sum:0, n:0, fav:0}; agg.set(k, o); }
     if(r.score != null){ o.sum += Number(r.score); o.n++; } if(r.fav) o.fav++;
@@ -2433,7 +2450,7 @@ function viewArtist(name){
 function feedItem(r){
   const a = S.albums.get(r.album_id), hid = isHidden(r), was = hid ? null : lastChange(r);
   return `<div class="fi ${tsOf(r) > S.prevSeen ? 'new' : ''}"><a href="#/osoba/${r.user_id}">${avatar(r.user_id, 34)}</a><div>
-    <div class="who"><a href="#/osoba/${r.user_id}"><b>${esc(pname(r.user_id))}</b>${was != null ? ' <span class="muted" style="font-weight:500">zmienia ocenę</span>' : ''}</a><span class="wr">${was != null ? `<s class="was" title="Poprzednia ocena">${num(was)}</s><span class="ar">→</span>` : ''}${hid ? lockBadge() : tpBadge(a.id, r.user_id, r.score)}</span></div>
+    <div class="who"><a href="#/osoba/${r.user_id}"><b>${esc(pname(r.user_id))}</b>${was != null ? ' <span class="muted" style="font-weight:500">zmienia ocenę</span>' : ''}</a><span class="wr">${was != null ? `<s class="was" title="Poprzednia ocena">${num(was)}</s><span class="ar">→</span>` : ''}${hid ? lockBadge('sm', a.id) : tpBadge(a.id, r.user_id, r.score)}</span></div>
     <a class="alb" href="#/album/${a.id}">${coverHtml(a, 'c40')}<div><b>${esc(a.title)}</b><span>${esc(a.artist)}</span></div></a>
     ${r.comment && !hid ? `<div class="cm">„${esc(r.comment)}”</div>` : ''}
     <time>${timeAgo(r.updated_at || r.created_at)}</time></div></div>`;
@@ -2878,13 +2895,13 @@ function recommend(kind){
   const W = new Map();
   for(const p of S.profiles.values()){
     if(p.id === uid) continue;
-    const rs = (S.byUser.get(p.id) || []).filter(r => !isHidden(r)); if(rs.length < 3) continue;
+    const rs = (S.byUser.get(p.id) || []).filter(r => !aotwHidden(r.album_id)); if(rs.length < 3) continue;
     const c = compat(uid, p.id), base = c.pct == null ? 0.08 : Math.pow(Math.max(0, c.pct) / 100, 3);
     W.set(p.id, {w:base * Math.min(1, (c.n + 2) / 12), avg:rs.reduce((s, r) => s + r.score, 0) / rs.length, pct:c.pct});
   }
   const hide = hiddenRecs(), items = [];
   for(const a of S.albums.values()){
-    if(mineSet.has(a.id) || hiddenAlbum(a.id) || hide.has(a.id) || !kindOk(a, kind)) continue;
+    if(mineSet.has(a.id) || aotwHidden(a.id) || hide.has(a.id) || !kindOk(a, kind)) continue;
     let sw = 0, sdv = 0; const fans = [];
     for(const r of S.byAlbum.get(a.id) || []){ const f = W.get(r.user_id); if(!f || !f.w) continue;
       sw += f.w; sdv += f.w * (r.score - f.avg); fans.push({u:r.user_id, s:r.score, k:f.w * (r.score - f.avg)}); }
@@ -2912,7 +2929,7 @@ function viewRecs(tabs){
     : !list.length ? '<div class="card empty">Brak propozycji - oceniłeś już wszystko, co oceniali inni. Zajrzyj do zakładki Nowości.</div>'
     : `<div class="list recs">${shown.map(x => recRowHtml(x)).join('')}</div>
       ${list.length > shown.length ? `<div style="text-align:center;margin-top:16px"><button id="dmore">Pokaż więcej (${list.length - shown.length})</button></div>` : ''}`}
-    <p class="note">„Dla Ciebie” to przewidywana ocena: Twoja średnia (${R.myAvg == null ? '-' : num(R.myAvg)}) plus to, o ile album podobał się innym ponad ich własną średnią. Najbardziej liczą się osoby, z którymi masz największą zgodność gustu.
+    <p class="note">${blindOn() ? 'Tryb bez sugerowania jest włączony, więc nie widać ocen - kolejność dalej jest od najlepiej dopasowanych. ' : ''}„Dla Ciebie” to przewidywana ocena: Twoja średnia (${R.myAvg == null ? '-' : num(R.myAvg)}) plus to, o ile album podobał się innym ponad ich własną średnią. Najbardziej liczą się osoby, z którymi masz największą zgodność gustu.
       ${hide.size ? `<button type="button" class="link small" id="dunhide">Przywróć ukryte (${hide.size})</button>` : ''}</p>`;
   bindSeg('dkind', v => { D.kind = v; D.limit = 30; render(); });
   const dt = document.getElementById('dtype'); if(dt) dt.onchange = e => { D.type = e.target.value; D.limit = 30; render(); };
@@ -2925,12 +2942,12 @@ function viewRecs(tabs){
     const row = b.closest('.rec'); if(row) row.remove(); toast('Ukryto - nie będzie już proponowany'); });
 }
 function recRowHtml(x){
-  const a = x.a, st = visStats(a.id), lis = inListen(a.id), top = x.fans.filter(f => f.k > 0).slice(0, 3);
+  const a = x.a, st = visStats(a.id), lis = inListen(a.id), top = x.fans.filter(f => f.k > 0).slice(0, 3), bl = blindOn();
   return `<div class="row rec"><a href="#/album/${a.id}">${coverHtml(a, 'c56')}</a>
     <div class="meta"><a href="#/album/${a.id}"><b>${esc(a.title)}</b></a><span>${esc(a.artist)}${a.year ? ' · ' + a.year : ''}${a.type ? ' · ' + esc(a.type) : ''}</span>
-      <small class="why">${top.length ? 'Polubili:' + top.map(f => `<span class="fan">${avatar(f.u, 18)}${esc(pname(f.u))} <b style="color:${col(Math.round(f.s))}">${num(f.s)}</b></span>`).join('') : `Średnia grupy ${st.avg == null ? '-' : num(st.avg)} (${ocen(st.n)})`}</small>
+      <small class="why">${top.length ? 'Polubili:' + top.map(f => `<span class="fan">${avatar(f.u, 18)}${esc(pname(f.u))}${bl ? '' : ` <b style="color:${col(Math.round(f.s))}">${num(f.s)}</b>`}</span>`).join('') : bl ? ocen(stats(a.id).n) : `Średnia grupy ${st.avg == null ? '-' : num(st.avg)} (${ocen(st.n)})`}</small>
       <div class="btns"><button type="button" class="sm ${lis ? 'btn-on' : ''}" data-dl="${a.id}">${lis ? '✓ Do posłuchania' : '+ Do posłuchania'}</button><button type="button" class="sm ghost" data-dh="${a.id}" title="Nie proponuj więcej tego albumu">Nie interesuje mnie</button></div></div>
-    <div class="pred" title="Przewidywana ocena dla Ciebie">${badge(x.pred)}<small>dla Ciebie</small></div></div>`;
+    ${bl ? '' : `<div class="pred" title="Przewidywana ocena dla Ciebie">${badge(x.pred)}<small>dla Ciebie</small></div>`}</div>`;
 }
 
 // --- nowości od wykonawców (Deezer) ---
@@ -3256,6 +3273,12 @@ function viewAccount(){
   <div class="card" style="margin-bottom:18px"><h2>Wygląd</h2>
     <div class="btns">${segHtml('thseg', getTheme(), [['auto','Automatyczny'],['light','Jasny'],['dark','Ciemny']])}</div>
     <p class="note">Automatyczny dopasowuje się do ustawień telefonu lub komputera. Wybór zapisuje się na tym urządzeniu.</p></div>
+  <div class="card" style="margin-bottom:18px"><h2>🔒 Ukrywanie ocen innych</h2>
+    <div class="btns">${segHtml('blseg', blindMode(), [['off','Nic'],['songs','Piosenki'],['all','Wszystko']])}</div>
+    <p class="note">${{off:'Widzisz wszystkie oceny od razu.',
+      songs:'Oceny piosenek innych osób zobaczysz dopiero, kiedy sam ocenisz album. Średnia albumu i oceny albumów są widoczne normalnie.',
+      all:'Oceny innych osób - albumu i piosenek - zobaczysz dopiero, kiedy sam ocenisz album. Do tego czasu w rankingach, aktywności, na profilach i w statystykach zamiast nich jest kłódka.'}[blindMode()]}
+      Twoje własne oceny widzisz zawsze. Ustawienie zapisuje się na tym urządzeniu.</p></div>
   <div class="card" style="margin-bottom:18px"><h2>Avatar</h2>
     <div class="btns" style="gap:18px"><span id="avp">${avatar(S.user.id, 96)}</span>
       <div class="form"><label>Wgraj zdjęcie (zostanie przycięte do kwadratu)<input type="file" id="avf" accept="image/*"></label>
@@ -3296,6 +3319,7 @@ function viewAccount(){
       await setAvatar(sb.storage.from('covers').getPublicUrl(path).data.publicUrl);
     } catch(err){ m.className = 'err'; m.textContent = 'Nie udało się wgrać: ' + errMsg(err); }
   };
+  bindSeg('blseg', v => { setBlind(v); toast({off:'Nic nie jest ukrywane', songs:'🔒 Oceny piosenek ukryte do Twojej oceny', all:'🔒 Wszystkie oceny ukryte do Twojej oceny'}[v]); render(); });
   bindSeg('thseg', v => { setTheme(v); render(); });
   const ad = document.getElementById('avdel'); if(ad) ad.onclick = () => setAvatar(null);
   document.getElementById('pf').onsubmit = async e => {
