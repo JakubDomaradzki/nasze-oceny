@@ -1045,7 +1045,8 @@ function setTheme(t){
 }
 
 /* ---------- layout ---------- */
-const NAV = [['start','Start'],['ranking','Ranking'],['lata','Lata'],['albumy','Albumy'],['losuj','🎲 Losuj'],['odkrywaj','Odkrywaj'],['dodaj','+ Dodaj'],['osoby','Osoby'],['statystyki','Statystyki'],['import','Import']];
+const NAV = [['start','Start'],['ranking','Rankingi'],['albumy','Albumy'],['odkrywaj','🎲 Odkrywaj'],['dodaj','+ Dodaj'],['osoby','Osoby'],['statystyki','Statystyki']];
+const NAV_OF = {lata:'ranking', losuj:'odkrywaj', import:'dodaj'}; // podstrony podświetlają swoją zakładkę
 const NI = {
   start:'<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>',
   ranking:'<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/>',
@@ -1062,8 +1063,9 @@ const NI = {
 const ni = k => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${NI[k]}</svg>`;
 function renderNav(cur){
   if(!S.user){ top_.innerHTML = ''; return; }
-  const TABS = [['start','Start'],['ranking','Ranking'],['albumy','Albumy'],['losuj','Losuj']];
-  const MORE = [['odkrywaj','Odkrywaj'],['lata','Lata'],['dodaj','Dodaj'],['osoby','Osoby'],['statystyki','Statystyki'],['import','Import'],['konto','Konto']];
+  cur = NAV_OF[cur] || cur;
+  const TABS = [['start','Start'],['ranking','Rankingi'],['albumy','Albumy'],['odkrywaj','Odkrywaj']];
+  const MORE = [['dodaj','Dodaj'],['osoby','Osoby'],['statystyki','Statystyki'],['konto','Konto']];
   const nc = newCount();
   top_.innerHTML = `<header class="nav"><div class="nav-in">
     <a class="brand" href="#/start"><img src="icon-192.png" alt=""><span>${esc(CONFIG.SITE_NAME).replace(/^(\S+)/, '<b>$1</b>')}</span></a>
@@ -1161,11 +1163,15 @@ function listHtml(list){
 }
 
 /* ---------- views ---------- */
+const secTabs = (cur, items) => `<div class="chips" style="margin-bottom:18px">${items.map(([k, l, h]) => `<a class="chip ${cur === k ? 'on' : ''}" href="${h}">${l}</a>`).join('')}</div>`;
+const rankTabs = cur => secTabs(cur, [['ranking','Wszech czasów','#/ranking'],['lata','Według lat','#/lata']]);
+const discTabs = cur => secTabs(cur, [['losuj','🎲 Losuj','#/odkrywaj'],['dla-ciebie','Co mi się spodoba','#/odkrywaj/dla-ciebie'],['nowosci','Nowości','#/odkrywaj/nowosci']]);
+const addTabs = cur => secTabs(cur, [['jeden','Jeden album','#/dodaj'],['dyskografia','Cała dyskografia','#/dodaj/dyskografia'],['popularne','Popularne teraz','#/dodaj/popularne'],['import','Import ocen','#/import']]);
 function viewRanking(){
   const list = rankList();
   app.innerHTML = `<h1>${S.f.kind === 'singles' ? 'Ranking singli' : 'Ranking wszech czasów'}</h1>
     <p class="sub">${(() => { const n = [...S.albums.values()].filter(a => kindOk(a, S.f.kind)).length; return S.f.kind === 'singles' ? `${n} ${pl(n,'singiel','single','singli')}` : `${n} ${pl(n,'album','albumy','albumów')}`; })()} w bazie · kolejność według średniej grupy</p>
-    ${filtersHtml()}${listHtml(list)}`;
+    ${rankTabs('ranking')}${filtersHtml()}${listHtml(list)}`;
   bindFilters();
 }
 
@@ -1184,7 +1190,7 @@ function viewYears(arg){
         ${t ? badge(t.st.avg, 'sm') : ''}</a>`;
     }).join('');
     app.innerHTML = `<h1>Rankingi roczne</h1><p class="sub">Najwyżej ${S.f.kind === 'singles' ? 'oceniony singiel' : 'oceniony album'} każdego roku. Kliknij rok, żeby zobaczyć pełny ranking.</p>
-      ${filtersHtml()}<div class="years">${cards || '<div class="empty">Brak albumów z rokiem.</div>'}</div>`;
+      ${rankTabs('lata')}${filtersHtml()}<div class="years">${cards || '<div class="empty">Brak albumów z rokiem.</div>'}</div>`;
     bindFilters(); return;
   }
   const list = rankList({year:y});
@@ -1424,8 +1430,7 @@ function bindAlbumForm(a, isNew){
 }
 function viewAdd(arg){
   const mode = ['dyskografia','popularne'].includes(arg) ? arg : 'jeden';
-  const tabs = `<div class="chips" style="margin-bottom:18px">${[['jeden','Jeden album'],['dyskografia','Cała dyskografia'],['popularne','Popularne teraz']]
-    .map(([k, l]) => `<a class="chip ${mode === k ? 'on' : ''}" href="#/dodaj${k === 'jeden' ? '' : '/' + k}">${l}</a>`).join('')}</div>`;
+  const tabs = addTabs(mode);
   if(mode === 'jeden'){
     app.innerHTML = `<h1>Dodaj album</h1><p class="sub">Wyszukaj album, żeby automatycznie uzupełnić wykonawcę, rok i okładkę, albo wpisz wszystko ręcznie.</p>` + tabs + albumFormHtml({}, true);
     bindAlbumForm({}, true); return;
@@ -2682,7 +2687,7 @@ function viewRandom(){
   const years = [...new Set([...S.albums.values()].map(a => a.year).filter(Boolean))].sort((a, b) => b - a);
   const yOpts = cur => `<option value="">dowolny</option>` + years.map(y => `<option ${String(y) === String(cur) ? 'selected' : ''}>${y}</option>`).join('');
   const pool = randomPool();
-  app.innerHTML = `<h1>🎲 Wylosuj album</h1><p class="sub">Nie wiesz, czego posłuchać? Wylosuj coś z naszej bazy.</p>
+  app.innerHTML = `<h1>Odkrywaj</h1><p class="sub">Nie wiesz, czego posłuchać? Wylosuj coś z naszej bazy.</p>${discTabs('losuj')}
     <div class="card">
       <div class="filters" style="margin:0">
         <label>Losuj spośród<select id="rsrc">${[['unrated','Nieocenionych przeze mnie'],['rec','Polecanych przez znajomych'],['listen','Mojej listy „do posłuchania”'],['all','Całej bazy']].map(([v, l]) => `<option value="${v}" ${R.src === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
@@ -2761,10 +2766,8 @@ function recommend(kind){
   return {myAvg, items:items.sort((x, y) => y.pred - x.pred || y.fans.length - x.fans.length)};
 }
 function viewDiscover(arg){
-  const tab = arg === 'nowosci' ? 'nowosci' : 'dla-ciebie';
-  const tabs = `<div class="chips" style="margin-bottom:18px">${[['dla-ciebie','Co mi się spodoba'],['nowosci','Nowości']]
-    .map(([k, l]) => `<a class="chip ${tab === k ? 'on' : ''}" href="#/odkrywaj${k === 'nowosci' ? '/nowosci' : ''}">${l}</a>`).join('')}</div>`;
-  (tab === 'nowosci' ? viewNews : viewRecs)(tabs);
+  if(arg !== 'nowosci' && arg !== 'dla-ciebie') return viewRandom();
+  (arg === 'nowosci' ? viewNews : viewRecs)(discTabs(arg));
 }
 function viewRecs(tabs){
   const D = S.dsc || (S.dsc = {kind:'albums', year:'all', type:'all', limit:30});
@@ -2854,7 +2857,7 @@ function viewNews(tabs){
   const cacheKey = 'oceny_news_' + S.user.id + '_' + N.scope;
   if(!N.data[N.scope]){ try { const c = JSON.parse(localStorage.getItem(cacheKey) || 'null'); if(c && Date.now() - c.at < 6 * 3600e3) N.data[N.scope] = c; } catch(e){} }
   const D = N.data[N.scope];
-  app.innerHTML = `<h1>Odkrywaj</h1><p class="sub">Nowe i nadchodzące płyty wykonawców, których słuchacie - prosto z Deezera.</p>${tabs}
+  app.innerHTML = `<h1>Odkrywaj</h1><p class="sub">Nowe i nadchodzące płyty wykonawców, których słuchacie.</p>${tabs}
     <div class="filters">${segHtml('nscope', N.scope, [['me','Moi wykonawcy'],['all','Wykonawcy całej grupy']])}
       <label>Okres<select id="ndays">${[[30,'Ostatni miesiąc'],[90,'Ostatnie 3 miesiące'],[180,'Ostatnie pół roku']].map(([v, l]) => `<option value="${v}" ${N.days === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
       <label style="flex-direction:row;align-items:center;gap:6px;font-size:13.5px;color:var(--text)"><input type="checkbox" id="nsing" ${N.singles ? 'checked' : ''} style="width:auto"> Pokaż single</label>
@@ -2865,7 +2868,7 @@ function viewNews(tabs){
     const box = document.getElementById('nlist'), D2 = N.data[N.scope]; if(!box) return;
     if(!D2){ box.innerHTML = N.busy ? '' : `<div class="card empty">${newsArtists(N.scope).length ? 'Kliknij „Sprawdź nowości” - strona przejrzy dyskografie wykonawców (ok. 10-20 sekund).' : 'Oceń najpierw kilka albumów, żeby strona wiedziała, kogo słuchasz.'}</div>`; return; }
     const cutoff = Date.now() - N.days * 864e5;
-    const list = D2.items.filter(it => it.ts >= cutoff && (N.singles || it.type !== 'Singiel'));
+    const list = D2.items.filter(it => { if(it.ts < cutoff || (!N.singles && it.type === 'Singiel')) return false; const a = findAlbum(it.artist, it.title); return !(a && myRating(a.id)); });
     st.textContent = `Sprawdzono ${D2.artists} ${pl(D2.artists,'wykonawcę','wykonawców','wykonawców')} · ${timeAgo(new Date(D2.at).toISOString())}${D2.fail ? ` · ${D2.fail} nie odpowiedziało` : ''}`;
     box.innerHTML = list.length ? `<div class="list news">${list.map(it => { const a = findAlbum(it.artist, it.title), i = D2.items.indexOf(it), vs = a ? visStats(a.id) : null, lis = a && inListen(a.id), soon = it.ts > Date.now();
       return `<div class="row rec">${a ? `<a href="#/album/${a.id}">${coverHtml(a, 'c56')}</a>` : coverHtml({title:it.title, cover_url:it.thumb}, 'c56')}
@@ -2944,6 +2947,7 @@ function viewImport(){
   const noCover = [...S.albums.values()].filter(a => !safeUrl(a.cover_url));
   app.innerHTML = `<h1>Import ocen</h1>
   <p class="sub">Z AOTY nie da się pobrać ocen automatycznie, ale możesz wkleić listę z arkusza (Excel, Google Sheets) lub z notatek. Każda osoba importuje <b>swoje</b> oceny po zalogowaniu.</p>
+  ${addTabs('import')}
   <div class="card">
     <h2>1. Wklej oceny</h2>
     <p class="small muted" style="margin-top:0">Jeden album w wierszu, kolumny oddzielone tabulatorem (kopiowanie z arkusza), średnikiem albo przecinkiem (plik CSV):<br>
