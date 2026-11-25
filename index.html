@@ -1890,8 +1890,9 @@ function viewEdit(arg){
 }
 
 // prawa kolumna na stronie Osoby (na telefonie pod tabelą)
-const lastSeenOf = p => { const a = Date.parse(p.last_active || '') || 0; if(a) return {t:a, real:true};
-  const r = (S.byUser.get(p.id) || []).reduce((m, x) => Math.max(m, tsOf(x)), 0); return {t:r, real:false}; };
+// ostatnio na stronie (update6.sql) - a jeśli tego jeszcze nie ma, czas ostatniej oceny
+const lastSeenOf = p => { const a = Date.parse(p.last_active || '') || 0, r = (S.byUser.get(p.id) || []).reduce((m, x) => Math.max(m, tsOf(x)), 0);
+  return a ? {t:Math.max(a, r), real:true} : {t:r, real:false}; };
 function seenLabel(t){
   if(!t) return 'jeszcze nie był(a)';
   const m = Math.floor((Date.now() - t) / 60000);
@@ -1907,11 +1908,10 @@ function peopleSide(rows){
   const nm = id => esc(pname(id));
   const MN = ['styczniu','lutym','marcu','kwietniu','maju','czerwcu','lipcu','sierpniu','wrześniu','październiku','listopadzie','grudniu'][now.getMonth()];
   const seen = [...S.profiles.values()].filter(p => p.id !== S.user.id).map(p => ({p, ...lastSeenOf(p)})).sort((a, b) => b.t - a.t).slice(0, 8);
-  const anyReal = seen.some(x => x.real);
   return `<section class="card"><h2>Ostatnio online</h2>
-      ${seen.map(x => { const lab = seenLabel(x.t), on = lab === 'online';
+      ${seen.map(x => { const l0 = seenLabel(x.t), on = x.real && l0 === 'online', lab = x.real || !x.t ? l0 : 'ocena ' + (l0 === 'online' ? 'teraz' : l0);
         return `<a class="psr" href="#/osoba/${x.p.id}"><span class="pav">${avatar(x.p.id, 30)}${on ? '<i class="ondot"></i>' : ''}</span><span class="nm">${nm(x.p.id)}</span><span class="pseen ${on ? 'on' : ''}" title="${x.real ? 'ostatnio na stronie' : 'ostatnia ocena'}">${lab}</span></a>`; }).join('')}
-      ${anyReal ? '' : '<p class="note" style="margin:6px 0 0">Na razie widać czas ostatniej oceny - po uruchomieniu update6.sql będzie widać, kto ostatnio był na stronie.</p>'}</section>
+</section>
     <section class="card"><h2>Najwięcej ocen w ${MN}</h2>
       ${mon.length ? mon.map(([id, n], i) => `<a class="psr" href="#/osoba/${id}"><span class="pk">${i + 1}</span>${avatar(id, 26)}<span class="nm">${nm(id)}</span><span class="pbar"><span style="width:${n / mmax * 100}%"></span></span><b class="pv">${n}</b></a>`).join('')
         : '<div class="empty">W tym miesiącu nikt jeszcze nic nie ocenił.</div>'}</section>`;
