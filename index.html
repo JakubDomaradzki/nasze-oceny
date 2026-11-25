@@ -2803,9 +2803,9 @@ async function openShareImg(gen, name, alt, heading, note){
   if(sh) sh.onclick = async () => { try { await navigator.share({files:[file], title:heading}); } catch(e){ if(e.name !== 'AbortError') msg.textContent = 'Nie udało się udostępnić - spróbuj „Pobierz”.'; } };
 }
 // karta ocenionego albumu (profil, „Wszystkie oceny”, Start): ocena w pastylce pod spodem - klik pokazuje oceny piosenek
-// ocena sprzed mniej niż 24 h: „25min temu” albo „2h temu”; starsze: sam dzień („24 lis”)
+// ocena sprzed mniej niż 24 h: „25 min” albo „2 h”; starsze: sam dzień („24 lis”)
 const cardDate = d => { const m = Math.floor((Date.now() - new Date(d)) / 60000);
-  if(m >= 0 && m < 1440){ const h = Math.floor(m / 60), mm = m % 60; return m < 1 ? 'teraz' : (h ? h + 'h' : mm + 'min') + ' temu'; }
+  if(m >= 0 && m < 1440){ const h = Math.floor(m / 60), mm = m % 60; return m < 1 ? 'teraz' : h ? h + '\u00a0h' : mm + '\u00a0min'; }
   return shortDate(d); };
 const shortDate = d => { d = new Date(d); return d.toLocaleDateString('pl-PL', d.getFullYear() === new Date().getFullYear() ? {day:'numeric', month:'short'} : {day:'numeric', month:'short', year:'numeric'}); };
 function rTile(a, r, was){
