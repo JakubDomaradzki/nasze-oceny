@@ -68,7 +68,10 @@ button:disabled{opacity:.5;cursor:default}
 .brand b{color:var(--accent)}
 .links{display:flex;gap:2px;overflow-x:auto;flex:1;scrollbar-width:none}
 .links::-webkit-scrollbar{display:none}
-.links a{padding:7px 10px;border-radius:9px;color:var(--muted);font-weight:600;font-size:14px;white-space:nowrap;transition:color .15s,background-color .15s}
+.links a{padding:7px 8px;border-radius:9px;color:var(--muted);font-weight:600;font-size:14px;white-space:nowrap;transition:color .15s,background-color .15s}
+@media (max-width:1300px){.links a{padding:7px 7px;font-size:13.5px}.nav-in{gap:10px}}
+@media (max-width:1120px){.links a{padding:6px 5px;font-size:13px}.me .hide-m{display:none}}
+@media (min-width:721px) and (max-width:960px){.brand span{display:none}.links a{padding:6px 4px;font-size:12.5px}.nav-in{gap:8px}}
 .links a.on{color:var(--text);background:var(--soft);box-shadow:inset 0 0 0 1px var(--line)}
 .links a:hover{color:var(--text)}
 .me{display:flex;align-items:center;gap:8px;font-size:14px;white-space:nowrap}
@@ -90,7 +93,7 @@ button:disabled{opacity:.5;cursor:default}
   .nav-in{height:54px;padding:0 14px;padding-left:max(14px,env(safe-area-inset-left));padding-right:max(14px,env(safe-area-inset-right))}
   .nav .links,.nav .me .hide-m{display:none}
   .me{margin-left:auto}
-  main{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
+  main{padding-bottom:calc(96px + env(safe-area-inset-bottom))!important}
   .tabbar{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--navbg);
     -webkit-backdrop-filter:saturate(1.6) blur(16px);backdrop-filter:saturate(1.6) blur(16px);border-top:1px solid var(--line);
     padding:6px max(6px,env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom)) max(6px,env(safe-area-inset-left))}
@@ -485,7 +488,7 @@ tr.cl:hover td{background:var(--soft)}
 .tile .cw .tpb{position:absolute;right:6px;bottom:6px;line-height:0;cursor:pointer;border-radius:7px}
 .tile .cw .tpb .score{position:static;box-shadow:0 1px 4px rgba(0,0,0,.3)}
 .tile .cw .tpb:hover .score{filter:brightness(1.1);box-shadow:0 0 0 2px #fff,0 1px 4px rgba(0,0,0,.3)}
-.tpl{max-height:min(420px,60vh);overflow:auto}
+.tpl{max-height:min(420px,60vh);overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 .tpr{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:8px;align-items:center;padding:5px 6px;font-size:14px;border-radius:8px}
 .tpr .n{color:var(--muted);font-weight:700;text-align:right;font-size:12.5px}
 .tpr .t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -512,6 +515,30 @@ tr.cl:hover td{background:var(--soft)}
 .cchip.bot{border-color:var(--r);color:var(--r);font-weight:700}
 .cchip.skip{color:var(--muted);text-decoration:line-through}
 .cchip.bad{color:var(--r);border-style:dashed}
+.chain{white-space:nowrap}.chain s,.fi s.was{color:var(--muted);text-decoration:line-through;font-weight:600}
+.chain .ar,.fi .ar{color:var(--muted);margin:0 3px;font-size:.9em}
+.fi .wr{display:inline-flex;align-items:center;gap:2px;flex:none}
+.fi s.was{font-size:12.5px}
+.recs .rec,.news .rec{display:grid;grid-template-columns:56px minmax(0,1fr) auto;gap:14px;align-items:start;padding:12px 14px}
+.rec .meta{display:flex;flex-direction:column;gap:2px;min-width:0}
+.rec .meta b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rec .meta>span{color:var(--muted);font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rec .why{color:var(--muted);font-size:12.5px;display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin-top:2px}
+.rec .why .av{vertical-align:middle;margin-right:2px}
+.rec .why .fan{display:inline-flex;align-items:center;gap:3px;white-space:nowrap;margin-left:4px}
+.rec .why .soon{color:var(--g);font-weight:700}
+.rec .btns{margin-top:8px;gap:6px}
+.rec button.sm{padding:6px 11px;font-size:13px}
+.rec button.ghost{background:none;border-color:transparent;color:var(--muted)}
+.rec button.ghost:hover{color:var(--text)}
+.rec .pred{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:56px;text-align:center}
+.rec .pred small{font-size:11px;color:var(--muted);white-space:nowrap}
+.c56{width:56px;height:56px;flex:none}.c56 i{font-size:20px}
+.pbar{display:inline-block;width:120px;height:6px;border-radius:3px;background:var(--soft);vertical-align:middle;margin-left:8px;overflow:hidden}
+.pbar span{display:block;height:100%;background:var(--g);transition:width .2s}
+@media (max-width:520px){.recs .rec,.news .rec{grid-template-columns:48px minmax(0,1fr) auto;gap:10px;padding:12px 10px}.c56{width:48px;height:48px}}
+.cown{display:inline-flex;gap:6px;align-items:center}
+.cown input{width:140px;min-width:0}
 .cres{display:flex;gap:16px;align-items:center;margin-top:16px;padding-top:16px;border-top:1px solid var(--line)}
 .cbig{width:90px;height:90px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:42px;font-weight:800;color:#fff;flex:none;letter-spacing:-1px;font-variant-numeric:tabular-nums}
 .cstats{display:grid;grid-template-columns:repeat(3,auto);gap:3px 18px;font-size:13.5px;font-variant-numeric:tabular-nums}
@@ -643,6 +670,10 @@ async function loadData(){
   const opt = t => fetchAll(t).catch(e => { console.warn(t, e); missing = true; return []; });
   const [p, a, r, f, l, w] = await Promise.all([fetchAll('profiles'), fetchAll('albums'), fetchAll('ratings'), opt('favorites'), opt('listen_later'),
     fetchAll('weekly_album').catch(e => { console.warn(e); S.noWeekly = true; return []; })]);
+  const h = await fetchAll('rating_history').catch(e => { console.warn('rating_history', e); return null; });
+  S.hist = null;
+  if(h){ S.hist = new Map(); h.sort((x, y) => Number(x.id) - Number(y.id)).forEach(x => push(S.hist, Number(x.album_id) + '|' + x.user_id,
+    {old:x.old_score == null ? null : Number(x.old_score), score:Number(x.new_score), at:x.changed_at})); }
   S.weekly = w.map(x => ({...x, album_id:Number(x.album_id)}));
   S.favs = f.map(x => ({...x, album_id:Number(x.album_id)}));
   S.listen = l.map(x => ({...x, album_id:Number(x.album_id)}));
@@ -670,6 +701,8 @@ const me = () => S.profiles.get(S.user.id) || {id:S.user.id, display_name:(S.use
 function upsertLocalRating(row){
   row = {...row, album_id:Number(row.album_id), score:Number(row.score)};
   const i = S.ratings.findIndex(r => r.album_id === row.album_id && r.user_id === row.user_id);
+  // to samo, co zapisuje baza (update4.sql) - żeby historia była widoczna od razu, bez odświeżania
+  if(S.hist && (i < 0 || S.ratings[i].score !== row.score)) push(S.hist, row.album_id + '|' + row.user_id, {old:i < 0 ? null : S.ratings[i].score, score:row.score, at:new Date().toISOString()});
   if(i >= 0) S.ratings[i] = row; else S.ratings.push(row);
   reindex();
 }
@@ -688,6 +721,29 @@ function rankList({year = null, min = S.f.min, type = S.f.type, kind = S.f.kind}
     out.push({a, st});
   }
   return out.sort((x, y) => y.st.avg - x.st.avg || y.st.n - x.st.n || x.a.title.localeCompare(y.a.title, 'pl'));
+}
+/* ---------- historia zmian ocen ---------- */
+// kolejne oceny danej osoby dla albumu, np. [72, 80, 87] - null, jeśli ocena się nie zmieniała
+function scoreChain(albumId, uid){
+  const rows = S.hist && S.hist.get(albumId + '|' + uid); if(!rows || !rows.length) return null;
+  const seq = [], at = [];
+  for(const h of rows){
+    if(h.old != null && seq[seq.length - 1] !== h.old){ seq.push(h.old); at.push(null); }
+    if(seq[seq.length - 1] !== h.score){ seq.push(h.score); at.push(h.at); }
+  }
+  const cur = (S.byAlbum.get(albumId) || []).find(r => r.user_id === uid);
+  if(cur && seq[seq.length - 1] !== cur.score){ seq.push(cur.score); at.push(cur.updated_at); }
+  return seq.length > 1 ? {seq, at} : null;
+}
+// poprzednia ocena, jeśli ostatnia aktywność przy tej ocenie to właśnie jej zmiana
+function lastChange(r){
+  const rows = S.hist && S.hist.get(r.album_id + '|' + r.user_id), h = rows && rows[rows.length - 1];
+  if(!h || h.old == null || h.old === r.score || h.score !== r.score) return null;
+  return Math.abs((Date.parse(h.at) || 0) - tsOf(r)) < 10 * 60 * 1000 ? h.old : null;
+}
+function chainHtml(c){
+  return `<span class="chain" title="Historia oceny${c.at.some(Boolean) ? ': ' + c.seq.map((v, i) => num(v) + (c.at[i] ? ' (' + fmtDate(c.at[i]) + ')' : '')).join(' → ') : ''}">${c.seq.map((v, i) =>
+    i === c.seq.length - 1 ? `<b style="color:${col(Math.round(v))}">${num(v)}</b>` : `<s>${num(v)}</s>`).join('<span class="ar">→</span>')}</span>`;
 }
 /* ---------- album tygodnia ---------- */
 function weekStart(d = new Date()){
@@ -989,7 +1045,7 @@ function setTheme(t){
 }
 
 /* ---------- layout ---------- */
-const NAV = [['start','Start'],['ranking','Ranking'],['lata','Lata'],['albumy','Albumy'],['losuj','🎲 Losuj'],['dodaj','+ Dodaj'],['osoby','Osoby'],['statystyki','Statystyki'],['import','Import']];
+const NAV = [['start','Start'],['ranking','Ranking'],['lata','Lata'],['albumy','Albumy'],['losuj','🎲 Losuj'],['odkrywaj','Odkrywaj'],['dodaj','+ Dodaj'],['osoby','Osoby'],['statystyki','Statystyki'],['import','Import']];
 const NI = {
   start:'<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>',
   ranking:'<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/>',
@@ -1001,12 +1057,13 @@ const NI = {
   osoby:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a5.5 5.5 0 0 1 3.5 6"/>',
   statystyki:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
   import:'<path d="M12 3v12M7 10l5 5 5-5M4 20h16"/>',
+  odkrywaj:'<circle cx="12" cy="12" r="9"/><path d="m15.8 8.2-2.3 5.3-5.3 2.3 2.3-5.3z"/>',
   konto:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>'};
 const ni = k => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${NI[k]}</svg>`;
 function renderNav(cur){
   if(!S.user){ top_.innerHTML = ''; return; }
   const TABS = [['start','Start'],['ranking','Ranking'],['albumy','Albumy'],['losuj','Losuj']];
-  const MORE = [['lata','Lata'],['dodaj','Dodaj'],['osoby','Osoby'],['statystyki','Statystyki'],['import','Import'],['konto','Konto']];
+  const MORE = [['odkrywaj','Odkrywaj'],['lata','Lata'],['dodaj','Dodaj'],['osoby','Osoby'],['statystyki','Statystyki'],['import','Import'],['konto','Konto']];
   const nc = newCount();
   top_.innerHTML = `<header class="nav"><div class="nav-in">
     <a class="brand" href="#/start"><img src="icon-192.png" alt=""><span>${esc(CONFIG.SITE_NAME).replace(/^(\S+)/, '<b>$1</b>')}</span></a>
@@ -1042,7 +1099,7 @@ function render(){
   renderNav(['album','osoba','oceny','wykonawca','porownaj'].includes(page) ? null : page);
   if(page !== lastPage) window.scrollTo(0, 0);
   lastPage = page;
-  const V = {oceny:viewRatings, aktywnosc:viewActivity, start:viewHome, losuj:viewRandom, statystyki:viewStats, wykonawca:viewArtist, porownaj:viewCompare, ranking:viewRanking, lata:viewYears, album:viewAlbum, albumy:viewAlbums, dodaj:viewAdd, osoby:viewPeople,
+  const V = {odkrywaj:viewDiscover, oceny:viewRatings, aktywnosc:viewActivity, start:viewHome, losuj:viewRandom, statystyki:viewStats, wykonawca:viewArtist, porownaj:viewCompare, ranking:viewRanking, lata:viewYears, album:viewAlbum, albumy:viewAlbums, dodaj:viewAdd, osoby:viewPeople,
              osoba:viewPerson, import:viewImport, konto:viewAccount, edytuj:viewEdit}[page] || viewHome;
   try { V(arg, arg2); } catch(e){ console.error(e); app.innerHTML = `<div class="card err">Błąd: ${esc(e.message)}</div>`; }
 }
@@ -1178,7 +1235,7 @@ function viewAlbum(arg){
         <div><a class="nm" href="#/osoba/${r.user_id}">${esc(pname(r.user_id))}</a>
           ${r.comment && !h ? `<div class="cm">${esc(r.comment)}</div>` : ''}
           ${h ? '<div class="dt">oceniono - wynik ukryty do niedzieli</div>' : `<div class="bar"><div style="width:${r.score}%;background:${col(r.score)}"></div></div>`}
-          <div class="dt">${fmtDate(r.updated_at || r.created_at)}</div></div>
+          <div class="dt">${fmtDate(r.updated_at || r.created_at)}${!h && scoreChain(a.id, r.user_id) ? ' · zmiany: ' + chainHtml(scoreChain(a.id, r.user_id)) : ''}</div></div>
         ${h ? lockBadge('') : `<button type="button" class="rbtn" data-ru="${r.user_id}" title="Pokaż oceny piosenek: ${esc(pname(r.user_id))}">${badge(r.score)}</button>`}</div>`; }).join('') : '<div class="empty">Nikt jeszcze nie ocenił tego albumu.</div>'}</div>
       ${notRated.length ? `<p class="muted small" style="margin:12px 0 0">Jeszcze nie ocenili: ${notRated.map(esc).join(', ')}</p>` : ''}
     </div>
@@ -1760,9 +1817,9 @@ function calcResHtml(d){
       <div class="cstats">${res ? `<span>Średnia</span><span>Najlepsze (${res.k})</span><span>Najsłabsze (${res.k})</span>
         <b>${num(res.S)}</b><b style="color:var(--g)">${num(res.T)}</b><b style="color:var(--r)">${num(res.D)}</b>
         <span>Z bonusem</span><span>Po przeliczeniu</span><span>Utworów</span>
-        <b>${Math.round(res.W)}</b><b>${Math.round(res.F)}</b><b>${res.n}</b>` : '<span class="muted">Brak ocen do policzenia.</span>'}</div>
+        <b>${num(res.W)}</b><b>${num(res.F)}</b><b>${res.n}</b>` : '<span class="muted">Brak ocen do policzenia.</span>'}</div>
     </div>
-    ${res ? `<div class="btns" style="margin-top:12px"><button type="button" class="btn-p" data-put="${Math.round(res.F)}">Wstaw ${Math.round(res.F)} do oceny albumu</button><button type="button" data-put="${Math.round(res.W)}">Wstaw ${Math.round(res.W)} (bez przeliczenia)</button></div>` : ''}`;
+    ${res ? `<div class="btns" style="margin-top:12px"><button type="button" class="btn-p" data-put="${Math.round(res.F)}">Wstaw ${Math.round(res.F)}</button><span class="cown"><input id="cown" inputmode="decimal" enterkeyhint="done" placeholder="własna ocena" aria-label="Własna ocena albumu 0-100"><button type="button" id="cownB">Wstaw</button></span></div>` : ''}`;
 }
 // odśwież tylko wynik, wykres i podpowiedzi - suwaki i pole tekstowe zostają (nie przerywa przeciągania ani pisania)
 function refreshCalc(a){
@@ -1858,7 +1915,19 @@ function drawTracks(a){
 }
 function bindGab(a){ document.querySelectorAll('#trkBody .gab').forEach(b => b.onclick = e => { e.stopPropagation(); showTrackPop(a, +b.dataset.gp, b); }); }
 // dymek: kto jak ocenił utwór
-function closePop(){ const p = document.getElementById('tpop'); if(p) p.remove(); document.removeEventListener('click', closePop); window.removeEventListener('scroll', closePop, true); }
+// przewijanie wewnątrz okienka go nie zamyka - tylko przewijanie strony
+function popScroll(e){ const p = document.getElementById('tpop'); if(p && e.target instanceof Node && p.contains(e.target)) return; closePop(); }
+function closePop(){ const p = document.getElementById('tpop'); if(p) p.remove(); document.removeEventListener('click', closePop); window.removeEventListener('scroll', popScroll, true); }
+function placePop(pop, el){
+  const rc = el.getBoundingClientRect(), pw = pop.offsetWidth, tb = document.querySelector('.tabbar'), tbH = tb && tb.offsetHeight ? tb.offsetHeight : 0, maxB = window.innerHeight - tbH - 8;
+  const l = pop.querySelector('.tpl'); if(l) l.style.maxHeight = Math.max(160, Math.min(420, maxB - 70)) + 'px';
+  const ph = pop.offsetHeight;
+  pop.style.left = Math.min(window.innerWidth - pw - 8, Math.max(8, rc.right - pw)) + 'px';
+  let top = rc.bottom + 8; if(top + ph > maxB) top = Math.max(8, Math.min(rc.top - ph - 8, maxB - ph));
+  pop.style.top = Math.max(8, top) + 'px';
+  // kółko myszy nad okienkiem przewija tylko listę w okienku, nie stronę pod spodem
+  pop.addEventListener('wheel', e => { const l = pop.querySelector('.tpl'); if(!l || !l.contains(e.target) || l.scrollHeight <= l.clientHeight) e.preventDefault(); }, {passive:false});
+}
 function showTrackPop(a, pos, el){
   const had = document.getElementById('tpop'); const same = had && had.dataset.p === String(pos); closePop(); if(same) return;
   const T = S.tr[a.id], t = T.tracks.find(x => x.position === pos), {by} = trackStats(a), o = by.get(pos);
@@ -1871,7 +1940,7 @@ function showTrackPop(a, pos, el){
   let top = rc.bottom + 8; if(top + ph > window.innerHeight - 8) top = Math.max(8, rc.top - ph - 8);
   pop.style.left = left + 'px'; pop.style.top = top + 'px';
   pop.onclick = e => e.stopPropagation();
-  setTimeout(() => { document.addEventListener('click', closePop); window.addEventListener('scroll', closePop, true); }, 0);
+  setTimeout(() => { document.addEventListener('click', closePop); window.addEventListener('scroll', popScroll, true); }, 0);
 }
 // dymek: oceny piosenek danej osoby z tego albumu
 async function showUserTracksPop(a, u, el){
@@ -1886,22 +1955,22 @@ async function showUserTracksPop(a, u, el){
     : !any ? `<div class="muted small" style="padding:8px 6px">${esc(pname(u))} nie ocenił(a) piosenek z tego albumu.</div>`
     : `<div class="tpl">${T.tracks.map(t => { const r = mine.get(t.position);
         return `<div class="tpr ${t.skip ? 'skip' : ''}"><span class="n">${t.position}</span><span class="t" title="${esc(t.title)}">${esc(t.title)}${r && r.fav ? ' <span style="color:#f5b301">★</span>' : ''}</span>${r && r.score != null ? badge(r.score, 'sm') : '<small class="muted">-</small>'}</div>`; }).join('')}</div>`);
-  document.body.appendChild(pop);
-  const rc = el.getBoundingClientRect(), pw = pop.offsetWidth, ph = pop.offsetHeight;
-  pop.style.left = Math.min(window.innerWidth - pw - 8, Math.max(8, rc.right - pw)) + 'px';
-  let top = rc.bottom + 8; if(top + ph > window.innerHeight - 8) top = Math.max(8, rc.top - ph - 8);
-  pop.style.top = top + 'px';
+  document.body.appendChild(pop); placePop(pop, el);
   pop.onclick = ev => ev.stopPropagation();
-  setTimeout(() => { document.addEventListener('click', closePop); window.addEventListener('scroll', closePop, true); }, 0);
+  setTimeout(() => { document.addEventListener('click', closePop); window.addEventListener('scroll', popScroll, true); }, 0);
 }
 // podświetlenie wybranej osoby na liście ocen albumu
 function markRaters(a){ const T = S.tr[a.id]; document.querySelectorAll('.rlist [data-ru]').forEach(b => b.classList.toggle('on', !!T && T.view === b.dataset.ru)); }
+function putScore(v){
+  const rs = document.getElementById('rs'); if(!rs) return;
+  rs.value = num(v); rs.scrollIntoView({behavior:'smooth', block:'center'}); setTimeout(() => rs.focus({preventScroll:true}), 350);
+  toast('Wpisano ' + num(v) + ' - kliknij „Zapisz”, żeby zatwierdzić');
+}
 function bindPut(){
-  document.querySelectorAll('[data-put]').forEach(b => b.onclick = () => {
-    const rs = document.getElementById('rs'); if(!rs) return;
-    rs.value = num(+b.dataset.put); rs.scrollIntoView({behavior:'smooth', block:'center'}); setTimeout(() => rs.focus({preventScroll:true}), 350);
-    toast('Wpisano ' + num(+b.dataset.put) + ' - kliknij „Zapisz”, żeby zatwierdzić');
-  });
+  document.querySelectorAll('[data-put]').forEach(b => b.onclick = () => putScore(+b.dataset.put));
+  const ci = document.getElementById('cown'), cb = document.getElementById('cownB');
+  if(ci && cb){ const go = () => { const v = parseScore(ci.value); if(v == null || !ci.value.trim()){ toast('Wpisz liczbę od 0 do 100'); ci.focus(); return; } putScore(v); ci.value = ''; };
+    cb.onclick = go; ci.onkeydown = e => { if(e.key === 'Enter'){ e.preventDefault(); go(); } }; }
 }
 function refreshTrackRow(a, pos){
   const T = S.tr[a.id], {by, best, hid} = trackStats(a), body = document.getElementById('trkBody'); if(!body) return;
@@ -2229,9 +2298,9 @@ function viewArtist(name){
 }
 
 function feedItem(r){
-  const a = S.albums.get(r.album_id), hid = isHidden(r);
+  const a = S.albums.get(r.album_id), hid = isHidden(r), was = hid ? null : lastChange(r);
   return `<div class="fi ${tsOf(r) > S.prevSeen ? 'new' : ''}"><a href="#/osoba/${r.user_id}">${avatar(r.user_id, 34)}</a><div>
-    <div class="who"><a href="#/osoba/${r.user_id}"><b>${esc(pname(r.user_id))}</b></a>${hid ? lockBadge() : tpBadge(a.id, r.user_id, r.score)}</div>
+    <div class="who"><a href="#/osoba/${r.user_id}"><b>${esc(pname(r.user_id))}</b>${was != null ? ' <span class="muted" style="font-weight:500">zmienia ocenę</span>' : ''}</a><span class="wr">${was != null ? `<s class="was" title="Poprzednia ocena">${num(was)}</s><span class="ar">→</span>` : ''}${hid ? lockBadge() : tpBadge(a.id, r.user_id, r.score)}</span></div>
     <a class="alb" href="#/album/${a.id}">${coverHtml(a, 'c40')}<div><b>${esc(a.title)}</b><span>${esc(a.artist)}</span></div></a>
     ${r.comment && !hid ? `<div class="cm">„${esc(r.comment)}”</div>` : ''}
     <time>${timeAgo(r.updated_at || r.created_at)}</time></div></div>`;
@@ -2438,21 +2507,22 @@ function viewRatings(uid){
   const name = p.display_name || p.username;
   const all = (S.byUser.get(uid) || []).filter(r => S.albums.has(r.album_id) && !isHidden(r) && kindOk(S.albums.get(r.album_id), O.kind));
   const q = norm(O.q);
-  const l = all.filter(r => { const a = S.albums.get(r.album_id); return !q || norm(a.artist).includes(q) || norm(a.title).includes(q); });
+  const l = all.filter(r => { const a = S.albums.get(r.album_id); return (!q || norm(a.artist).includes(q) || norm(a.title).includes(q)) && (O.sort !== 'changed' || scoreChain(r.album_id, uid)); });
   const cmp = {new:(x, y) => tsOf(y) - tsOf(x), high:(x, y) => y.score - x.score || tsOf(y) - tsOf(x), low:(x, y) => x.score - y.score || tsOf(y) - tsOf(x),
-    year:(x, y) => (S.albums.get(y.album_id).year || 0) - (S.albums.get(x.album_id).year || 0) || y.score - x.score}[O.sort];
+    year:(x, y) => (S.albums.get(y.album_id).year || 0) - (S.albums.get(x.album_id).year || 0) || y.score - x.score,
+    changed:(x, y) => tsOf(y) - tsOf(x)}[O.sort];
   l.sort(cmp);
   app.innerHTML = `<div class="phead" style="margin-bottom:16px"><a href="#/osoba/${uid}">${avatar(uid, 56)}</a><div><h1 style="font-size:28px">Oceny: ${esc(name)}</h1><p class="sub" style="margin:2px 0 0"><a class="link" href="#/osoba/${uid}">← wróć do profilu</a> · ${all.length} ${O.kind === 'singles' ? pl(all.length,'singiel','single','singli') : pl(all.length,'album','albumy','albumów')}</p></div></div>
     <div class="filters">${segHtml('okind', O.kind)}
       <label>Szukaj<input type="search" id="oq" value="${esc(O.q)}" placeholder="wykonawca lub tytuł"></label>
-      <label>Sortuj<select id="osort">${[['new','Najnowsze'],['high','Najwyżej ocenione'],['low','Najniżej ocenione'],['year','Rok wydania']].map(([v, t]) => `<option value="${v}" ${O.sort === v ? 'selected' : ''}>${t}</option>`).join('')}</select></label></div>
+      <label>Sortuj<select id="osort">${[['new','Najnowsze'],['high','Najwyżej ocenione'],['low','Najniżej ocenione'],['year','Rok wydania'],['changed','Zmienione oceny']].map(([v, t]) => `<option value="${v}" ${O.sort === v ? 'selected' : ''}>${t}</option>`).join('')}</select></label></div>
     <div id="ogrid"></div>`;
   const draw = () => {
     const shown = l.slice(0, O.limit);
     document.getElementById('ogrid').innerHTML = l.length ? `<div class="grid">${shown.map(r => { const a = S.albums.get(r.album_id);
-      return `<a class="tile" href="#/album/${a.id}"><div class="cw">${coverHtml(a, 'cfull')}${tpBadge(a.id, uid, r.score)}</div><div><div class="t">${esc(a.title)}</div><div class="a">${esc(a.artist)}${a.year ? ' · ' + a.year : ''}</div><div class="a">${timeAgo(r.updated_at || r.created_at)}</div></div></a>`; }).join('')}</div>
+      return `<a class="tile" href="#/album/${a.id}"><div class="cw">${coverHtml(a, 'cfull')}${tpBadge(a.id, uid, r.score)}</div><div><div class="t">${esc(a.title)}</div><div class="a">${esc(a.artist)}${a.year ? ' · ' + a.year : ''}</div><div class="a">${timeAgo(r.updated_at || r.created_at)}${(c => c ? ' · było ' + num(c.seq[c.seq.length - 2]) : '')(scoreChain(a.id, uid))}</div></div></a>`; }).join('')}</div>
       ${l.length > shown.length ? `<div style="text-align:center;margin-top:18px"><button id="omore">Pokaż więcej (${l.length - shown.length})</button></div>` : ''}`
-      : '<div class="card empty">Brak ocen.</div>';
+      : `<div class="card empty">${O.sort === 'changed' ? (S.hist ? 'Żadna ocena nie była jeszcze zmieniana.' : 'Historia zmian działa po uruchomieniu update4.sql w Supabase.') : 'Brak ocen.'}</div>`;
     const m = document.getElementById('omore'); if(m) m.onclick = () => { O.limit += 120; draw(); };
   };
   draw();
@@ -2661,6 +2731,169 @@ function viewRandom(){
   }
   document.getElementById('roll').onclick = roll;
   if(R.last && S.albums.has(R.last)) show(S.albums.get(R.last), true);
+}
+
+/* ----- odkrywaj: co mi się spodoba + nowości ----- */
+function hiddenRecs(){ try { return new Set(JSON.parse(localStorage.getItem('oceny_hide_' + S.user.id) || '[]')); } catch(e){ return new Set(); } }
+function saveHiddenRecs(set){ try { localStorage.setItem('oceny_hide_' + S.user.id, JSON.stringify([...set])); } catch(e){} }
+// przewidywana ocena = Twoja średnia + o ile album podobał się innym ponad ICH średnią;
+// głos osoby waży tym więcej, im bardziej zgodny macie gust (i im więcej wspólnych albumów)
+function recommend(kind){
+  const uid = S.user.id, mine = (S.byUser.get(uid) || []).map(r => r.score);
+  if(mine.length < 5) return {few:true, items:[]};
+  const myAvg = mine.reduce((s, x) => s + x, 0) / mine.length, mineSet = new Set((S.byUser.get(uid) || []).map(r => r.album_id));
+  const W = new Map();
+  for(const p of S.profiles.values()){
+    if(p.id === uid) continue;
+    const rs = (S.byUser.get(p.id) || []).filter(r => !isHidden(r)); if(rs.length < 3) continue;
+    const c = compat(uid, p.id), base = c.pct == null ? 0.08 : Math.pow(Math.max(0, c.pct) / 100, 3);
+    W.set(p.id, {w:base * Math.min(1, (c.n + 2) / 12), avg:rs.reduce((s, r) => s + r.score, 0) / rs.length, pct:c.pct});
+  }
+  const hide = hiddenRecs(), items = [];
+  for(const a of S.albums.values()){
+    if(mineSet.has(a.id) || hiddenAlbum(a.id) || hide.has(a.id) || !kindOk(a, kind)) continue;
+    let sw = 0, sdv = 0; const fans = [];
+    for(const r of S.byAlbum.get(a.id) || []){ const f = W.get(r.user_id); if(!f || !f.w) continue;
+      sw += f.w; sdv += f.w * (r.score - f.avg); fans.push({u:r.user_id, s:r.score, k:f.w * (r.score - f.avg)}); }
+    if(!fans.length) continue;
+    items.push({a, pred:Math.max(0, Math.min(100, myAvg + sdv / (sw + 0.25))), fans:fans.sort((x, y) => y.k - x.k)});
+  }
+  return {myAvg, items:items.sort((x, y) => y.pred - x.pred || y.fans.length - x.fans.length)};
+}
+function viewDiscover(arg){
+  const tab = arg === 'nowosci' ? 'nowosci' : 'dla-ciebie';
+  const tabs = `<div class="chips" style="margin-bottom:18px">${[['dla-ciebie','Co mi się spodoba'],['nowosci','Nowości']]
+    .map(([k, l]) => `<a class="chip ${tab === k ? 'on' : ''}" href="#/odkrywaj${k === 'nowosci' ? '/nowosci' : ''}">${l}</a>`).join('')}</div>`;
+  (tab === 'nowosci' ? viewNews : viewRecs)(tabs);
+}
+function viewRecs(tabs){
+  const D = S.dsc || (S.dsc = {kind:'albums', year:'all', type:'all', limit:30});
+  const R = recommend(D.kind), hide = hiddenRecs();
+  const ys = [...new Set(R.items.map(x => x.a.year).filter(Boolean))].sort((a, b) => b - a);
+  if(D.year !== 'all' && !ys.includes(D.year)) D.year = 'all';
+  const list = R.items.filter(x => (D.year === 'all' || x.a.year === D.year) && (D.kind === 'singles' || D.type === 'all' || typeGroup(x.a.type) === D.type));
+  const shown = list.slice(0, D.limit);
+  app.innerHTML = `<h1>Odkrywaj</h1><p class="sub">Albumy z bazy, których jeszcze nie oceniłeś, a które powinny Ci się spodobać - na podstawie ocen osób o podobnym guście.</p>${tabs}
+    <div class="filters">${segHtml('dkind', D.kind)}
+      ${D.kind === 'singles' ? '' : `<label>Typ<select id="dtype">${[['all','Wszystkie'],['LP','LP'],['EP','EP'],['Inne','Inne']].map(([v, l]) => `<option value="${v}" ${D.type === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label>`}
+      <label>Rok<select id="dyear"><option value="all">Wszystkie lata</option>${ys.map(y => `<option value="${y}" ${D.year === y ? 'selected' : ''}>${y}</option>`).join('')}</select></label></div>
+    ${R.few ? '<div class="card empty">Oceń najpierw co najmniej 5 albumów - wtedy strona będzie wiedziała, co lubisz.</div>'
+    : !list.length ? '<div class="card empty">Brak propozycji - oceniłeś już wszystko, co oceniali inni. Zajrzyj do zakładki Nowości.</div>'
+    : `<div class="list recs">${shown.map(x => recRowHtml(x)).join('')}</div>
+      ${list.length > shown.length ? `<div style="text-align:center;margin-top:16px"><button id="dmore">Pokaż więcej (${list.length - shown.length})</button></div>` : ''}`}
+    <p class="note">„Dla Ciebie” to przewidywana ocena: Twoja średnia (${R.myAvg == null ? '-' : num(R.myAvg)}) plus to, o ile album podobał się innym ponad ich własną średnią. Najbardziej liczą się osoby, z którymi masz największą zgodność gustu.
+      ${hide.size ? `<button type="button" class="link small" id="dunhide">Przywróć ukryte (${hide.size})</button>` : ''}</p>`;
+  bindSeg('dkind', v => { D.kind = v; D.limit = 30; render(); });
+  const dt = document.getElementById('dtype'); if(dt) dt.onchange = e => { D.type = e.target.value; D.limit = 30; render(); };
+  document.getElementById('dyear').onchange = e => { D.year = e.target.value === 'all' ? 'all' : +e.target.value; D.limit = 30; render(); };
+  const m = document.getElementById('dmore'); if(m) m.onclick = () => { D.limit += 30; render(); };
+  const uh = document.getElementById('dunhide'); if(uh) uh.onclick = () => { saveHiddenRecs(new Set()); render(); };
+  app.querySelectorAll('[data-dl]').forEach(b => b.onclick = async () => { const id = +b.dataset.dl; b.disabled = true;
+    if(await (inListen(id) ? removeListen(id) : addListen(id))){ toast(inListen(id) ? 'Dodano do listy do posłuchania' : 'Usunięto z listy do posłuchania'); render(); } else b.disabled = false; });
+  app.querySelectorAll('[data-dh]').forEach(b => b.onclick = () => { const h = hiddenRecs(); h.add(+b.dataset.dh); saveHiddenRecs(h);
+    const row = b.closest('.rec'); if(row) row.remove(); toast('Ukryto - nie będzie już proponowany'); });
+}
+function recRowHtml(x){
+  const a = x.a, st = visStats(a.id), lis = inListen(a.id), top = x.fans.filter(f => f.k > 0).slice(0, 3);
+  return `<div class="row rec"><a href="#/album/${a.id}">${coverHtml(a, 'c56')}</a>
+    <div class="meta"><a href="#/album/${a.id}"><b>${esc(a.title)}</b></a><span>${esc(a.artist)}${a.year ? ' · ' + a.year : ''}${a.type ? ' · ' + esc(a.type) : ''}</span>
+      <small class="why">${top.length ? 'Polubili:' + top.map(f => `<span class="fan">${avatar(f.u, 18)}${esc(pname(f.u))} <b style="color:${col(Math.round(f.s))}">${num(f.s)}</b></span>`).join('') : `Średnia grupy ${st.avg == null ? '-' : num(st.avg)} (${ocen(st.n)})`}</small>
+      <div class="btns"><button type="button" class="sm ${lis ? 'btn-on' : ''}" data-dl="${a.id}">${lis ? '✓ Do posłuchania' : '+ Do posłuchania'}</button><button type="button" class="sm ghost" data-dh="${a.id}" title="Nie proponuj więcej tego albumu">Nie interesuje mnie</button></div></div>
+    <div class="pred" title="Przewidywana ocena dla Ciebie">${badge(x.pred)}<small>dla Ciebie</small></div></div>`;
+}
+
+// --- nowości od wykonawców (Deezer) ---
+let dzNext = 0; // Deezer: maks. 50 zapytań na 5 s - zostawiamy zapas
+async function dzGet(url){ const wait = dzNext - Date.now(); dzNext = Math.max(Date.now(), dzNext) + 130; if(wait > 0) await sleep(wait); return jsonp(url, 10000); }
+function newsArtists(scope){
+  const m = new Map(), R = scope === 'me' ? (S.byUser.get(S.user.id) || []) : visRatings();
+  for(const r of R){ const a = S.albums.get(r.album_id); if(!a) continue;
+    for(const p of artistParts(a.artist)){ const k = simp(p); if(!k) continue; const o = m.get(k) || {name:p, k, n:0, sum:0, users:new Set()}; o.n++; o.sum += r.score; o.users.add(r.user_id); m.set(k, o); } }
+  return [...m.values()].filter(o => o.sum / o.n >= 65 || o.n >= 3).sort((x, y) => y.n * (y.sum / y.n) - x.n * (x.sum / x.n)).slice(0, scope === 'me' ? 50 : 90);
+}
+const NEWS_DAYS = 200;
+async function fetchNews(scope, onProg){
+  let ids = {}; try { ids = JSON.parse(localStorage.getItem('oceny_dzart') || '{}'); } catch(e){}
+  const arts = newsArtists(scope), out = [], cutoff = Date.now() - NEWS_DAYS * 864e5; let done = 0, fail = 0;
+  const work = async o => {
+    try {
+      let id = ids[o.k];
+      if(id === undefined){
+        const d = await dzGet('https://api.deezer.com/search/artist?limit=5&output=jsonp&q=' + encodeURIComponent(o.name));
+        const hit = ((d && d.data) || []).find(x => simp(x.name) === o.k); id = hit ? hit.id : 0; ids[o.k] = id;
+      }
+      if(id){
+        const d = await dzGet('https://api.deezer.com/artist/' + id + '/albums?limit=60&output=jsonp');
+        for(const x of (d && d.data) || []){ const t = Date.parse(x.release_date || ''); if(!t || t < cutoff) continue;
+          out.push({...dzAlbum(x, o.name), date:x.release_date, ts:t, fans:[...o.users]}); }
+      }
+    } catch(e){ fail++; }
+    done++; onProg(done, arts.length);
+  };
+  const q = [...arts]; await Promise.all([0, 1, 2, 3].map(async () => { while(q.length) await work(q.shift()); }));
+  try { localStorage.setItem('oceny_dzart', JSON.stringify(ids)); } catch(e){}
+  // ta sama płyta u kilku wykonawców (współpraca) albo w kilku wersjach - zostaw jedną
+  const seen = new Map();
+  for(const it of out){ const k = simp(cleanT(it.title)) + '|' + it.date.slice(0, 7); const o = seen.get(k);
+    if(!o) seen.set(k, it); else o.fans = [...new Set([...o.fans, ...it.fans])]; }
+  return {items:[...seen.values()].sort((a, b) => b.ts - a.ts), artists:arts.length, fail};
+}
+function newsWhen(ts){
+  const d0 = new Date(); d0.setHours(0, 0, 0, 0);
+  const d = Math.round((new Date(ts).setHours(0, 0, 0, 0) - d0) / 864e5);
+  return d > 1 ? `premiera za ${d} dni` : d === 1 ? 'premiera jutro' : d === 0 ? 'dziś' : d === -1 ? 'wczoraj' : -d < 14 ? `${-d} dni temu` : -d < 60 ? `${Math.round(-d / 7)} tyg. temu` : `${Math.round(-d / 30)} mies. temu`;
+}
+async function addFromDz(it){
+  const ex = findAlbum(it.artist, it.title); if(ex) return ex;
+  const { data, error } = await sb.from('albums').insert({artist:it.artist, title:it.title, year:it.year, type:it.type, cover_url:safeUrl(it.cover) || null}).select().single();
+  if(error){ if(error.code === '23505'){ await safeLoad(); return findAlbum(it.artist, it.title); } toast(errMsg(error), true); return null; }
+  const a = {...data, id:Number(data.id)}; S.albums.set(a.id, a); return a;
+}
+function viewNews(tabs){
+  const N = S.nw || (S.nw = {scope:'me', days:90, singles:false, data:{}, busy:false});
+  const cacheKey = 'oceny_news_' + S.user.id + '_' + N.scope;
+  if(!N.data[N.scope]){ try { const c = JSON.parse(localStorage.getItem(cacheKey) || 'null'); if(c && Date.now() - c.at < 6 * 3600e3) N.data[N.scope] = c; } catch(e){} }
+  const D = N.data[N.scope];
+  app.innerHTML = `<h1>Odkrywaj</h1><p class="sub">Nowe i nadchodzące płyty wykonawców, których słuchacie - prosto z Deezera.</p>${tabs}
+    <div class="filters">${segHtml('nscope', N.scope, [['me','Moi wykonawcy'],['all','Wykonawcy całej grupy']])}
+      <label>Okres<select id="ndays">${[[30,'Ostatni miesiąc'],[90,'Ostatnie 3 miesiące'],[180,'Ostatnie pół roku']].map(([v, l]) => `<option value="${v}" ${N.days === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
+      <label style="flex-direction:row;align-items:center;gap:6px;font-size:13.5px;color:var(--text)"><input type="checkbox" id="nsing" ${N.singles ? 'checked' : ''} style="width:auto"> Pokaż single</label>
+      <button type="button" id="nref" ${N.busy ? 'disabled' : ''}>${D ? '↻ Sprawdź ponownie' : 'Sprawdź nowości'}</button></div>
+    <div id="nst" class="muted small" style="margin:-4px 0 12px"></div><div id="nlist"></div>`;
+  const st = document.getElementById('nst');
+  const draw = () => {
+    const box = document.getElementById('nlist'), D2 = N.data[N.scope]; if(!box) return;
+    if(!D2){ box.innerHTML = N.busy ? '' : `<div class="card empty">${newsArtists(N.scope).length ? 'Kliknij „Sprawdź nowości” - strona przejrzy dyskografie wykonawców (ok. 10-20 sekund).' : 'Oceń najpierw kilka albumów, żeby strona wiedziała, kogo słuchasz.'}</div>`; return; }
+    const cutoff = Date.now() - N.days * 864e5;
+    const list = D2.items.filter(it => it.ts >= cutoff && (N.singles || it.type !== 'Singiel'));
+    st.textContent = `Sprawdzono ${D2.artists} ${pl(D2.artists,'wykonawcę','wykonawców','wykonawców')} · ${timeAgo(new Date(D2.at).toISOString())}${D2.fail ? ` · ${D2.fail} nie odpowiedziało` : ''}`;
+    box.innerHTML = list.length ? `<div class="list news">${list.map(it => { const a = findAlbum(it.artist, it.title), i = D2.items.indexOf(it), vs = a ? visStats(a.id) : null, lis = a && inListen(a.id), soon = it.ts > Date.now();
+      return `<div class="row rec">${a ? `<a href="#/album/${a.id}">${coverHtml(a, 'c56')}</a>` : coverHtml({title:it.title, cover_url:it.thumb}, 'c56')}
+        <div class="meta">${a ? `<a href="#/album/${a.id}"><b>${esc(it.title)}</b></a>` : `<b>${esc(it.title)}</b>`}<span>${esc(it.artist)} · ${esc(it.type)}</span>
+          <small class="why"><span class="${soon ? 'soon' : ''}">${fmtDate(it.date)} - ${newsWhen(it.ts)}</span>${N.scope === 'all' ? ' · słuchają: ' + it.fans.slice(0, 4).map(u => avatar(u, 18)).join('') : ''}</small>
+          <div class="btns">${a ? '' : `<button type="button" class="sm" data-na="${i}">+ Dodaj do bazy</button>`}<button type="button" class="sm ${lis ? 'btn-on' : ''}" data-nl="${i}">${lis ? '✓ Do posłuchania' : '+ Do posłuchania'}</button></div></div>
+        <div class="pred">${a ? (vs.n ? `${badge(vs.avg)}<small>${ocen(vs.n)}</small>` : '<small class="muted">w bazie</small>') : '<small class="muted">nowe</small>'}</div></div>`; }).join('')}</div>`
+      : `<div class="card empty">Brak nowych płyt w tym okresie${N.singles ? '' : ' (single są ukryte)'}.</div>`;
+    box.querySelectorAll('[data-na]').forEach(b => b.onclick = async () => { b.disabled = true; const a = await addFromDz(D2.items[+b.dataset.na]); if(a){ toast('Dodano „' + a.title + '”'); draw(); } else b.disabled = false; });
+    box.querySelectorAll('[data-nl]').forEach(b => b.onclick = async () => { b.disabled = true; const it = D2.items[+b.dataset.nl];
+      const a = await addFromDz(it); if(!a){ b.disabled = false; return; }
+      if(await (inListen(a.id) ? removeListen(a.id) : addListen(a.id))) toast(inListen(a.id) ? 'Dodano do listy do posłuchania' : 'Usunięto z listy do posłuchania');
+      draw(); });
+  };
+  const run = async () => {
+    if(N.busy) return; N.busy = true; const scope = N.scope; draw();
+    const b = document.getElementById('nref'); if(b) b.disabled = true;
+    const res = await fetchNews(scope, (d, n) => { const s2 = document.getElementById('nst'); if(s2 && N.scope === scope && route().page === 'odkrywaj') s2.innerHTML = `Sprawdzam wykonawców ${d}/${n}… <span class="pbar"><span style="width:${Math.round(d / n * 100)}%"></span></span>`; });
+    N.busy = false; N.data[scope] = {...res, at:Date.now()};
+    try { localStorage.setItem('oceny_news_' + S.user.id + '_' + scope, JSON.stringify(N.data[scope])); } catch(e){}
+    if(route().page === 'odkrywaj' && route().arg === 'nowosci') render();
+  };
+  bindSeg('nscope', v => { N.scope = v; render(); });
+  document.getElementById('ndays').onchange = e => { N.days = +e.target.value; draw(); };
+  document.getElementById('nsing').onchange = e => { N.singles = e.target.checked; draw(); };
+  document.getElementById('nref').onclick = run;
+  if(N.busy) st.textContent = 'Sprawdzam…';
+  draw();
 }
 
 /* ----- import ----- */
