@@ -75,6 +75,39 @@ button:disabled{opacity:.5;cursor:default}
 .links a.on{color:var(--text);background:var(--soft);box-shadow:inset 0 0 0 1px var(--line)}
 .links a:hover{color:var(--text)}
 .me{display:flex;align-items:center;gap:8px;font-size:14px;white-space:nowrap}
+.meav{display:flex;align-items:center;gap:8px;padding:2px 2px 2px 10px;border-radius:999px;border:1px solid transparent;transition:border-color .15s,background-color .15s}
+.meav:hover,.meav.on{border-color:var(--line);background:var(--raise)}
+.meav .nm{max-width:110px;overflow:hidden;text-overflow:ellipsis}
+.sbox{position:relative;display:flex;align-items:center;gap:6px;width:230px;height:34px;padding:0 8px 0 10px;border:1px solid var(--line);border-radius:10px;background:var(--raise);color:var(--muted);transition:border-color .15s,box-shadow .15s}
+.sbox:focus-within{border-color:color-mix(in srgb,var(--line),var(--g) 60%);box-shadow:0 0 0 3px color-mix(in srgb,var(--g),transparent 82%)}
+.sbox svg{flex:none}
+.sbox input{border:none;background:none;padding:0;height:100%;font-size:13.5px;min-width:0;flex:1;box-shadow:none;color:var(--text);outline:none}
+.sbox input::-webkit-search-cancel-button{display:none}
+.sbox kbd{font:600 11px/1 inherit;border:1px solid var(--line);border-radius:5px;padding:3px 6px;color:var(--muted)}
+.sbox:focus-within kbd{display:none}
+.sres{position:absolute;top:calc(100% + 8px);right:0;width:420px;max-height:min(70vh,560px);overflow:auto;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 16px 40px rgba(0,0,0,.25);padding:6px;z-index:60;white-space:normal;overscroll-behavior:contain}
+.sgrp+.sgrp{border-top:1px solid var(--line);margin-top:4px;padding-top:4px}
+.sgrp .sh{font-size:12px;font-weight:700;color:var(--muted);padding:6px 8px 4px}
+a.sit{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:9px;color:var(--text);font-weight:500}
+a.sit:hover,a.sit.act{background:var(--soft)}
+a.sit .st{display:flex;flex-direction:column;min-width:0;flex:1}
+a.sit .st b,a.sit .st small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+a.sit .st b{font-size:14px}
+a.sit .st small{color:var(--muted);font-size:12.5px}
+a.sit mark{background:color-mix(in srgb,var(--g),transparent 75%);color:inherit;border-radius:3px;padding:0 1px}
+.sic{width:40px;height:40px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-weight:800;background:var(--soft);color:var(--muted)}
+.sempty{padding:18px 12px;text-align:center;color:var(--muted);font-size:14px;line-height:1.6}
+.me .sbtn{display:none;cursor:pointer;padding:0}.sbtn svg{flex:none}
+.sov{position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.45);display:flex;justify-content:center;align-items:flex-start;padding:env(safe-area-inset-top) 0 0}
+.sov-in{background:var(--bg);width:min(640px,100%);max-height:100%;display:flex;flex-direction:column;border-radius:0 0 16px 16px;box-shadow:0 16px 40px rgba(0,0,0,.3)}
+.sov-h{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line)}
+.sov-h .sbox{flex:1;width:auto;height:42px}
+.sov-h .sbox input{font-size:16px}
+.sov-r{overflow:auto;padding:6px 8px calc(16px + env(safe-area-inset-bottom));overscroll-behavior:contain}
+html.noscroll{overflow:hidden}
+@media (max-width:1180px){.nav-in>.me>.sbox{display:none}.me .sbtn{display:inline-flex}}
+@media (max-width:720px){.sov{background:none}.sov-in{height:100%;border-radius:0;width:100%}.meav{padding-left:8px}.meav .nm{max-width:80px}.me{gap:6px}}
+@media (max-width:380px){.meav .nm{display:none}}
 .me a{font-weight:600}
 .me button{padding:6px 10px;font-size:13px}
 .me .ico{width:34px;height:32px;padding:0;text-align:center;font-size:15px;line-height:1}
@@ -1070,7 +1103,7 @@ function renderNav(cur){
   top_.innerHTML = `<header class="nav"><div class="nav-in">
     <a class="brand" href="#/start"><img src="icon-192.png" alt=""><span>${esc(CONFIG.SITE_NAME).replace(/^(\S+)/, '<b>$1</b>')}</span></a>
     <nav class="links">${NAV.map(([k, l]) => `<a href="#/${k}" class="${cur === k ? 'on' : ''}">${l}</a>`).join('')}</nav>
-    <div class="me"><button id="themeB" class="ico hide-m" title="Motyw: ${THEME_NAMES[getTheme()]} (kliknij, żeby zmienić)" aria-label="Zmień motyw">${THEME_ICONS[getTheme()]}</button><button id="reload" class="ico hide-m" title="Odśwież dane" aria-label="Odśwież dane">↻</button><a href="#/aktywnosc" class="ico-l bell ${cur === 'aktywnosc' ? 'on' : ''}" title="Aktywność znajomych${nc ? ': ' + nc + ' ' + pl(nc,'nowa ocena','nowe oceny','nowych ocen') : ''}" aria-label="Aktywność znajomych"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg>${nc ? `<span class="nb">${nc > 99 ? '99+' : nc}</span>` : ''}</a><a href="#/osoba/${S.user.id}" title="Mój profil" style="display:flex;align-items:center;gap:7px">${avatar(S.user.id, 26)}${esc(me().display_name)}</a><a href="#/konto" class="ico-l ${cur === 'konto' ? 'on' : ''}" title="Ustawienia konta" aria-label="Ustawienia"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></a><button id="logout" class="hide-m">Wyloguj</button></div>
+    <div class="me"><div class="sbox" id="sbox"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="sq" type="search" placeholder="Szukaj albumu, piosenki…" autocomplete="off" enterkeyhint="search" aria-label="Szukaj"><kbd>/</kbd><div class="sres" id="sres" hidden></div></div><button type="button" class="ico-l sbtn" id="sbtn" title="Szukaj" aria-label="Szukaj"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button><button id="themeB" class="ico hide-m" title="Motyw: ${THEME_NAMES[getTheme()]} (kliknij, żeby zmienić)" aria-label="Zmień motyw">${THEME_ICONS[getTheme()]}</button><a href="#/aktywnosc" class="ico-l bell ${cur === 'aktywnosc' ? 'on' : ''}" title="Aktywność znajomych${nc ? ': ' + nc + ' ' + pl(nc,'nowa ocena','nowe oceny','nowych ocen') : ''}" aria-label="Aktywność znajomych"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg>${nc ? `<span class="nb">${nc > 99 ? '99+' : nc}</span>` : ''}</a><a href="#/osoba/${S.user.id}" class="meav ${cur === 'konto' ? 'on' : ''}" title="Mój profil"><span class="nm">${esc(me().display_name)}</span>${avatar(S.user.id, 30)}</a></div>
   </div></header>
   <nav class="tabbar" aria-label="Menu">${TABS.map(([k, l]) => `<a href="#/${k}" class="${cur === k ? 'on' : ''}">${ni(k)}${l}</a>`).join('')}
     <button type="button" id="moreB" class="${MORE.some(([k]) => k === cur) ? 'on' : ''}">${ni('more')}Więcej</button></nav>
@@ -1084,11 +1117,11 @@ function renderNav(cur){
   sh.onclick = e => { if(e.target === sh || e.target.closest('.sheet-g a')) sh.classList.remove('open'); };
   bindSeg('thseg2', v => { setTheme(v); renderNav(cur); document.getElementById('sheet').classList.add('open'); });
   document.getElementById('reload2').onclick = async () => { sh.classList.remove('open'); await safeLoad(); render(); toast('Odświeżono'); };
-  document.getElementById('logout2').onclick = () => document.getElementById('logout').click();
-  document.getElementById('logout').onclick = async () => { await sb.auth.signOut(); S.user = null; location.hash = ''; render(); };
+  document.getElementById('logout2').onclick = logout;
+  bindSearch();
   document.getElementById('themeB').onclick = () => { const order = ['auto','light','dark']; setTheme(order[(order.indexOf(getTheme()) + 1) % 3]); toast('Motyw: ' + THEME_NAMES[getTheme()]); renderNav(document.querySelector('.links a.on') ? route().page : null); };
-  document.getElementById('reload').onclick = async () => { await safeLoad(); render(); toast('Odświeżono'); };
 }
+async function logout(){ closeSearch(); await sb.auth.signOut(); S.user = null; location.hash = ''; render(); }
 function route(){
   const parts = location.hash.replace(/^#\/?/, '').split('/');
   return {page:parts[0] || 'start', arg:parts[1] ? decodeURIComponent(parts[1]) : null, arg2:parts[2] ? decodeURIComponent(parts[2]) : null};
@@ -1109,6 +1142,96 @@ async function safeLoad(){
   try { await loadData(); }
   catch(e){ console.error(e); toast('Nie udało się pobrać danych: ' + errMsg(e), true); }
 }
+
+/* ---------- wyszukiwarka ---------- */
+let trackIdx = null, trackLoading = null;
+function loadTrackIdx(){
+  if(trackIdx) return Promise.resolve(trackIdx);
+  if(S.allTr) return Promise.resolve(trackIdx = S.allTr.tracks);
+  return trackLoading || (trackLoading = fetchAll('tracks').then(t => (trackIdx = t)).catch(() => (trackIdx = [])).finally(() => { trackLoading = null; }));
+}
+function searchMatch(q, hay){
+  // każde słowo z zapytania musi wystąpić w tekście; wyżej: dokładnie / od początku
+  const toks = norm(q).split(/\s+/).map(simp).filter(Boolean), h = simp(hay);
+  if(!toks.length || !toks.every(t => h.includes(t))) return 0;
+  const qq = toks.join(''); return h === qq ? 4 : h.startsWith(qq) ? 3 : norm(hay).split(/\s+/).some(w => simp(w).startsWith(toks[0])) ? 2 : 1;
+}
+function searchAll(q){
+  const out = {artists:[], albums:[], songs:[], people:[]};
+  if(simp(q).length < 1) return out;
+  const arts = new Map();
+  for(const a of S.albums.values()){
+    const sc = Math.max(searchMatch(q, a.title) * 2, searchMatch(q, a.artist + ' ' + a.title));
+    if(sc) out.albums.push({a, sc:sc + (visStats(a.id).n ? 0.5 : 0)});
+    for(const p of artistParts(a.artist)){ const k = simp(p); if(!k) continue; const o = arts.get(k) || {name:p, n:0}; o.n++; arts.set(k, o); }
+  }
+  for(const o of arts.values()){ const sc = searchMatch(q, o.name); if(sc) out.artists.push({...o, sc:sc + Math.min(1, o.n / 10)}); }
+  for(const t of trackIdx || []){ const a = S.albums.get(Number(t.album_id)); if(!a) continue;
+    const sc = searchMatch(q, t.title); if(sc) out.songs.push({t, a, sc}); }
+  for(const p of S.profiles.values()){ const sc = Math.max(searchMatch(q, p.display_name || ''), searchMatch(q, p.username || '')); if(sc) out.people.push({p, sc}); }
+  const by = (x, y) => y.sc - x.sc;
+  out.artists.sort((x, y) => by(x, y) || y.n - x.n); out.albums.sort((x, y) => by(x, y) || (y.a.year || 0) - (x.a.year || 0));
+  out.songs.sort(by); out.people.sort(by);
+  return out;
+}
+function searchHtml(q){
+  if(!simp(q)) return `<div class="sempty">Wpisz nazwę albumu, wykonawcy, piosenki albo osoby.</div>`;
+  const R = searchAll(q), mark = t => { const toks = norm(q).split(/\s+/).filter(Boolean); let h = esc(t);
+    for(const tk of toks.sort((a, b) => b.length - a.length)){ const i = norm(t).indexOf(tk); if(i >= 0 && tk.length > 1){ const raw = esc(t.slice(i, i + tk.length)); h = h.replace(raw, '<mark>' + raw + '</mark>'); } } return h; };
+  const sec = (title, items) => items.length ? `<div class="sgrp"><div class="sh">${title}</div>${items.join('')}</div>` : '';
+  const html = sec('Wykonawcy', R.artists.slice(0, 4).map(o => `<a class="sit" href="${artistHref(o.name)}"><span class="sic">${esc(o.name.trim()[0] || '?').toUpperCase()}</span><span class="st"><b>${mark(o.name)}</b><small>${o.n} ${pl(o.n,'wydawnictwo','wydawnictwa','wydawnictw')}</small></span></a>`))
+    + sec('Albumy', R.albums.slice(0, 7).map(({a}) => { const st = visStats(a.id), my = myRating(a.id);
+        return `<a class="sit" href="#/album/${a.id}">${coverHtml(a, 'c40')}<span class="st"><b>${mark(a.title)}</b><small>${mark(a.artist)}${a.year ? ' · ' + a.year : ''}${isSingle(a) ? ' · singiel' : ''}${my ? ' · Twoja: ' + num(my.score) : ''}</small></span>${st.n ? badge(st.avg, 'sm') : ''}</a>`; }))
+    + sec('Piosenki', R.songs.slice(0, 6).map(({t, a}) => `<a class="sit" href="#/album/${a.id}" data-song="${t.position}">${coverHtml(a, 'c40')}<span class="st"><b>${mark(t.title)}</b><small>${esc(a.artist)} · ${esc(a.title)}</small></span></a>`))
+    + sec('Osoby', R.people.slice(0, 3).map(({p}) => `<a class="sit" href="#/osoba/${p.id}">${avatar(p.id, 40)}<span class="st"><b>${mark(p.display_name || p.username)}</b><small>${ocen((S.byUser.get(p.id) || []).length)}</small></span></a>`));
+  return html || `<div class="sempty">Nic nie znaleziono dla „${esc(q)}”.<br><a class="link" href="#/dodaj">Dodaj album do bazy →</a></div>`
+    + (!trackIdx ? '' : '');
+}
+function closeSearch(){
+  const ov = document.getElementById('sov'); if(ov){ ov.remove(); document.documentElement.classList.remove('noscroll'); }
+  const r = document.getElementById('sres'); if(r) r.hidden = true;
+}
+function searchKeys(input, box){
+  input.addEventListener('keydown', e => {
+    const items = [...box.querySelectorAll('a.sit')], cur = box.querySelector('a.sit.act'), i = items.indexOf(cur);
+    if(e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); if(!items.length) return;
+      const n = items[(i + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length]; if(cur) cur.classList.remove('act'); n.classList.add('act'); n.scrollIntoView({block:'nearest'}); }
+    else if(e.key === 'Enter'){ const t = cur || items[0]; if(t){ e.preventDefault(); location.hash = t.getAttribute('href'); closeSearch(); input.blur(); } }
+    else if(e.key === 'Escape'){ input.value = ''; closeSearch(); input.blur(); }
+  });
+}
+let lastQ = '';
+function openSearchOverlay(){
+  closeSearch();
+  const ov = document.createElement('div'); ov.id = 'sov'; ov.className = 'sov'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-label', 'Szukaj');
+  ov.innerHTML = `<div class="sov-in"><div class="sov-h"><div class="sbox big"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="sq2" type="search" placeholder="Album, wykonawca, piosenka…" autocomplete="off" enterkeyhint="search" aria-label="Szukaj"></div><button type="button" class="link" id="sclose">Anuluj</button></div><div class="sov-r" id="sres2"></div></div>`;
+  document.body.appendChild(ov); document.documentElement.classList.add('noscroll');
+  const inp = document.getElementById('sq2'), box = document.getElementById('sres2');
+  const draw = () => { lastQ = inp.value; box.innerHTML = searchHtml(inp.value); };
+  inp.value = lastQ; draw(); inp.focus(); inp.select();
+  inp.oninput = draw; searchKeys(inp, box);
+  loadTrackIdx().then(() => { if(document.getElementById('sres2')) draw(); });
+  document.getElementById('sclose').onclick = closeSearch;
+  ov.onclick = e => { if(e.target === ov) closeSearch(); };
+  box.onclick = e => { if(e.target.closest('a')) closeSearch(); };
+}
+function bindSearch(){
+  const inp = document.getElementById('sq'), box = document.getElementById('sres'), btn = document.getElementById('sbtn');
+  if(btn) btn.onclick = openSearchOverlay;
+  if(!inp) return;
+  const draw = () => { lastQ = inp.value; box.innerHTML = searchHtml(inp.value); box.hidden = false; };
+  inp.onfocus = () => { loadTrackIdx().then(() => { if(document.activeElement === inp) draw(); }); if(inp.value) draw(); };
+  inp.oninput = draw; searchKeys(inp, box);
+  inp.onblur = () => setTimeout(() => { if(document.activeElement !== inp) box.hidden = true; }, 180);
+  box.onmousedown = e => e.preventDefault(); // klik w wynik nie zabiera focusu przed przejściem
+  box.onclick = e => { if(e.target.closest('a')){ box.hidden = true; inp.blur(); } };
+}
+document.addEventListener('keydown', e => {
+  if(e.key !== '/' || e.ctrlKey || e.metaKey || !S.user) return;
+  const t = e.target; if(t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+  e.preventDefault(); const inp = document.getElementById('sq');
+  if(inp && inp.offsetParent) inp.focus(); else openSearchOverlay();
+});
 
 /* ---------- login ---------- */
 function viewLogin(){
@@ -3140,7 +3263,9 @@ function viewAccount(){
       <form class="form" id="pf"><label>Nowe hasło<input type="password" id="p1" minlength="6" autocomplete="new-password" required></label>
       <label>Powtórz hasło<input type="password" id="p2" minlength="6" autocomplete="new-password" required></label>
       <div class="btns"><button class="btn-p">Zmień hasło</button></div><div id="pm"></div></form></div>
-  </div>`;
+  </div>
+  <div class="card" style="margin-top:18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap"><div><h2 style="margin:0">Wylogowanie</h2><p class="muted small" style="margin:4px 0 0">Na tym urządzeniu trzeba będzie zalogować się ponownie.</p></div><button class="btn-d" id="acclogout">Wyloguj</button></div>`;
+  document.getElementById('acclogout').onclick = logout;
   document.getElementById('nf').onsubmit = async e => {
     e.preventDefault(); const v = document.getElementById('nn').value.trim(), m = document.getElementById('nm'); if(!v) return;
     const { error } = await sb.from('profiles').update({display_name:v}).eq('id', S.user.id);
@@ -3190,7 +3315,7 @@ async function init(){
   if(session){ S.user = session.user; app.innerHTML = '<div class="loading">Ładowanie ocen…</div>'; await safeLoad(); initSeen(); }
   render();
   sb.auth.onAuthStateChange((ev, session) => { if(ev === 'SIGNED_OUT' && S.user){ S.user = null; render(); } });
-  window.addEventListener('hashchange', () => { closePop(); render(); });
+  window.addEventListener('hashchange', () => { closePop(); closeSearch(); render(); });
   // klik w ocenę na okładce -> okienko z ocenami piosenek (nie przechodzi do albumu)
   const tpOpen = e => { const t = e.target.closest && e.target.closest('[data-tp]'); if(!t) return false;
     e.preventDefault(); e.stopPropagation(); const a = S.albums.get(Number(t.dataset.tp)); if(a) showUserTracksPop(a, t.dataset.tu, t); return true; };
