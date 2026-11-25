@@ -1133,6 +1133,11 @@ function render(){
   if(page === 'aktywnosc') S.seenStart = true;
   renderNav(['album','osoba','oceny','wykonawca','porownaj'].includes(page) ? null : page);
   if(page !== lastPage) window.scrollTo(0, 0);
+  // wpisane wyszukiwanie znika po przejściu do innej zakładki (zostaje tylko przy wejściu w album i powrocie)
+  if(page !== lastPage && page !== 'album'){
+    if(lastPage === 'albumy' || (lastPage === 'album' && page !== 'albumy')){ if(S.af) S.af.q = ''; }
+    if(page !== 'oceny' && S.orat) S.orat.q = '';
+  }
   lastPage = page;
   const V = {odkrywaj:viewDiscover, oceny:viewRatings, aktywnosc:viewActivity, start:viewHome, losuj:viewRandom, statystyki:viewStats, wykonawca:viewArtist, porownaj:viewCompare, ranking:viewRanking, lata:viewYears, album:viewAlbum, albumy:viewAlbums, dodaj:viewAdd, osoby:viewPeople,
              osoba:viewPerson, import:viewImport, konto:viewAccount, edytuj:viewEdit}[page] || viewHome;
@@ -1208,7 +1213,7 @@ function openSearchOverlay(){
   document.body.appendChild(ov); document.documentElement.classList.add('noscroll');
   const inp = document.getElementById('sq2'), box = document.getElementById('sres2');
   const draw = () => { lastQ = inp.value; box.innerHTML = searchHtml(inp.value); };
-  inp.value = lastQ; draw(); inp.focus(); inp.select();
+  inp.value = ''; draw(); inp.focus();
   inp.oninput = draw; searchKeys(inp, box);
   loadTrackIdx().then(() => { if(document.getElementById('sres2')) draw(); });
   document.getElementById('sclose').onclick = closeSearch;
