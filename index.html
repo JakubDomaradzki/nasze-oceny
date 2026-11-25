@@ -23,6 +23,7 @@ syncThemeColor();try{matchMedia('(prefers-color-scheme: dark)').addEventListener
   --bg:#eceef2;--card:#ffffff;--text:#16181d;--muted:#666c78;--line:#dde0e6;--soft:#f4f5f8;--raise:#ffffff;
   --accent:#1f8a3b;--accent-ink:#ffffff;--accent-soft:rgba(31,138,59,.1);
   --g:#3fa64d;--y:#dcae1d;--r:#df5235;--none:#b3b7c0;--focus:#1f8a3b;
+  --gt:#22813a;--yt:#9a7300;--rt:#c23a1d;--yk:#2e2300;
   --shadow:0 1px 0 rgba(22,24,29,.04),0 6px 20px -8px rgba(22,24,29,.12);
   --navbg:rgba(255,255,255,.78);
   --font:"Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
@@ -32,12 +33,14 @@ syncThemeColor();try{matchMedia('(prefers-color-scheme: dark)').addEventListener
   --bg:#0f1114;--card:#181b20;--text:#e9ebef;--muted:#9097a3;--line:#2a2f37;--soft:#1f2329;--raise:#22262d;
   --accent:#3fbf60;--accent-ink:#0b1a0f;--accent-soft:rgba(63,191,96,.14);--none:#4a4f58;--focus:#3fbf60;
   --shadow:0 1px 0 rgba(0,0,0,.3);--navbg:rgba(15,17,20,.78);
+  --gt:#4cc35e;--yt:#e8bb2a;--rt:#f0674a;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme=light]){
   color-scheme:dark;
   --bg:#0f1114;--card:#181b20;--text:#e9ebef;--muted:#9097a3;--line:#2a2f37;--soft:#1f2329;--raise:#22262d;
   --accent:#3fbf60;--accent-ink:#0b1a0f;--accent-soft:rgba(63,191,96,.14);--none:#4a4f58;--focus:#3fbf60;
   --shadow:0 1px 0 rgba(0,0,0,.3);--navbg:rgba(15,17,20,.78);
+  --gt:#4cc35e;--yt:#e8bb2a;--rt:#f0674a;
 }}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -209,7 +212,8 @@ h2{font-size:17px;letter-spacing:-.2px;color:var(--text);margin:0 0 12px;font-we
 .tile .t{font-weight:700;font-size:14px;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tile .a{font-size:13px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tile .cw{position:relative}
-.tile .cw .score{position:absolute;right:6px;bottom:6px;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.tile .cw{line-height:0;margin-bottom:3px}.tile .cw .cover{display:block}
+.tile .cw .score{position:absolute;right:0;bottom:0;border-radius:10px 0 8px 0;box-shadow:none;padding:6px 10px 5px 11px;font-size:14px;line-height:1.2;min-width:42px;height:auto}
 .tile:hover .t{text-decoration:underline}
 
 /* years */
@@ -525,7 +529,7 @@ tr.cl:hover td{background:var(--soft)}
 
 /* tracklista */
 .trk{margin-top:18px}
-.trh,.trw{display:grid;grid-template-columns:28px minmax(0,1fr) 76px 34px 76px;gap:10px;align-items:center}
+.trh,.trw{display:grid;grid-template-columns:28px minmax(0,1fr) 72px 36px 78px;column-gap:22px;align-items:center}
 .trh{font-size:12.5px;color:var(--muted);font-weight:600;padding:0 0 6px;border-bottom:1px solid var(--line)}
 .trh span:nth-child(n+3){text-align:center}
 .trw{padding:7px 0;border-bottom:1px solid var(--line)}
@@ -549,6 +553,13 @@ tr.cl:hover td{background:var(--soft)}
 .tin::placeholder{color:var(--tin-ph)}
 .tin.saved{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
 .gab,.rbtn{border:none;background:none;padding:0;border-radius:8px;line-height:0;cursor:pointer}
+/* średnia grupy w trackliście: sama kolorowa liczba */
+.gab.gnum{font-weight:800;font-size:18px;letter-spacing:-.4px;line-height:1.15;padding:1px 6px;margin-bottom:1px;font-variant-numeric:tabular-nums;font-family:inherit}
+.gab.gnum:hover{background:var(--soft)}
+.trw .ga small{margin-top:1px}
+/* Twoja ocena: kolorowy pasek z lewej */
+.tin{border-left-width:4px!important}
+.tin.sg{border-left-color:var(--g)!important}.tin.sy{border-left-color:var(--y)!important}.tin.sr{border-left-color:var(--r)!important}
 .gab:hover .score,.rbtn:hover .score{filter:brightness(1.1);box-shadow:0 0 0 2px var(--card),0 0 0 4px color-mix(in srgb,var(--text),transparent 70%)}
 .rbtn.on .score{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--text)}
 .tpop{position:fixed;z-index:70;min-width:220px;max-width:300px;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 32px rgba(0,0,0,.28);padding:8px}
@@ -577,7 +588,7 @@ tr.cl:hover td{background:var(--soft)}
 .ps-bars span{display:block;width:40%;max-width:52px;border-radius:4px 4px 0 0;min-height:0}
 .ps-cols.t .ps-bars span{width:70%;max-width:34px}
 .ps-bars span.gr{background:none;border:2px solid var(--none);border-bottom:none;box-sizing:border-box}
-.ps-col small{font-size:11px;color:var(--muted);text-align:center;height:16px;line-height:16px;margin-top:4px;white-space:nowrap}
+.ps-col small{font-size:11px;color:var(--muted);text-align:center;height:16px;line-height:16px;margin-top:4px;white-space:nowrap;align-self:center}
 .ps-two{display:grid;grid-template-columns:1fr 1fr;gap:28px}
 .ps-two>div{min-width:0}
 .ps-sub{font-size:13px;font-weight:700;color:var(--muted);margin-bottom:8px}
@@ -626,7 +637,7 @@ a.ps-row[href]:hover{background:var(--soft)}
 .rtile:hover .t{text-decoration:underline}
 #ogrid .grid{gap:18px}
 .hx{grid-auto-columns:148px}
-.tile .cw .tpb{position:absolute;right:6px;bottom:6px;line-height:0;cursor:pointer;border-radius:7px}
+.tile .cw .tpb{position:absolute;right:0;bottom:0;line-height:0;cursor:pointer;border-radius:10px 0 8px 0}
 .tile .cw .tpb .score{position:static;box-shadow:0 1px 4px rgba(0,0,0,.3)}
 .tile .cw .tpb:hover .score{filter:brightness(1.1);box-shadow:0 0 0 2px #fff,0 1px 4px rgba(0,0,0,.3)}
 .tpl{max-height:min(420px,60vh);overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
@@ -695,7 +706,7 @@ a.ps-row[href]:hover{background:var(--soft)}
 .trsum .sr b{font-size:17px;font-variant-numeric:tabular-nums}
 .trsum .sr button{padding:5px 12px;font-size:13px}
 .tred textarea{min-height:260px;font-size:14px;line-height:1.55}
-@media (max-width:560px){.trh,.trw{grid-template-columns:22px minmax(0,1fr) 50px 28px 64px;gap:7px}.trw .ga small{display:none}.trw .tt b{white-space:normal;line-height:1.25}}
+@media (max-width:560px){.trh,.trw{grid-template-columns:20px minmax(0,1fr) 44px 28px 62px;column-gap:12px}.trw .ga small{display:none}.trw .tt b{white-space:normal;line-height:1.25}}
 
 /* login */
 .login{max-width:360px;margin:9vh auto 0}
@@ -738,9 +749,11 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt
 const num = v => v == null ? '-' : (Math.round(v * 10) / 10).toString().replace('.', ',');
 const safeUrl = u => /^https:\/\//i.test(u || '') ? u : '';
 const col = v => v == null ? 'var(--none)' : v >= 70 ? 'var(--g)' : v >= 50 ? 'var(--y)' : 'var(--r)';
+// kolor TEKSTU oceny - w jasnym motywie ciemniejszy, żeby był czytelny na białym
+const colT = v => v == null ? 'var(--muted)' : v >= 70 ? 'var(--gt)' : v >= 50 ? 'var(--yt)' : 'var(--rt)';
 // średnie i oceny pokazujemy w pełnych liczbach (70,5 → 71); kolor według zaokrąglonej wartości
 const avgN = v => v == null ? '-' : String(Math.round(v));
-const badge = (v, cls = '') => `<span class="score ${cls}" style="background:${col(v == null ? v : Math.round(v))}">${avgN(v)}</span>`;
+const badge = (v, cls = '') => { const c = col(v == null ? v : Math.round(v)); return `<span class="score ${cls}${c === 'var(--y)' ? ' yl' : ''}" style="background:${c}">${avgN(v)}</span>`; };
 function pl(n, one, few, many){ const a = Math.abs(n) % 100, b = a % 10;
   return n === 1 ? one : (b >= 2 && b <= 4 && !(a >= 12 && a <= 14)) ? few : many; }
 const ocen = n => `${n} ${pl(n,'ocena','oceny','ocen')}`;
@@ -884,7 +897,7 @@ function lastChange(r){
 }
 function chainHtml(c){
   return `<span class="chain" title="Historia oceny${c.at.some(Boolean) ? ': ' + c.seq.map((v, i) => num(v) + (c.at[i] ? ' (' + fmtDate(c.at[i]) + ')' : '')).join(' → ') : ''}">${c.seq.map((v, i) =>
-    i === c.seq.length - 1 ? `<b style="color:${col(Math.round(v))}">${num(v)}</b>` : `<s>${num(v)}</s>`).join('<span class="ar">→</span>')}</span>`;
+    i === c.seq.length - 1 ? `<b style="color:${colT(Math.round(v))}">${num(v)}</b>` : `<s>${num(v)}</s>`).join('<span class="ar">→</span>')}</span>`;
 }
 /* ---------- album tygodnia ---------- */
 function weekStart(d = new Date()){
@@ -958,7 +971,7 @@ function compat(u1, u2){
   return {n:pairs.length, pct:Math.max(0, Math.min(100, Math.round(100 - mad * 3))), mad, pairs};
 }
 const pctCol = p => p == null ? 'var(--none)' : p >= 70 ? 'var(--g)' : p >= 50 ? 'var(--y)' : 'var(--r)'; // te same progi co oceny
-const pctBadge = (c, cls = 'sm') => `<span class="score ${cls}" style="background:${pctCol(c.pct)}" title="${c.n} wspólnych albumów">${c.pct == null ? '-' : c.pct + '%'}</span>`;
+const pctBadge = (c, cls = 'sm') => `<span class="score ${cls}${pctCol(c.pct) === 'var(--y)' ? ' yl' : ''}" style="background:${pctCol(c.pct)}" title="${c.n} wspólnych albumów">${c.pct == null ? '-' : c.pct + '%'}</span>`;
 const sd = a => { if(a.length < 2) return 0; const m = a.reduce((s, x) => s + x, 0) / a.length; return Math.sqrt(a.reduce((s, x) => s + (x - m) ** 2, 0) / a.length); };
 /* ---------- wykonawcy ---------- */
 const artistParts = a => String(a || '').split(/\s*(?:,|&| x | feat\.? | ft\.? | with )\s*/i).map(x => x.trim()).filter(Boolean);
@@ -1896,7 +1909,7 @@ function viewPerson(id){
   app.innerHTML = `<div class="phead">${avatar(id, 72)}<div><h1>${esc(name)}</h1>
       ${cp ? `<div class="btns" style="margin-top:8px">Zgodność gustu z Tobą: ${pctBadge(cp)}<span class="muted small">${cp.n} ${pl(cp.n,'wspólny album','wspólne albumy','wspólnych albumów')}</span>${cp.n ? `<a href="#/porownaj/${S.user.id}/${id}"><button>Porównaj oceny</button></a>` : ''}</div>`
         : isMe ? '<div class="small" style="margin-top:6px"><a class="link" href="#/konto">Ustawienia konta</a></div>' : ''}</div>
-    <div class="pstats"><a href="#/staty/${id}" title="Statystyki i wykresy"><div class="v" style="color:${avg == null ? 'var(--muted)' : col(Math.round(avg))}">${avgN(avg)}</div><div class="l">Średnia ›</div></a>
+    <div class="pstats"><a href="#/staty/${id}" title="Statystyki i wykresy"><div class="v" style="color:${avg == null ? 'var(--muted)' : colT(Math.round(avg))}">${avgN(avg)}</div><div class="l">Średnia ›</div></a>
       <a href="#/oceny/${id}" title="Wszystkie oceny"><div class="v">${allK.length}</div><div class="l">${S.f.kind === 'singles' ? pl(allK.length,'Ocena singla','Oceny singli','Ocen singli') : pl(allK.length,'Ocena','Oceny','Ocen')} ›</div></a></div></div>
 
   <section class="card"><div class="shead"><h2>Ostatnie oceny</h2>${recent.length ? `<a class="link small" href="#/oceny/${id}">Pokaż wszystkie →</a>` : ''}</div>
@@ -2161,7 +2174,7 @@ const tinCls = v => v == null ? '' : v >= 70 ? 'sg' : v >= 50 ? 'sy' : 'sr';
 const gaHtml = (o, hid, pos, view, avgHid = hid) => {
   if(view){ const r = o.list.find(x => x.user_id === view) || (view === S.user.id && o.mine != null ? {score:o.mine, fav:o.myFav} : null);
     return r && r.score != null ? badge(r.score, 'sm') + (r.fav ? '<span class="vf">★</span>' : '') : r && r.fav ? '<span class="vf">★</span>' : '<span class="vf muted">-</span>'; }
-  return avgHid ? (o.others ? lockBadge('sm', trCurId) : '<small>-</small>') : o.n ? `<button type="button" class="gab" data-gp="${pos}" title="Kto jak ocenił" aria-label="Pokaż, kto jak ocenił ten utwór">${badge(o.sum / o.n, 'sm')}</button><small>${o.n}${o.fav ? ' · ★' + o.fav : ''}</small>` : '<small>-</small>';
+  return avgHid ? (o.others ? lockBadge('sm', trCurId) : '<small>-</small>') : o.n ? `<button type="button" class="gab gnum" data-gp="${pos}" title="Kto jak ocenił" aria-label="Pokaż, kto jak ocenił ten utwór" style="color:${colT(Math.round(o.sum / o.n))}">${avgN(o.sum / o.n)}</button><small>${o.n}${o.fav ? ' · ★' + o.fav : ''}</small>` : '<small>-</small>';
 };
 function drawTracks(a){
   const T = S.tr[a.id], body = document.getElementById('trkBody'), tools = document.getElementById('trkTools');
@@ -2792,10 +2805,10 @@ async function openShareImg(gen, name, alt, heading, note){
 // karta ocenionego albumu (profil, „Wszystkie oceny”, Start): ocena w pastylce pod spodem - klik pokazuje oceny piosenek
 const shortDate = d => { d = new Date(d); return d.toLocaleDateString('pl-PL', d.getFullYear() === new Date().getFullYear() ? {day:'numeric', month:'short'} : {day:'numeric', month:'short', year:'numeric'}); };
 function rTile(a, r, was){
-  const hd = isHidden(r), c = hd ? null : col(Math.round(r.score));
+  const hd = isHidden(r), c = hd ? null : col(Math.round(r.score)), ct = hd ? null : colT(Math.round(r.score));
   const ch = was && !hd ? scoreChain(a.id, r.user_id) : null;
   const pill = hd ? `<span class="rpill lock" title="Ukryte${hideWhy(a.id)}">🔒</span>`
-    : `<span class="rpill" data-tp="${a.id}" data-tu="${esc(r.user_id)}" role="button" tabindex="0" title="Pokaż oceny piosenek" style="color:${c};background:color-mix(in srgb,${c} 16%,transparent)">${num(r.score)}</span>`;
+    : `<span class="rpill" data-tp="${a.id}" data-tu="${esc(r.user_id)}" role="button" tabindex="0" title="Pokaż oceny piosenek" style="color:${ct};background:color-mix(in srgb,${c} 18%,transparent)">${num(r.score)}</span>`;
   return `<a class="tile rtile" href="#/album/${a.id}">${coverHtml(a, 'cfull')}
     <div class="rti"><div class="t">${esc(a.title)}</div><div class="a">${esc(a.artist)}</div>${a.year || a.type ? `<div class="mt">${[a.year, a.type].filter(Boolean).map(esc).join(' · ')}</div>` : ''}</div>
     <div class="rbot">${pill}<span class="dt2">${shortDate(r.updated_at || r.created_at)}${ch ? `<span class="was2">było ${num(ch.seq[ch.seq.length - 2])}</span>` : ''}</span></div></a>`;
@@ -2824,12 +2837,12 @@ function viewPersonStats(uid){
   const devL = dev < 8 ? 'trzyma się środka skali' : dev < 13 ? 'umiarkowany rozrzut' : 'używa całej skali';
   const tile = (v, l, sub, style = '') => `<div class="tile2"><div class="v" style="${style}">${v}</div><div class="l">${l}</div>${sub ? `<div class="s">${sub}</div>` : ''}</div>`;
   const tiles = `<div class="tiles ps-tiles">
-    ${tile(num(Math.round(avg)), 'Średnia', gAvg == null ? '' : `grupa ${num(Math.round(gAvg))} · <b style="color:${Math.abs(diff) < 1 ? 'var(--muted)' : diff > 0 ? 'var(--g)' : 'var(--r)'}">${diff >= 0 ? '+' : '−'}${num(Math.abs(Math.round(diff)))}</b>`, `color:${col(Math.round(avg))}`)}
+    ${tile(num(Math.round(avg)), 'Średnia', gAvg == null ? '' : `grupa ${num(Math.round(gAvg))} · <b style="color:${Math.abs(diff) < 1 ? 'var(--muted)' : diff > 0 ? 'var(--g)' : 'var(--r)'}">${diff >= 0 ? '+' : '−'}${num(Math.abs(Math.round(diff)))}</b>`, `color:${colT(Math.round(avg))}`)}
     ${tile(num(Math.round(med)), 'Mediana', 'połowa ocen jest wyższa')}
     ${tile(`<a href="#/oceny/${uid}" style="color:inherit">${R.length}</a>`, pl(R.length,'Ocena','Oceny','Ocen'), `${what === 'albumów' ? 'albumów' : 'singli'} w bazie: ${[...S.albums.values()].filter(a => kindOk(a, K.kind)).length}`)}
     ${tile(Math.round(n80 / R.length * 100) + '%', 'Ocen 80+', `poniżej 50: ${Math.round(n50 / R.length * 100)}%`)}
-    ${tile(num(top.score), 'Najwyższa', `<a href="#/album/${top.album_id}">${esc(S.albums.get(top.album_id).title)}</a>`, `color:${col(Math.round(top.score))}`)}
-    ${tile(num(low.score), 'Najniższa', `<a href="#/album/${low.album_id}">${esc(S.albums.get(low.album_id).title)}</a>`, `color:${col(Math.round(low.score))}`)}</div>`;
+    ${tile(num(top.score), 'Najwyższa', `<a href="#/album/${top.album_id}">${esc(S.albums.get(top.album_id).title)}</a>`, `color:${colT(Math.round(top.score))}`)}
+    ${tile(num(low.score), 'Najniższa', `<a href="#/album/${low.album_id}">${esc(S.albums.get(low.album_id).title)}</a>`, `color:${colT(Math.round(low.score))}`)}</div>`;
 
   // rozkład: Ty vs grupa (procent ocen w przedziale)
   // przedziały co 10 punktów; wszystko poniżej najniższego przedziału wpada do pierwszego („≤59”)
@@ -2886,7 +2899,7 @@ function viewPersonStats(uid){
   const dv = R.map(r => { const o = byA.get(r.album_id) || []; return o.length >= 2 ? {r, g:mean(o), d:r.score - mean(o), n:o.length} : null; }).filter(Boolean);
   const outRow = x => { const a = S.albums.get(x.r.album_id);
     return `<a class="ps-orow" href="#/album/${a.id}">${coverHtml(a, 'c40')}<span class="meta"><b>${esc(a.title)}</b><span>${esc(a.artist)}</span></span>
-      <span class="ps-o"><span class="ps-d ${x.d > 0 ? 'up' : 'dn'}">${x.d > 0 ? '+' : '−'}${num(Math.abs(Math.round(x.d)))}</span><small><b style="color:${col(Math.round(x.r.score))}">${num(x.r.score)}</b> vs ${num(Math.round(x.g))}</small></span></a>`; };
+      <span class="ps-o"><span class="ps-d ${x.d > 0 ? 'up' : 'dn'}">${x.d > 0 ? '+' : '−'}${num(Math.abs(Math.round(x.d)))}</span><small><b style="color:${colT(Math.round(x.r.score))}">${num(x.r.score)}</b> vs ${num(Math.round(x.g))}</small></span></a>`; };
   const ups = [...dv].sort((a, b) => b.d - a.d).filter(x => x.d >= 3).slice(0, 5), dns = [...dv].sort((a, b) => a.d - b.d).filter(x => x.d <= -3).slice(0, 5);
   const outHtml = `<div class="ps-grid2"><section class="card"><div class="shead"><h2>Lubi bardziej niż reszta</h2></div>${ups.map(outRow).join('') || '<div class="empty">Brak.</div>'}</section>
     <section class="card"><div class="shead"><h2>Lubi mniej niż reszta</h2></div>${dns.map(outRow).join('') || '<div class="empty">Brak.</div>'}</section></div>`;
@@ -3248,7 +3261,7 @@ function recRowHtml(x){
   const a = x.a, st = visStats(a.id), lis = inListen(a.id), top = x.fans.filter(f => f.k > 0).slice(0, 3), bl = blindOn();
   return `<div class="row rec"><a href="#/album/${a.id}">${coverHtml(a, 'c56')}</a>
     <div class="meta"><a href="#/album/${a.id}"><b>${esc(a.title)}</b></a><span>${esc(a.artist)}${a.year ? ' · ' + a.year : ''}${a.type ? ' · ' + esc(a.type) : ''}</span>
-      <small class="why">${top.length ? 'Polubili:' + top.map(f => `<span class="fan">${avatar(f.u, 18)}${esc(pname(f.u))}${bl ? '' : ` <b style="color:${col(Math.round(f.s))}">${num(f.s)}</b>`}</span>`).join('') : bl ? ocen(stats(a.id).n) : `Średnia grupy ${st.avg == null ? '-' : num(st.avg)} (${ocen(st.n)})`}</small>
+      <small class="why">${top.length ? 'Polubili:' + top.map(f => `<span class="fan">${avatar(f.u, 18)}${esc(pname(f.u))}${bl ? '' : ` <b style="color:${colT(Math.round(f.s))}">${num(f.s)}</b>`}</span>`).join('') : bl ? ocen(stats(a.id).n) : `Średnia grupy ${st.avg == null ? '-' : num(st.avg)} (${ocen(st.n)})`}</small>
       <div class="btns"><button type="button" class="sm ${lis ? 'btn-on' : ''}" data-dl="${a.id}">${lis ? '✓ Do posłuchania' : '+ Do posłuchania'}</button><button type="button" class="sm ghost" data-dh="${a.id}" title="Nie proponuj więcej tego albumu">Nie interesuje mnie</button></div></div>
     ${bl ? '' : `<div class="pred" title="Przewidywana ocena dla Ciebie">${badge(x.pred)}<small>dla Ciebie</small></div>`}</div>`;
 }
