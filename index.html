@@ -1902,19 +1902,11 @@ function seenLabel(t){
   const d = Math.floor(m / 1440); return d === 1 ? 'wczoraj' : d < 7 ? d + ' dni temu' : shortDate(t);
 }
 function peopleSide(rows){
-  const vr = visRatings(), now = new Date(), m0 = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
-  const month = new Map(); for(const r of vr){ if(Date.parse(r.created_at || r.updated_at) >= m0) month.set(r.user_id, (month.get(r.user_id) || 0) + 1); }
-  const mon = [...month.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6), mmax = Math.max(1, ...mon.map(x => x[1]));
   const nm = id => esc(pname(id));
-  const MN = ['styczniu','lutym','marcu','kwietniu','maju','czerwcu','lipcu','sierpniu','wrześniu','październiku','listopadzie','grudniu'][now.getMonth()];
   const seen = [...S.profiles.values()].filter(p => p.id !== S.user.id).map(p => ({p, ...lastSeenOf(p)})).sort((a, b) => b.t - a.t).slice(0, 8);
   return `<section class="card"><h2>Ostatnio online</h2>
       ${seen.map(x => { const l0 = seenLabel(x.t), on = x.real && l0 === 'online', lab = x.real || !x.t ? l0 : 'ocena ' + (l0 === 'online' ? 'teraz' : l0);
-        return `<a class="psr" href="#/osoba/${x.p.id}"><span class="pav">${avatar(x.p.id, 30)}${on ? '<i class="ondot"></i>' : ''}</span><span class="nm">${nm(x.p.id)}</span><span class="pseen ${on ? 'on' : ''}" title="${x.real ? 'ostatnio na stronie' : 'ostatnia ocena'}">${lab}</span></a>`; }).join('')}
-</section>
-    <section class="card"><h2>Najwięcej ocen w ${MN}</h2>
-      ${mon.length ? mon.map(([id, n], i) => `<a class="psr" href="#/osoba/${id}"><span class="pk">${i + 1}</span>${avatar(id, 26)}<span class="nm">${nm(id)}</span><span class="pbar"><span style="width:${n / mmax * 100}%"></span></span><b class="pv">${n}</b></a>`).join('')
-        : '<div class="empty">W tym miesiącu nikt jeszcze nic nie ocenił.</div>'}</section>`;
+        return `<a class="psr" href="#/osoba/${x.p.id}"><span class="pav">${avatar(x.p.id, 30)}${on ? '<i class="ondot"></i>' : ''}</span><span class="nm">${nm(x.p.id)}</span><span class="pseen ${on ? 'on' : ''}" title="${x.real ? 'ostatnio na stronie' : 'ostatnia ocena'}">${lab}</span></a>`; }).join('')}</section>`;
 }
 function viewPeople(){
   const rows = [...S.profiles.values()].map(p => { const rs = (S.byUser.get(p.id) || []).filter(r => !isHidden(r));
