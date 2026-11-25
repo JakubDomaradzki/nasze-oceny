@@ -574,7 +574,7 @@ tr.cl:hover td{background:var(--soft)}
 .ps-col{display:flex;flex-direction:column;align-items:stretch;height:100%;min-width:0;cursor:default}
 .ps-col:hover .ps-bars{background:var(--soft)}
 .ps-bars{flex:1;display:flex;align-items:flex-end;justify-content:center;gap:2px;border-radius:5px;border-bottom:1px solid var(--line)}
-.ps-bars span{display:block;width:44%;max-width:22px;border-radius:4px 4px 0 0;min-height:0}
+.ps-bars span{display:block;width:40%;max-width:52px;border-radius:4px 4px 0 0;min-height:0}
 .ps-cols.t .ps-bars span{width:70%;max-width:34px}
 .ps-bars span.gr{background:none;border:2px solid var(--none);border-bottom:none;box-sizing:border-box}
 .ps-col small{font-size:11px;color:var(--muted);text-align:center;height:16px;line-height:16px;margin-top:4px;white-space:nowrap}
@@ -613,11 +613,11 @@ a.ps-row[href]:hover{background:var(--soft)}
 @media (max-width:760px){.ps-grid2,.ps-two{grid-template-columns:1fr}.ps-cols{height:160px}}
 .tile.rtile{gap:10px;padding:10px;border-radius:14px;background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow)}
 .card .tile.rtile{background:var(--raise);box-shadow:none}
-.rtile .t{font-size:14px;letter-spacing:-.005em;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.rtile .t{font-size:14px}
 .rtile .rti .a{font-size:13.5px}
 .rtile .mt{font-size:12.5px;color:var(--muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rtile .rbot{display:flex;align-items:center;gap:8px;margin-top:auto;padding-top:9px;border-top:1px solid var(--line)}
-.rtile .dt2{font-size:12px;line-height:1.25;color:var(--muted);min-width:0;display:flex;flex-direction:column}
+.rtile .dt2{font-size:12px;line-height:1.25;color:var(--muted);min-width:0;display:flex;flex-direction:column;margin-left:auto;text-align:right;align-items:flex-end}
 .rtile .was2{font-size:11.5px}
 .rpill{display:inline-flex;align-items:center;justify-content:center;min-width:40px;height:28px;padding:0 10px;border-radius:999px;font-weight:800;font-size:15px;font-variant-numeric:tabular-nums;cursor:pointer;flex:none;transition:filter .15s,box-shadow .15s}
 .rpill:hover{filter:brightness(1.12);box-shadow:0 0 0 1.5px currentColor}
@@ -2827,23 +2827,24 @@ function viewPersonStats(uid){
     ${tile(num(Math.round(avg)), 'Średnia', gAvg == null ? '' : `grupa ${num(Math.round(gAvg))} · <b style="color:${Math.abs(diff) < 1 ? 'var(--muted)' : diff > 0 ? 'var(--g)' : 'var(--r)'}">${diff >= 0 ? '+' : '−'}${num(Math.abs(Math.round(diff)))}</b>`, `color:${col(Math.round(avg))}`)}
     ${tile(num(Math.round(med)), 'Mediana', 'połowa ocen jest wyższa')}
     ${tile(`<a href="#/oceny/${uid}" style="color:inherit">${R.length}</a>`, pl(R.length,'Ocena','Oceny','Ocen'), `${what === 'albumów' ? 'albumów' : 'singli'} w bazie: ${[...S.albums.values()].filter(a => kindOk(a, K.kind)).length}`)}
-    ${tile('±' + num(Math.round(dev)), 'Rozrzut ocen', devL)}
     ${tile(Math.round(n80 / R.length * 100) + '%', 'Ocen 80+', `poniżej 50: ${Math.round(n50 / R.length * 100)}%`)}
     ${tile(num(top.score), 'Najwyższa', `<a href="#/album/${top.album_id}">${esc(S.albums.get(top.album_id).title)}</a>`, `color:${col(Math.round(top.score))}`)}
     ${tile(num(low.score), 'Najniższa', `<a href="#/album/${low.album_id}">${esc(S.albums.get(low.album_id).title)}</a>`, `color:${col(Math.round(low.score))}`)}</div>`;
 
   // rozkład: Ty vs grupa (procent ocen w przedziale)
-  const lo = Math.max(0, Math.min(50, Math.floor(Math.min(...sc) / 5) * 5)), B = [];
-  for(let b = lo; b <= 95; b += 5) B.push({b, hi:b === 95 ? 100 : b + 4});
+  // przedziały co 10 punktów; wszystko poniżej najniższego przedziału wpada do pierwszego („≤59”)
+  const lo = Math.max(0, Math.min(50, Math.floor(Math.min(...sc) / 10) * 10)), B = [];
+  for(let b = lo; b <= 90; b += 10) B.push({b, hi:b === 90 ? 100 : b + 9});
+  const bl = x => x.b === lo && lo > 0 ? '≤' + x.hi : x.b + '-' + x.hi;
   const cnt = (arr, x) => arr.filter(v => v >= x.b && v <= x.hi && (x.b !== lo || true)).length;
   const sAll = arr => arr.map(v => Math.max(v, lo));
   const sc2 = sAll(sc), gs2 = sAll(G.map(r => r.score));
   const dist = B.map(x => ({...x, me:cnt(sc2, x) / sc2.length * 100, gr:gs2.length ? cnt(gs2, x) / gs2.length * 100 : 0, n:cnt(sc2, x)}));
   const dmax = Math.max(...dist.map(d => Math.max(d.me, d.gr)), 1);
   const distHtml = `<section class="card"><div class="shead"><h2>Rozkład ocen</h2><div class="ps-leg"><span><i style="background:var(--accent)"></i>${esc(name)}</span><span><i class="gr"></i>Reszta grupy</span></div></div>
-    <div class="ps-cols">${dist.map(d => `<div class="ps-col" title="${d.b === lo && lo > 0 ? '≤' + d.hi : d.b + '-' + d.hi}: ${esc(name)} ${d.n} (${Math.round(d.me)}%), grupa ${Math.round(d.gr)}%">
-      <div class="ps-bars"><span class="me" style="height:${d.me / dmax * 100}%;background:${col(Math.min(100, d.b + 2))}"></span><span class="gr" style="height:${d.gr / dmax * 100}%"></span></div>
-      <small>${d.b % 10 === 0 ? (d.b === lo && lo > 0 ? '≤' + d.hi : d.b) : ''}</small></div>`).join('')}</div>
+    <div class="ps-cols">${dist.map(d => `<div class="ps-col" title="${bl(d)}: ${esc(name)} ${d.n} (${Math.round(d.me)}%), grupa ${Math.round(d.gr)}%">
+      <div class="ps-bars"><span class="me" style="height:${d.me / dmax * 100}%;background:${col(Math.min(100, d.b + 5))}"></span><span class="gr" style="height:${d.gr / dmax * 100}%"></span></div>
+      <small>${bl(d)}</small></div>`).join('')}</div>
     <p class="note">Słupki pokazują, jaki procent ocen wpada w dany przedział - dzięki temu da się porównać z grupą, choć ocen jest różnie dużo.</p></section>`;
 
   // w czasie: ostatnie 12 miesięcy
@@ -3013,7 +3014,7 @@ function viewHome(){
   <div class="home">
     <div class="hmain">
       <section class="card">
-        <div class="shead"><h2>Ostatnio ocenione</h2><a class="link small" href="#/osoba/${uid}">Wszystkie moje oceny →</a></div>
+        <div class="shead"><h2>Ostatnio ocenione</h2><a class="link small" href="#/oceny/${uid}">Wszystkie moje oceny →</a></div>
         ${recentMine.length ? `<div class="hx">${recentMine.map(r => { const a = S.albums.get(r.album_id);
           return rTile(a, r); }).join('')}</div>`
           : '<div class="empty">Nie oceniłeś jeszcze żadnego albumu.</div>'}
