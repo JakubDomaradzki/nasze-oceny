@@ -3289,7 +3289,7 @@ async function runImport(rows, btn){
 
 function viewAccount(){
   const p = me();
-  app.innerHTML = `<h1>Twoje konto</h1><p class="sub">Zalogowano jako ${esc(S.user.email)}</p>
+  app.innerHTML = `<h1>Twoje konto</h1><p class="sub">Zalogowano jako <b>${esc(me().username || S.user.email.split('@')[0])}</b></p>
   <div class="card" style="margin-bottom:18px"><h2>Wygląd</h2>
     <div class="btns">${segHtml('thseg', getTheme(), [['auto','Automatyczny'],['light','Jasny'],['dark','Ciemny']])}</div>
     <p class="note">Automatyczny dopasowuje się do ustawień telefonu lub komputera. Wybór zapisuje się na tym urządzeniu.</p></div>
@@ -3301,7 +3301,7 @@ function viewAccount(){
       Twoje własne oceny widzisz zawsze. Ustawienie zapisuje się na tym urządzeniu.</p></div>
   <div class="card" style="margin-bottom:18px"><h2>Avatar</h2>
     <div class="btns" style="gap:18px"><span id="avp">${avatar(S.user.id, 96)}</span>
-      <div class="form"><label>Wgraj zdjęcie (zostanie przycięte do kwadratu)<input type="file" id="avf" accept="image/*"></label>
+      <div class="form"><label>Wgraj zdjęcie<input type="file" id="avf" accept="image/*"></label>
       ${safeUrl(p.avatar_url) ? '<div><button class="btn-d" id="avdel">Usuń avatar</button></div>' : ''}<div id="avm"></div></div></div></div>
   <div class="cols" style="margin-top:0">
     <div class="card"><h2>Nazwa widoczna dla innych</h2>
