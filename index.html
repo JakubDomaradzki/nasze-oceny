@@ -373,6 +373,9 @@ tr.cl:hover td{background:var(--soft)}
 .fi time{font-size:11.5px;color:var(--muted)}
 .favs{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:14px}
 .fav{position:relative}
+.lgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:16px 14px}
+.lmore{text-align:center;margin-top:12px}
+@media (max-width:520px){.lgrid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:14px 12px}}
 .favctl{position:absolute;top:5px;right:5px;display:flex;gap:3px}
 .favctl button{padding:2px 7px;font-size:13px;background:rgba(0,0,0,.7);color:#fff;border:none}
 .picker{position:relative;margin-bottom:12px}
@@ -440,7 +443,7 @@ tr.cl:hover td{background:var(--soft)}
 .tile2{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;box-shadow:var(--shadow);min-width:0}
 .tile2 .v{font-size:30px;font-weight:800;letter-spacing:-1px;font-variant-numeric:tabular-nums;line-height:1.1}
 .tile2 .l{font-size:13px;color:var(--muted);font-weight:600;margin-top:4px}
-.tile2 .s{font-size:13px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile2 .s{font-size:13px;margin-top:4px;overflow:hidden;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.3}
 .sgrid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
 @media (max-width:820px){.sgrid{grid-template-columns:1fr}}
 .hist{display:grid;grid-template-columns:62px 40px 1fr;gap:6px 10px;align-items:center;font-size:13.5px;font-variant-numeric:tabular-nums}
@@ -509,6 +512,9 @@ tr.cl:hover td{background:var(--soft)}
 .pstats{margin-left:auto;display:flex;gap:30px;text-align:right}
 .pstats .v{font-size:46px;font-weight:800;letter-spacing:-1.6px;line-height:1;font-variant-numeric:tabular-nums}
 .pstats .l{font-size:13px;color:var(--muted);font-weight:600;margin-top:4px}
+.pstats>a{color:inherit;border-radius:12px;padding:4px 8px;margin:-4px -8px;transition:background-color .15s}
+.pstats>a:hover{background:var(--soft)}
+.pstats>a:hover .l{color:var(--text)}
 @media (max-width:640px){.pstats{margin-left:0;width:100%;justify-content:flex-start;text-align:left;gap:26px}.pstats .v{font-size:38px}}
 .hmain>*,.side>*,.prow>*,.home>*{min-width:0}
 .hx{max-width:100%;display:grid;grid-auto-flow:column;grid-auto-columns:132px;gap:14px;overflow-x:auto;padding:2px 2px 10px;scroll-snap-type:x proximity;scrollbar-width:thin;-webkit-overflow-scrolling:touch}
@@ -553,6 +559,73 @@ tr.cl:hover td{background:var(--soft)}
 .tpop .tph a.link{display:inline!important;grid-template-columns:none}
 .fi .tpb{cursor:pointer;line-height:0;border-radius:7px}
 .fi .tpb:hover .score{filter:brightness(1.1);box-shadow:0 0 0 2px var(--card,#fff)}
+.ps-tiles{grid-template-columns:repeat(auto-fit,minmax(128px,1fr))}
+.ps-tiles .s a{color:inherit;font-weight:600}
+.ps-tiles .s a:hover{text-decoration:underline}
+.ps-grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}
+.ps-grid2>*{min-width:0;margin:0!important}
+.ps>.card{margin-top:18px}
+.ps-leg{display:flex;gap:14px;font-size:13px;color:var(--muted);align-items:center}
+.ps-leg span{display:inline-flex;align-items:center;gap:6px}
+.ps-leg i{width:12px;height:12px;border-radius:3px;display:inline-block}
+.ps-leg i.gr{background:none;border:2px solid var(--none)}
+.ps-cols{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:4px;height:190px;align-items:end;padding-top:6px}
+.ps-cols.t{height:150px}
+.ps-col{display:flex;flex-direction:column;align-items:stretch;height:100%;min-width:0;cursor:default}
+.ps-col:hover .ps-bars{background:var(--soft)}
+.ps-bars{flex:1;display:flex;align-items:flex-end;justify-content:center;gap:2px;border-radius:5px;border-bottom:1px solid var(--line)}
+.ps-bars span{display:block;width:44%;max-width:22px;border-radius:4px 4px 0 0;min-height:0}
+.ps-cols.t .ps-bars span{width:70%;max-width:34px}
+.ps-bars span.gr{background:none;border:2px solid var(--none);border-bottom:none;box-sizing:border-box}
+.ps-col small{font-size:11px;color:var(--muted);text-align:center;height:16px;line-height:16px;margin-top:4px;white-space:nowrap}
+.ps-two{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.ps-two>div{min-width:0}
+.ps-sub{font-size:13px;font-weight:700;color:var(--muted);margin-bottom:8px}
+.ps-xl{display:grid;grid-template-columns:repeat(12,1fr);margin-top:4px}
+.ps-xl small{font-size:11px;color:var(--muted);text-align:center;white-space:nowrap}
+.ps-line{position:relative;height:150px;border-bottom:1px solid var(--line);margin:0 26px 0 0}
+.ps-line svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.ps-line .dot{position:absolute;width:10px;height:10px;border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 0 2px var(--card)}
+.ps-yl{position:absolute;right:-26px;transform:translateY(-50%);font-size:11px;color:var(--muted)}
+.ps-gl{position:absolute;left:2px;transform:translateY(-120%);font-size:11px;color:var(--muted)}
+.ps-row{display:grid;grid-template-columns:minmax(90px,30%) minmax(0,1fr) auto auto;align-items:center;gap:12px;padding:7px 6px;border-radius:9px;color:inherit}
+a.ps-row[href]:hover{background:var(--soft)}
+.ps-row .nm{display:flex;align-items:center;gap:8px;font-weight:600;font-size:14px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;min-width:0}
+.ps-row .nm small{color:var(--muted);font-weight:500;margin-left:4px}
+.ps-row .bar{position:relative;height:14px;background:var(--soft);border-radius:4px;overflow:hidden}
+.ps-row .bar>span{display:block;height:100%;background:var(--accent);border-radius:4px;opacity:.85}
+.ps-row .ps-n{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:22px;text-align:right}
+.ps-pct{font-weight:800;font-variant-numeric:tabular-nums;text-align:right;line-height:1.1}
+.ps-pct small{display:block;font-weight:500;font-size:11px;color:var(--muted)}
+.ps-orow{display:flex;align-items:center;gap:12px;padding:8px 6px;border-radius:9px;color:inherit}
+.ps-orow+.ps-orow{border-top:1px solid var(--line)}
+.ps-orow:hover{background:var(--soft)}
+.ps-orow .meta{flex:1;min-width:0;display:flex;flex-direction:column}
+.ps-orow .meta b,.ps-orow .meta span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ps-orow .meta b{font-size:14px}.ps-orow .meta span{font-size:13px;color:var(--muted)}
+.ps-o{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex:none;margin-left:auto}
+.ps-o small{font-size:11.5px;color:var(--muted);white-space:nowrap}
+.ps-d{font-weight:800;font-size:14px;min-width:42px;text-align:center;padding:4px 6px;border-radius:8px}
+.ps-d.up{color:var(--g);background:color-mix(in srgb,var(--g) 15%,transparent)}
+.ps-d.dn{color:var(--r);background:color-mix(in srgb,var(--r) 15%,transparent)}
+.ps-seg{display:flex;gap:2px;height:22px;border-radius:6px;overflow:hidden}
+.ps-seg span{display:block;min-width:4px}
+@media (max-width:760px){.ps-grid2,.ps-two{grid-template-columns:1fr}.ps-cols{height:160px}}
+.tile.rtile{gap:10px;padding:10px;border-radius:14px;background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow)}
+.card .tile.rtile{background:var(--raise);box-shadow:none}
+.rtile .t{font-size:14px;letter-spacing:-.005em;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.rtile .rti .a{font-size:13.5px}
+.rtile .mt{font-size:12.5px;color:var(--muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rtile .rbot{display:flex;align-items:center;gap:8px;margin-top:auto;padding-top:9px;border-top:1px solid var(--line)}
+.rtile .dt2{font-size:12px;line-height:1.25;color:var(--muted);min-width:0;display:flex;flex-direction:column}
+.rtile .was2{font-size:11.5px}
+.rpill{display:inline-flex;align-items:center;justify-content:center;min-width:40px;height:28px;padding:0 10px;border-radius:999px;font-weight:800;font-size:15px;font-variant-numeric:tabular-nums;cursor:pointer;flex:none;transition:filter .15s,box-shadow .15s}
+.rpill:hover{filter:brightness(1.12);box-shadow:0 0 0 1.5px currentColor}
+.rpill.lock{cursor:default;background:var(--soft);color:var(--muted);font-size:13px}
+.rpill.lock:hover{filter:none;box-shadow:none}
+.rtile:hover .t{text-decoration:underline}
+#ogrid .grid{gap:18px}
+.hx{grid-auto-columns:148px}
 .tile .cw .tpb{position:absolute;right:6px;bottom:6px;line-height:0;cursor:pointer;border-radius:7px}
 .tile .cw .tpb .score{position:static;box-shadow:0 1px 4px rgba(0,0,0,.3)}
 .tile .cw .tpb:hover .score{filter:brightness(1.1);box-shadow:0 0 0 2px #fff,0 1px 4px rgba(0,0,0,.3)}
@@ -1193,17 +1266,19 @@ function render(){
   else if(page !== 'aktywnosc') S.actPrev = null;
   // inne urządzenie mogło już oznaczyć aktywność jako widzianą
   if(S.user && seenDb() > S.prevSeen) S.prevSeen = seenDb();
-  renderNav(['album','osoba','oceny','wykonawca','porownaj'].includes(page) ? null : page);
+  renderNav(['album','osoba','oceny','staty','wykonawca','porownaj'].includes(page) ? null : page);
   if(page !== lastPage) window.scrollTo(0, 0);
   // wpisane wyszukiwanie znika po przejściu do innej zakładki (zostaje tylko przy wejściu w album i powrocie)
   if(page !== lastPage && page !== 'album'){
     if(lastPage === 'albumy' || (lastPage === 'album' && page !== 'albumy')){ if(S.af) S.af.q = ''; }
     if(page !== 'oceny' && S.orat) S.orat.q = '';
   }
+  if(page !== lastPage) S.lexp = null; // rozwinięta lista „do posłuchania” zwija się po zmianie strony
   lastPage = page;
-  const V = {odkrywaj:viewDiscover, oceny:viewRatings, aktywnosc:viewActivity, start:viewHome, losuj:viewRandom, statystyki:viewStats, wykonawca:viewArtist, porownaj:viewCompare, ranking:viewRanking, lata:viewYears, album:viewAlbum, albumy:viewAlbums, dodaj:viewAdd, osoby:viewPeople,
+  const V = {staty:viewPersonStats, odkrywaj:viewDiscover, oceny:viewRatings, aktywnosc:viewActivity, start:viewHome, losuj:viewRandom, statystyki:viewStats, wykonawca:viewArtist, porownaj:viewCompare, ranking:viewRanking, lata:viewYears, album:viewAlbum, albumy:viewAlbums, dodaj:viewAdd, osoby:viewPeople,
              osoba:viewPerson, import:viewImport, konto:viewAccount, edytuj:viewEdit}[page] || viewHome;
   try { V(arg, arg2); } catch(e){ console.error(e); app.innerHTML = `<div class="card err">Błąd: ${esc(e.message)}</div>`; }
+  updLgrid();
 }
 async function safeLoad(){
   try { await loadData(); }
@@ -1821,16 +1896,16 @@ function viewPerson(id){
   app.innerHTML = `<div class="phead">${avatar(id, 72)}<div><h1>${esc(name)}</h1>
       ${cp ? `<div class="btns" style="margin-top:8px">Zgodność gustu z Tobą: ${pctBadge(cp)}<span class="muted small">${cp.n} ${pl(cp.n,'wspólny album','wspólne albumy','wspólnych albumów')}</span>${cp.n ? `<a href="#/porownaj/${S.user.id}/${id}"><button>Porównaj oceny</button></a>` : ''}</div>`
         : isMe ? '<div class="small" style="margin-top:6px"><a class="link" href="#/konto">Ustawienia konta</a></div>' : ''}</div>
-    <div class="pstats"><div><div class="v" style="color:${avg == null ? 'var(--muted)' : col(Math.round(avg))}">${avgN(avg)}</div><div class="l">Średnia</div></div>
-      <div><div class="v">${allK.length}</div><div class="l">${S.f.kind === 'singles' ? pl(allK.length,'Ocena singla','Oceny singli','Ocen singli') : pl(allK.length,'Ocena','Oceny','Ocen')}</div></div></div></div>
+    <div class="pstats"><a href="#/staty/${id}" title="Statystyki i wykresy"><div class="v" style="color:${avg == null ? 'var(--muted)' : col(Math.round(avg))}">${avgN(avg)}</div><div class="l">Średnia ›</div></a>
+      <a href="#/oceny/${id}" title="Wszystkie oceny"><div class="v">${allK.length}</div><div class="l">${S.f.kind === 'singles' ? pl(allK.length,'Ocena singla','Oceny singli','Ocen singli') : pl(allK.length,'Ocena','Oceny','Ocen')} ›</div></a></div></div>
 
   <section class="card"><div class="shead"><h2>Ostatnie oceny</h2>${recent.length ? `<a class="link small" href="#/oceny/${id}">Pokaż wszystkie →</a>` : ''}</div>
     ${recent.length ? `<div class="hx">${recent.map(r => { const a = S.albums.get(r.album_id);
-      return `<a class="tile" href="#/album/${a.id}"><div class="cw">${coverHtml(a, 'cfull')}${isHidden(r) ? lockBadge('sm', a.id) : tpBadge(a.id, r.user_id, r.score)}</div><div><div class="t">${esc(a.title)}</div><div class="a">${esc(a.artist)}</div><div class="a">${timeAgo(r.updated_at || r.created_at)}</div></div></a>`; }).join('')}</div>`
+      return rTile(a, r); }).join('')}</div>`
       : '<div class="empty">Brak ocen.</div>'}
   </section>
 
-  <section class="card" style="margin-top:18px"><div class="shead"><h2>Do posłuchania (${S.listen.filter(x => x.user_id === id && S.albums.has(x.album_id)).length})</h2></div>
+  <section class="card" style="margin-top:18px"><div class="shead"><h2>Do posłuchania (${S.listen.filter(x => x.user_id === id && S.albums.has(x.album_id)).length})</h2>${isMe && S.listen.some(x => x.user_id === id) ? '<a href="#/odkrywaj" data-rlist><button>🎲 Wylosuj z listy</button></a>' : ''}</div>
     ${listenRowHtml(id, isMe)}</section>
 
   <div class="prow">
@@ -2714,8 +2789,124 @@ async function openShareImg(gen, name, alt, heading, note){
   const sh = bg.querySelector('#mShare');
   if(sh) sh.onclick = async () => { try { await navigator.share({files:[file], title:heading}); } catch(e){ if(e.name !== 'AbortError') msg.textContent = 'Nie udało się udostępnić - spróbuj „Pobierz”.'; } };
 }
+// karta ocenionego albumu (profil, „Wszystkie oceny”, Start): ocena w pastylce pod spodem - klik pokazuje oceny piosenek
+const shortDate = d => { d = new Date(d); return d.toLocaleDateString('pl-PL', d.getFullYear() === new Date().getFullYear() ? {day:'numeric', month:'short'} : {day:'numeric', month:'short', year:'numeric'}); };
+function rTile(a, r, was){
+  const hd = isHidden(r), c = hd ? null : col(Math.round(r.score));
+  const ch = was && !hd ? scoreChain(a.id, r.user_id) : null;
+  const pill = hd ? `<span class="rpill lock" title="Ukryte${hideWhy(a.id)}">🔒</span>`
+    : `<span class="rpill" data-tp="${a.id}" data-tu="${esc(r.user_id)}" role="button" tabindex="0" title="Pokaż oceny piosenek" style="color:${c};background:color-mix(in srgb,${c} 16%,transparent)">${num(r.score)}</span>`;
+  return `<a class="tile rtile" href="#/album/${a.id}">${coverHtml(a, 'cfull')}
+    <div class="rti"><div class="t">${esc(a.title)}</div><div class="a">${esc(a.artist)}</div>${a.year || a.type ? `<div class="mt">${[a.year, a.type].filter(Boolean).map(esc).join(' · ')}</div>` : ''}</div>
+    <div class="rbot">${pill}<span class="dt2">${shortDate(r.updated_at || r.created_at)}${ch ? `<span class="was2">było ${num(ch.seq[ch.seq.length - 2])}</span>` : ''}</span></div></a>`;
+}
 // ocena na okładce: klik pokazuje oceny piosenek tej osoby (zamiast przechodzić do albumu)
 const tpBadge = (aid, uid, score) => `<span class="tpb" data-tp="${aid}" data-tu="${esc(uid)}" title="Pokaż oceny piosenek" role="button" tabindex="0">${badge(score, 'sm')}</span>`;
+/* ----- statystyki jednej osoby ----- */
+const mean = a => a.length ? a.reduce((s2, x) => s2 + x, 0) / a.length : null;
+const medianOf = a => { if(!a.length) return null; const b = [...a].sort((x, y) => x - y), m = b.length >> 1; return b.length % 2 ? b[m] : (b[m - 1] + b[m]) / 2; };
+function viewPersonStats(uid){
+  const p = S.profiles.get(uid);
+  if(!p){ app.innerHTML = '<div class="card">Nie ma takiej osoby.</div>'; return; }
+  const K = S.pst || (S.pst = {kind:'albums'}), name = pname(uid), isMe = uid === S.user.id;
+  const okK = r => S.albums.has(r.album_id) && kindOk(S.albums.get(r.album_id), K.kind);
+  const all = (S.byUser.get(uid) || []).filter(okK), R = all.filter(r => !isHidden(r)), hidN = all.length - R.length;
+  const G = visRatings().filter(r => r.user_id !== uid && kindOk(S.albums.get(r.album_id), K.kind));
+  const sc = R.map(r => r.score), avg = mean(sc), gAvg = mean(G.map(r => r.score)), med = medianOf(sc), dev = sd(sc);
+  const what = K.kind === 'singles' ? 'singli' : 'albumów';
+  const head = `<div class="phead" style="margin-bottom:16px"><a href="#/osoba/${uid}">${avatar(uid, 56)}</a><div><h1 style="font-size:28px">Statystyki: ${esc(name)}</h1>
+      <p class="sub" style="margin:2px 0 0"><a class="link" href="#/osoba/${uid}">← wróć do profilu</a> · <a class="link" href="#/oceny/${uid}">wszystkie oceny</a></p></div></div>
+    <div class="filters">${segHtml('pskind', K.kind)}</div>
+    ${hidN ? `<p class="note" style="margin:-6px 0 14px">🔒 ${hidN} ${pl(hidN,'ocena jest ukryta','oceny są ukryte','ocen jest ukrytych')} (albumy, których jeszcze nie oceniłeś) - nie liczą się do wykresów.</p>` : ''}`;
+  if(R.length < 3){ app.innerHTML = head + `<div class="card empty">Za mało ocen ${what}, żeby pokazać statystyki.</div>`; bindSeg('pskind', v => { K.kind = v; render(); }); return; }
+  const top = [...R].sort((a, b) => b.score - a.score)[0], low = [...R].sort((a, b) => a.score - b.score)[0];
+  const diff = avg - gAvg, n80 = sc.filter(x => x >= 80).length, n50 = sc.filter(x => x < 50).length;
+  const devL = dev < 8 ? 'trzyma się środka skali' : dev < 13 ? 'umiarkowany rozrzut' : 'używa całej skali';
+  const tile = (v, l, sub, style = '') => `<div class="tile2"><div class="v" style="${style}">${v}</div><div class="l">${l}</div>${sub ? `<div class="s">${sub}</div>` : ''}</div>`;
+  const tiles = `<div class="tiles ps-tiles">
+    ${tile(num(Math.round(avg)), 'Średnia', gAvg == null ? '' : `grupa ${num(Math.round(gAvg))} · <b style="color:${Math.abs(diff) < 1 ? 'var(--muted)' : diff > 0 ? 'var(--g)' : 'var(--r)'}">${diff >= 0 ? '+' : '−'}${num(Math.abs(Math.round(diff)))}</b>`, `color:${col(Math.round(avg))}`)}
+    ${tile(num(Math.round(med)), 'Mediana', 'połowa ocen jest wyższa')}
+    ${tile(`<a href="#/oceny/${uid}" style="color:inherit">${R.length}</a>`, pl(R.length,'Ocena','Oceny','Ocen'), `${what === 'albumów' ? 'albumów' : 'singli'} w bazie: ${[...S.albums.values()].filter(a => kindOk(a, K.kind)).length}`)}
+    ${tile('±' + num(Math.round(dev)), 'Rozrzut ocen', devL)}
+    ${tile(Math.round(n80 / R.length * 100) + '%', 'Ocen 80+', `poniżej 50: ${Math.round(n50 / R.length * 100)}%`)}
+    ${tile(num(top.score), 'Najwyższa', `<a href="#/album/${top.album_id}">${esc(S.albums.get(top.album_id).title)}</a>`, `color:${col(Math.round(top.score))}`)}
+    ${tile(num(low.score), 'Najniższa', `<a href="#/album/${low.album_id}">${esc(S.albums.get(low.album_id).title)}</a>`, `color:${col(Math.round(low.score))}`)}</div>`;
+
+  // rozkład: Ty vs grupa (procent ocen w przedziale)
+  const lo = Math.max(0, Math.min(50, Math.floor(Math.min(...sc) / 5) * 5)), B = [];
+  for(let b = lo; b <= 95; b += 5) B.push({b, hi:b === 95 ? 100 : b + 4});
+  const cnt = (arr, x) => arr.filter(v => v >= x.b && v <= x.hi && (x.b !== lo || true)).length;
+  const sAll = arr => arr.map(v => Math.max(v, lo));
+  const sc2 = sAll(sc), gs2 = sAll(G.map(r => r.score));
+  const dist = B.map(x => ({...x, me:cnt(sc2, x) / sc2.length * 100, gr:gs2.length ? cnt(gs2, x) / gs2.length * 100 : 0, n:cnt(sc2, x)}));
+  const dmax = Math.max(...dist.map(d => Math.max(d.me, d.gr)), 1);
+  const distHtml = `<section class="card"><div class="shead"><h2>Rozkład ocen</h2><div class="ps-leg"><span><i style="background:var(--accent)"></i>${esc(name)}</span><span><i class="gr"></i>Reszta grupy</span></div></div>
+    <div class="ps-cols">${dist.map(d => `<div class="ps-col" title="${d.b === lo && lo > 0 ? '≤' + d.hi : d.b + '-' + d.hi}: ${esc(name)} ${d.n} (${Math.round(d.me)}%), grupa ${Math.round(d.gr)}%">
+      <div class="ps-bars"><span class="me" style="height:${d.me / dmax * 100}%;background:${col(Math.min(100, d.b + 2))}"></span><span class="gr" style="height:${d.gr / dmax * 100}%"></span></div>
+      <small>${d.b % 10 === 0 ? (d.b === lo && lo > 0 ? '≤' + d.hi : d.b) : ''}</small></div>`).join('')}</div>
+    <p class="note">Słupki pokazują, jaki procent ocen wpada w dany przedział - dzięki temu da się porównać z grupą, choć ocen jest różnie dużo.</p></section>`;
+
+  // w czasie: ostatnie 12 miesięcy
+  const now = new Date(), months = [];
+  for(let i = 11; i >= 0; i--){ const d = new Date(now.getFullYear(), now.getMonth() - i, 1); months.push({y:d.getFullYear(), m:d.getMonth(), rs:[]}); }
+  for(const r of R){ const d = new Date(r.created_at || r.updated_at); const mo = months.find(x => x.y === d.getFullYear() && x.m === d.getMonth()); if(mo) mo.rs.push(r.score); }
+  const cmax = Math.max(1, ...months.map(m => m.rs.length));
+  const pts = months.map((m, i) => ({i, v:mean(m.rs), n:m.rs.length})).filter(x => x.v != null);
+  const vmin = Math.max(0, Math.floor((Math.min(...pts.map(x => x.v), 100) - 5) / 5) * 5), vmax = Math.min(100, Math.ceil((Math.max(...pts.map(x => x.v), 0) + 5) / 5) * 5);
+  const X = i => (i + .5) / 12 * 100, Y = v => 100 - (v - vmin) / Math.max(1, vmax - vmin) * 100;
+  const mlab = (m, i) => `<small>${i % 2 === 1 || months.length < 8 ? MONTHS[m.m] : ''}</small>`;
+  const timeHtml = `<section class="card"><div class="shead"><h2>Ostatnie 12 miesięcy</h2></div>
+    <div class="ps-two"><div><div class="ps-sub">Ile ocen w miesiącu</div>
+      <div class="ps-cols t">${months.map(m => `<div class="ps-col" title="${MONTHS[m.m]} ${m.y}: ${ocen(m.rs.length)}"><div class="ps-bars"><span class="me" style="height:${m.rs.length / cmax * 100}%;background:var(--accent)"></span></div></div>`).join('')}</div>
+      <div class="ps-xl">${months.map(mlab).join('')}</div></div>
+    <div><div class="ps-sub">Średnia ocen w miesiącu</div>
+      <div class="ps-line">${pts.length > 1 ? `<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><polyline points="${pts.map(x => X(x.i) + ',' + Y(x.v)).join(' ')}" fill="none" stroke="var(--accent)" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>
+        ${gAvg != null && gAvg >= vmin && gAvg <= vmax ? `<line x1="0" x2="100" y1="${Y(gAvg)}" y2="${Y(gAvg)}" stroke="var(--muted)" stroke-width="1" stroke-dasharray="4 4" vector-effect="non-scaling-stroke"/>` : ''}</svg>` : ''}
+        ${pts.map(x => `<span class="dot" style="left:${X(x.i)}%;top:${Y(x.v)}%;background:${col(Math.round(x.v))}" title="${MONTHS[months[x.i].m]} ${months[x.i].y}: średnia ${num(Math.round(x.v))} (${ocen(x.n)})"></span>`).join('')}
+        <span class="ps-yl" style="top:0">${vmax}</span><span class="ps-yl" style="top:100%">${vmin}</span>
+        ${gAvg != null && gAvg >= vmin && gAvg <= vmax ? `<span class="ps-gl" style="top:${Y(gAvg)}%">grupa ${num(Math.round(gAvg))}</span>` : ''}</div>
+      <div class="ps-xl">${months.map(mlab).join('')}</div></div></div></section>`;
+
+  // dekady
+  const dec = new Map(); for(const r of R){ const y = S.albums.get(r.album_id).year; if(!y) continue; const k = Math.floor(y / 10) * 10; push(dec, k, r.score); }
+  const decs = [...dec.entries()].sort((a, b) => b[0] - a[0]), dmx = Math.max(1, ...decs.map(d => d[1].length));
+  const rowBar = (label, n, nmax, v, href, sub) => `<a class="ps-row" ${href ? `href="${href}"` : ''} title="${esc(label)}: ${n}, średnia ${num(Math.round(v))}"><span class="nm">${label}${sub ? `<small>${sub}</small>` : ''}</span><span class="bar"><span style="width:${n / nmax * 100}%"></span></span><span class="ps-n">${n}</span><span class="score sm" style="background:${col(Math.round(v))}">${num(Math.round(v))}</span></a>`;
+  const decHtml = `<section class="card"><div class="shead"><h2>Według dekady wydania</h2><span class="muted small">liczba ocen · średnia</span></div>
+    ${decs.map(([k, v]) => rowBar(k + 's', v.length, dmx, mean(v))).join('') || '<div class="empty">Brak lat wydania.</div>'}</section>`;
+
+  // wykonawcy
+  const art = new Map(); for(const r of R){ for(const a of artistParts(S.albums.get(r.album_id).artist)){ const k = simp(a); const o = art.get(k) || {name:a, s:[]}; o.s.push(r.score); art.set(k, o); } }
+  const arts = [...art.values()].filter(o => o.s.length >= 2).sort((a, b) => b.s.length - a.s.length || mean(b.s) - mean(a.s)).slice(0, 8), amx = Math.max(1, ...arts.map(a => a.s.length));
+  const artHtml = `<section class="card"><div class="shead"><h2>Najczęściej oceniani wykonawcy</h2><span class="muted small">liczba ocen · średnia</span></div>
+    ${arts.map(o => rowBar(esc(o.name), o.s.length, amx, mean(o.s), artistHref(o.name))).join('') || '<div class="empty">Nikt nie ma jeszcze 2 ocen.</div>'}</section>`;
+
+  // odstające od grupy
+  const byA = new Map(); for(const r of G) push(byA, r.album_id, r.score);
+  const dv = R.map(r => { const o = byA.get(r.album_id) || []; return o.length >= 2 ? {r, g:mean(o), d:r.score - mean(o), n:o.length} : null; }).filter(Boolean);
+  const outRow = x => { const a = S.albums.get(x.r.album_id);
+    return `<a class="ps-orow" href="#/album/${a.id}">${coverHtml(a, 'c40')}<span class="meta"><b>${esc(a.title)}</b><span>${esc(a.artist)}</span></span>
+      <span class="ps-o"><span class="ps-d ${x.d > 0 ? 'up' : 'dn'}">${x.d > 0 ? '+' : '−'}${num(Math.abs(Math.round(x.d)))}</span><small><b style="color:${col(Math.round(x.r.score))}">${num(x.r.score)}</b> vs ${num(Math.round(x.g))}</small></span></a>`; };
+  const ups = [...dv].sort((a, b) => b.d - a.d).filter(x => x.d >= 3).slice(0, 5), dns = [...dv].sort((a, b) => a.d - b.d).filter(x => x.d <= -3).slice(0, 5);
+  const outHtml = `<div class="ps-grid2"><section class="card"><div class="shead"><h2>Lubi bardziej niż reszta</h2></div>${ups.map(outRow).join('') || '<div class="empty">Brak.</div>'}</section>
+    <section class="card"><div class="shead"><h2>Lubi mniej niż reszta</h2></div>${dns.map(outRow).join('') || '<div class="empty">Brak.</div>'}</section></div>`;
+
+  // zgodność z innymi
+  const comp = [...S.profiles.values()].filter(q => q.id !== uid).map(q => ({q, c:compat(uid, q.id)})).filter(x => x.c.pct != null).sort((a, b) => b.c.pct - a.c.pct);
+  const compHtml = `<section class="card"><div class="shead"><h2>Zgodność gustu</h2><a class="link small" href="#/statystyki/zgodnosc">cała tabela →</a></div>
+    ${comp.map(x => `<a class="ps-row" href="#/porownaj/${uid}/${x.q.id}" title="${x.c.n} wspólnych albumów"><span class="nm">${avatar(x.q.id, 24)}${esc(pname(x.q.id))}</span><span class="bar"><span style="width:${x.c.pct}%;background:${pctCol(x.c.pct)}"></span></span><span></span><span class="ps-pct">${x.c.pct}%<small>${x.c.n} wspólnych</small></span></a>`).join('') || '<div class="empty">Za mało wspólnych ocen.</div>'}</section>`;
+
+  // typy wydań (wszystkie oceny, niezależnie od przełącznika)
+  const allV = (S.byUser.get(uid) || []).filter(r => S.albums.has(r.album_id) && !isHidden(r));
+  const TY = [['LP','LP','#3f7fd8'],['EP','EP','#e0893a'],['Inne','Inne (mixtape, live…)','#9a5bd6'],['Single','Single','#8a919c']];
+  const tc = TY.map(([k, l, c]) => ({l, c, n:allV.filter(r => { const a = S.albums.get(r.album_id); return k === 'Single' ? isSingle(a) : !isSingle(a) && typeGroup(a.type) === k; }).length})).filter(x => x.n);
+  const tsum = tc.reduce((s2, x) => s2 + x.n, 0) || 1;
+  const typHtml = `<section class="card"><div class="shead"><h2>Co ocenia</h2></div>
+    <div class="ps-seg">${tc.map(x => `<span style="flex:${x.n};background:${x.c}" title="${x.l}: ${x.n} (${Math.round(x.n / tsum * 100)}%)"></span>`).join('')}</div>
+    <div class="ps-leg" style="margin-top:10px;flex-wrap:wrap">${tc.map(x => `<span><i style="background:${x.c}"></i>${x.l} <b>${x.n}</b> <span class="muted">${Math.round(x.n / tsum * 100)}%</span></span>`).join('')}</div></section>`;
+
+  app.innerHTML = head + `<div class="ps">` + tiles + distHtml + timeHtml + `<div class="ps-grid2">${decHtml}${artHtml}</div>` + outHtml + `<div class="ps-grid2">${compHtml}${typHtml}</div></div>`;
+  bindSeg('pskind', v => { K.kind = v; render(); });
+}
 function viewRatings(uid){
   const p = S.profiles.get(uid);
   if(!p){ app.innerHTML = '<div class="card">Nie ma takiej osoby.</div>'; return; }
@@ -2737,8 +2928,7 @@ function viewRatings(uid){
   const draw = () => {
     const shown = l.slice(0, O.limit);
     document.getElementById('ogrid').innerHTML = l.length ? `<div class="grid">${shown.map(r => { const a = S.albums.get(r.album_id);
-      const hd = isHidden(r);
-      return `<a class="tile" href="#/album/${a.id}"><div class="cw">${coverHtml(a, 'cfull')}${hd ? lockBadge('sm', a.id) : tpBadge(a.id, uid, r.score)}</div><div><div class="t">${esc(a.title)}</div><div class="a">${esc(a.artist)}${a.year ? ' · ' + a.year : ''}</div><div class="a">${timeAgo(r.updated_at || r.created_at)}${(c => c && !hd ? ' · było ' + num(c.seq[c.seq.length - 2]) : '')(scoreChain(a.id, uid))}</div></div></a>`; }).join('')}</div>
+      return rTile(a, r, true); }).join('')}</div>
       ${l.length > shown.length ? `<div style="text-align:center;margin-top:18px"><button id="omore">Pokaż więcej (${l.length - shown.length})</button></div>` : ''}`
       : `<div class="card empty">${O.sort === 'changed' ? (S.hist ? 'Żadna ocena nie była jeszcze zmieniana.' : 'Historia zmian działa po uruchomieniu update4.sql w Supabase.') : 'Brak ocen.'}</div>`;
     const m = document.getElementById('omore'); if(m) m.onclick = () => { O.limit += 120; draw(); };
@@ -2751,10 +2941,28 @@ function viewRatings(uid){
 function listenRowHtml(uid, editable){
   const l = S.listen.filter(x => x.user_id === uid && S.albums.has(x.album_id)).sort((p, q) => (q.created_at || '').localeCompare(p.created_at || ''));
   if(!l.length) return `<div class="empty">${uid === S.user.id ? 'Lista jest pusta. Dodaj albumy powyżej, przyciskiem „+ Do posłuchania” na stronie albumu albo przez losowanie.' : 'Lista jest pusta.'}</div>`;
-  return `<div class="hx">${l.map(x => { const a = S.albums.get(x.album_id), st = visStats(a.id);
+  const open = S.lexp && S.lexp.has(uid);
+  return `<div class="lgrid ${open ? '' : 'col'}" data-lg="${esc(uid)}">${l.map(x => { const a = S.albums.get(x.album_id), st = visStats(a.id);
     return `<div class="fav"><a class="tile" href="#/album/${a.id}"><div class="cw">${coverHtml(a, 'cfull')}${st.n ? badge(st.avg, 'sm') : ''}</div><div><div class="t">${esc(a.title)}</div><div class="a">${esc(a.artist)}${a.year ? ' · ' + a.year : ''}</div><div class="a">dodano ${timeAgo(x.created_at)}</div></div></a>
-      ${editable ? `<div class="favctl"><button data-lrm="${a.id}" title="Usuń z listy" aria-label="Usuń z listy">×</button></div>` : ''}</div>`; }).join('')}</div>`;
+      ${editable ? `<div class="favctl"><button data-lrm="${a.id}" title="Usuń z listy" aria-label="Usuń z listy">×</button></div>` : ''}</div>`; }).join('')}</div>
+    <div class="lmore" hidden><button type="button" class="link" data-lx="${esc(uid)}">${open ? 'Zwiń ▴' : `Pokaż wszystkie (${l.length}) ▾`}</button></div>`;
 }
+// lista „do posłuchania”: jeden rząd, rozwijany w dół; przycisk tylko gdy coś się nie mieści
+function updLgrid(){
+  document.querySelectorAll('.lgrid').forEach(g => {
+    const cols = getComputedStyle(g).gridTemplateColumns.split(' ').filter(Boolean).length || 1, n = g.children.length, more = g.nextElementSibling;
+    if(more && more.classList.contains('lmore')) more.hidden = n <= cols;
+    [...g.children].forEach((c, i) => { c.style.display = g.classList.contains('col') && i >= cols ? 'none' : ''; });
+  });
+}
+window.addEventListener('resize', () => updLgrid());
+document.addEventListener('click', e => {
+  const x = e.target.closest && e.target.closest('[data-lx]');
+  if(x){ e.preventDefault(); S.lexp = S.lexp || new Set(); const u = x.dataset.lx; S.lexp.has(u) ? S.lexp.delete(u) : S.lexp.add(u);
+    const g = document.querySelector(`.lgrid[data-lg="${CSS.escape(u)}"]`); if(g){ g.classList.toggle('col', !S.lexp.has(u)); x.textContent = S.lexp.has(u) ? 'Zwiń ▴' : `Pokaż wszystkie (${g.children.length}) ▾`; updLgrid(); } return; }
+  // „Wylosuj” przy liście do posłuchania - losowanie od razu z tej listy
+  if(e.target.closest && e.target.closest('[data-rlist]')){ S.rand.src = 'listen'; S.rand.from = ''; S.rand.to = ''; S.rand.kind = 'all'; }
+}, true);
 
 /* ----- strona główna ----- */
 /* ----- zapowiedź Wrapped ----- */
@@ -2807,12 +3015,12 @@ function viewHome(){
       <section class="card">
         <div class="shead"><h2>Ostatnio ocenione</h2><a class="link small" href="#/osoba/${uid}">Wszystkie moje oceny →</a></div>
         ${recentMine.length ? `<div class="hx">${recentMine.map(r => { const a = S.albums.get(r.album_id);
-          return `<a class="tile" href="#/album/${a.id}"><div class="cw">${coverHtml(a, 'cfull')}${tpBadge(a.id, r.user_id, r.score)}</div><div><div class="t">${esc(a.title)}</div><div class="a">${esc(a.artist)}</div><div class="a">${timeAgo(r.updated_at || r.created_at)}</div></div></a>`; }).join('')}</div>`
+          return rTile(a, r); }).join('')}</div>`
           : '<div class="empty">Nie oceniłeś jeszcze żadnego albumu.</div>'}
       </section>
 
       <section class="card">
-        <div class="shead"><h2>Do posłuchania (${listen.length})</h2><a href="#/losuj"><button>🎲 Wylosuj coś</button></a></div>
+        <div class="shead"><h2>Do posłuchania (${listen.length})</h2>${listen.length ? '<a href="#/odkrywaj" data-rlist><button>🎲 Wylosuj z listy</button></a>' : ''}</div>
         ${pickerHtml('lpick', 'Dodaj album do posłuchania - wpisz wykonawcę lub tytuł…')}
         ${listenRowHtml(uid, true)}
       </section>
