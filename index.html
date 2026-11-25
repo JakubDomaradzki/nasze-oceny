@@ -204,6 +204,8 @@ h2{font-size:17px;letter-spacing:-.2px;color:var(--text);margin:0 0 12px;font-we
 .row .sc{gap:5px;width:84px}
 .mypill{display:inline-flex;align-items:center;justify-content:center;gap:3px;height:18px;padding:0 7px;border-radius:999px;font-size:11px;font-weight:800;white-space:nowrap;font-variant-numeric:tabular-nums}
 .mypill svg{flex:none}
+.scm{display:inline-flex;flex-direction:column;align-items:center;gap:5px;width:84px;flex:none}
+@media (max-width:560px){.mrow .r2:has(.scm) .grp{display:none}.mrow .scm{width:80px}.mrow .scm .mypill{padding:0 5px}}
 .mypill.no{font-weight:600;color:var(--muted);background:none}
 .mine{font-size:12.5px;color:var(--muted);text-align:right;white-space:nowrap}
 .mine b{color:var(--text)}
@@ -1453,14 +1455,20 @@ function viewLogin(){
 }
 
 /* ---------- ranking rows ---------- */
+// Twoja ocena w pastylce: „✓ 88” albo „do oceny”
+function myPill(aid){
+  const mine = myRating(aid);
+  return mine
+    ? `<span class="mypill" title="Twoja ocena" style="color:${colT(Math.round(mine.score))};background:color-mix(in srgb,${col(Math.round(mine.score))} 18%,transparent)"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>${num(mine.score)}</span>`
+    : '<span class="mypill no" title="Jeszcze nie oceniłeś"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.6" stroke-dasharray="3 3" aria-hidden="true"><circle cx="12" cy="12" r="8"/></svg>do oceny</span>';
+}
+const scMine = (badgeHtml, aid) => `<span class="scm">${badgeHtml}${myPill(aid)}</span>`;
 function rowHtml({a, st}, i){
   const mine = myRating(a.id);
   return `<a class="row ${i < 3 ? 'top' + (i + 1) : ''}" href="#/album/${a.id}">
     <span class="rk">${i + 1}</span>${coverHtml(a)}
     <span class="meta"><b>${esc(a.title)}</b><span>${esc(a.artist)}</span><small>${[a.year ?? '-', a.type, ocen(st.n)].filter(Boolean).map(esc).join(' · ')}</small></span>
-    <span class="sc">${badge(st.avg, 'big')}${mine
-      ? `<span class="mypill" title="Twoja ocena" style="color:${colT(Math.round(mine.score))};background:color-mix(in srgb,${col(Math.round(mine.score))} 18%,transparent)"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>${num(mine.score)}</span>`
-      : '<span class="mypill no" title="Jeszcze nie oceniłeś"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.6" stroke-dasharray="3 3" aria-hidden="true"><circle cx="12" cy="12" r="8"/></svg>do oceny</span>'}</span></a>`;
+    <span class="sc">${badge(st.avg, 'big')}${myPill(a.id)}</span></a>`;
 }
 function filtersHtml(){
   const maxN = Math.max(1, S.profiles.size);
@@ -1991,7 +1999,7 @@ function viewPerson(id){
           <span class="r2"><span class="grp">oceń, żeby<br>zobaczyć</span>${lockBadge('big', a.id)}</span></a>`;
         return `<a class="mrow ${i < 3 ? 'top' + (i + 1) : ''}" href="#/album/${a.id}"><span class="rk">${i + 1}</span>${coverHtml(a, 'c48')}
           <span class="meta"><b>${esc(a.title)}</b><span>${esc(a.artist)}</span><small>${a.year ?? '—'} · ${esc(a.type || '')}</small></span>
-          <span class="r2"><span class="grp">grupa ${avgN(st.avg)}<br>${ocen(st.n)}</span>${badge(r.score, 'big')}</span></a>`; }).join('')
+          <span class="r2"><span class="grp">grupa ${avgN(st.avg)}<br>${ocen(st.n)}</span>${isMe ? badge(r.score, 'big') : scMine(badge(r.score, 'big'), a.id)}</span></a>`; }).join('')
         : `<div class="empty">${esc(name)} nie ma jeszcze ocenionych ${S.f.kind !== 'singles' && V.type !== 'all' ? (V.type === 'Inne' ? 'innych wydań' : V.type) : what}${V.year === 'all' ? '' : ' z ' + V.year + ' roku'}.</div>`}
       ${full.length > 15 ? `<div style="text-align:center;margin-top:10px"><button id="pall">${V.all ? 'Pokaż mniej' : `Pokaż wszystkie (${full.length})`}</button></div>` : ''}
     </section>
@@ -2626,12 +2634,12 @@ function statsYear(tabs){
       ${div ? `<div class="tile2"><div class="l">Najbardziej podzielił</div><div class="s" style="margin-top:8px"><a class="link" href="#/album/${div.a.id}">${esc(div.a.title)}</a></div><div class="s muted">rozrzut ±${num(div.sd)}</div></div>` : ''}
     </div>
     <div class="sgrid">
-      <section class="card"><h2>Top 10 albumów ${y}</h2>${albums.length ? albums.slice(0, 10).map((x, i) => statRow(i + 1, x.a, `<span class="grp">${ocen(x.st.n)}</span>${badge(x.st.avg, 'big')}`)).join('')
+      <section class="card"><h2>Top 10 albumów ${y}</h2>${albums.length ? albums.slice(0, 10).map((x, i) => statRow(i + 1, x.a, `<span class="grp">${ocen(x.st.n)}</span>${scMine(badge(x.st.avg, 'big'), x.a.id)}`)).join('')
         + (minNote === 2 ? '<p class="note">Albumy z min. 2 ocenami.</p>' : '') : '<div class="empty">Brak danych.</div>'}</section>
       <div style="display:grid;gap:18px;align-content:start">
         <section class="card"><h2>Numer 1 każdego z was</h2>${per.length ? `<div class="p1">${per.map(x => { const a = S.albums.get(x.top.album_id);
           return `<div><div class="who">${avatar(x.p.id, 22)}${nm(x.p)}</div><a class="tile" href="#/album/${a.id}"><div class="cw">${coverHtml(a, 'cfull')}${tpBadge(a.id, x.p.id, x.top.score)}</div><div class="t">${esc(a.title)}</div><div class="a">${esc(a.artist)}</div></a></div>`; }).join('')}</div>` : '<div class="empty">Brak danych.</div>'}</section>
-        ${singles.length ? `<section class="card"><h2>Top single ${y}</h2>${singles.slice(0, 5).map((x, i) => statRow(i + 1, x.a, badge(x.st.avg, 'sm'), ocen(x.st.n))).join('')}</section>` : ''}
+        ${singles.length ? `<section class="card"><h2>Top single ${y}</h2>${singles.slice(0, 5).map((x, i) => statRow(i + 1, x.a, scMine(badge(x.st.avg, 'sm'), x.a.id), ocen(x.st.n))).join('')}</section>` : ''}
       </div>
     </div>`;
   document.getElementById('sy').onchange = e => { T.year = +e.target.value; render(); };
