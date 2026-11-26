@@ -929,14 +929,14 @@ function lastRatingEvent(id){
 }
 function eventMoves(list, rankAt){
   const out = new Map(), now = Date.now();
-  for(const x of list){
-    const ev = lastRatingEvent(x.a.id); if(!ev || now - ev.t > MOVE_RECENT) continue;
-    const before = rankAt(ev.t - 1).findIndex(y => y.a.id === x.a.id), after = rankAt(ev.t + 1).findIndex(y => y.a.id === x.a.id);
-    if(after < 0) continue;
+  list.forEach((x, i) => {
+    const ev = lastRatingEvent(x.a.id); if(!ev || now - ev.t > MOVE_RECENT) return;
+    // miejsce tuż przed tą oceną vs miejsce teraz (to, które widać w rankingu)
+    const before = rankAt(ev.t - 1).findIndex(y => y.a.id === x.a.id);
     const hist = S.hist && S.hist.get(x.a.id + '|' + ev.r.user_id), last = hist && hist[hist.length - 1];
     const changed = last && last.old != null && Math.abs((Date.parse(last.at) || 0) - ev.t) < 10 * 60 * 1000;
-    out.set(x.a.id, {from:before < 0 ? null : before + 1, to:after + 1, who:ev.r.user_id, t:ev.t, changed});
-  }
+    out.set(x.a.id, {from:before < 0 ? null : before + 1, to:i + 1, who:ev.r.user_id, t:ev.t, changed});
+  });
   return out;
 }
 // ocena, jaka była w chwili t (null = jeszcze jej nie było); korzysta z historii zmian ocen
@@ -963,13 +963,13 @@ function dayMoves(list, rankAt){
   return out;
 }
 const rankMoves = (list, rankAt) => moveMode() === 'day' ? dayMoves(list, rankAt) : eventMoves(list, rankAt);
-const moveNote = () => moveMode() === 'day' ? '▲▼ - zmiana miejsca w ostatnich 24 godzinach.' : '▲▼ - o ile miejsc przesunęła album jego ostatnia ocena (z ostatnich 3 dni).';
+const moveNote = () => moveMode() === 'day' ? '▲▼ - zmiana miejsca w ostatnich 24 godzinach.' : '▲▼ - zmiana miejsca od ostatniej oceny albumu (z ostatnich 3 dni).';
 function moveHtml(id, pos, mv){
   const m = mv && mv.get(id); if(!m) return '';
   const what = m.day ? 'W ostatnich 24 godzinach' : `${m.changed ? 'Zmiana oceny' : 'Ocena'}: ${pname(m.who)}, ${timeAgo(new Date(m.t).toISOString())}`;
   if(m.from == null) return `<span class="mv new" title="${esc(what)} - album wszedł do rankingu (na ${m.to}. miejsce)">nowe</span>`;
   const d = m.from - m.to; if(!d) return '';
-  return `<span class="mv ${d > 0 ? 'up' : 'dn'}" title="${esc(what)} ${m.day ? 'album przesunął się' : '- przesunęła album'} z ${m.from}. na ${m.to}. miejsce">${d > 0 ? '▲' : '▼'}${Math.abs(d)}</span>`;
+  return `<span class="mv ${d > 0 ? 'up' : 'dn'}" title="${esc(what)} ${m.day ? 'album przesunął się' : '- od tamtej pory album przesunął się'} z ${m.from}. na ${m.to}. miejsce">${d > 0 ? '▲' : '▼'}${Math.abs(d)}</span>`;
 }
 function rankList({year = null, min = S.f.min, type = S.f.type, kind = S.f.kind, at = null} = {}){
   const out = [];
@@ -3769,7 +3769,7 @@ function viewAccount(){
       Twoje własne oceny widzisz zawsze. Ustawienie zapisuje się na tym urządzeniu.</p></div>
   <div class="card" style="margin-bottom:18px"><h2>▲▼ Strzałki w rankingach</h2>
     <div class="btns">${segHtml('mvseg', moveMode(), [['event','Ostatnia ocena'],['day','Ostatnie 24 h']])}</div>
-    <p class="note">${moveMode() === 'day' ? 'Strzałki pokazują, o ile miejsc album przesunął się w rankingu w ciągu ostatnich 24 godzin - z jakiegokolwiek powodu.' : 'Strzałka pojawia się tylko przy albumie, którego ocenę ktoś dodał albo zmienił (w ostatnich 3 dniach), i pokazuje, o ile miejsc ta ocena go przesunęła.'}
+    <p class="note">${moveMode() === 'day' ? 'Strzałki pokazują, o ile miejsc album przesunął się w rankingu w ciągu ostatnich 24 godzin - z jakiegokolwiek powodu.' : 'Strzałka pojawia się tylko przy albumie, którego ocenę ktoś dodał albo zmienił (w ostatnich 3 dniach), i pokazuje, o ile miejsc album przesunął się od tamtej oceny.'}
       Dotyczy podsumowania roku i rankingów lat. Ustawienie zapisuje się na tym urządzeniu.</p></div>
   <div class="card" style="margin-bottom:18px"><h2>Avatar</h2>
     <div class="btns" style="gap:18px"><span id="avp">${avatar(S.user.id, 96)}</span>
