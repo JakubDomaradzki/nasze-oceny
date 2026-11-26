@@ -207,6 +207,10 @@ h2{font-size:17px;letter-spacing:-.2px;color:var(--text);margin:0 0 12px;font-we
 .row .sc{gap:5px;width:84px}
 .mypill{display:inline-flex;align-items:center;justify-content:center;gap:3px;height:18px;padding:0 7px;border-radius:999px;font-size:11px;font-weight:800;white-space:nowrap;font-variant-numeric:tabular-nums}
 .mypill svg{flex:none}
+.rk{display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1}
+.mv{display:block;font-size:10px;font-weight:800;letter-spacing:-.2px;margin-top:3px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.mv.up{color:var(--gt)}.mv.dn{color:var(--rt)}
+.mv.new{color:var(--accent);font-size:8.5px;text-transform:uppercase;letter-spacing:.2px}
 .scm{display:inline-flex;flex-direction:column;align-items:center;gap:5px;width:84px;flex:none}
 @media (max-width:560px){.mrow .r2:has(.scm) .grp{display:none}.mrow .scm{width:80px}.mrow .scm .mypill{padding:0 5px}}
 .mypill.no{font-weight:600;color:var(--muted);background:none}
@@ -737,6 +741,8 @@ a.ps-row[href]:hover{background:var(--soft)}
 .cchart{margin:6px 0 10px}
 .cchart text{fill:var(--muted);font-size:10px}
 .trsum{margin-top:14px;padding:14px;border-radius:12px;background:var(--soft);border:1px solid var(--line)}
+.trlen{display:flex;justify-content:space-between;align-items:center;padding:10px 6px 2px;font-size:13.5px;color:var(--muted)}
+.trlen b{color:var(--text);font-variant-numeric:tabular-nums}
 .trsum .sr{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;padding:5px 0;font-size:14px}
 .trsum .sr .btns{flex-wrap:nowrap;align-items:center;gap:10px;margin:0}
 .trsum .sr b{min-width:46px;text-align:right}
@@ -912,14 +918,40 @@ function upsertLocalRating(row){
 function removeLocalRating(albumId, userId){
   S.ratings = S.ratings.filter(r => !(r.album_id === albumId && r.user_id === userId)); reindex();
 }
-function rankList({year = null, min = S.f.min, type = S.f.type, kind = S.f.kind} = {}){
+/* ---------- zmiany miejsc w rankingach (ostatnie 7 dni) ---------- */
+const MOVE_DAYS = 7;
+const moveSince = () => Date.now() - MOVE_DAYS * 864e5;
+// ocena, jaka była w chwili t (null = jeszcze jej nie było); korzysta z historii zmian ocen
+function scoreAt(r, t){
+  if((Date.parse(r.created_at || '') || 0) > t) return null;
+  const rows = S.hist && S.hist.get(r.album_id + '|' + r.user_id);
+  if(rows && rows.length){
+    let v;
+    for(const h of rows){ if((Date.parse(h.at) || 0) <= t) v = h.score; else { if(v === undefined) v = h.old; break; } }
+    return v === undefined ? r.score : v;
+  }
+  return r.score;
+}
+function statsAt(id, t, vis){
+  const sc = (S.byAlbum.get(id) || []).filter(r => !vis || !isHidden(r)).map(r => scoreAt(r, t)).filter(v => v != null);
+  return sc.length ? {n:sc.length, avg:sc.reduce((s2, x) => s2 + x, 0) / sc.length} : {n:0, avg:null};
+}
+// mapa: id albumu -> miejsce w rankingu sprzed 7 dni
+const posMap = list => new Map(list.map((x, i) => [x.a.id, i + 1]));
+function moveHtml(id, pos, old){
+  if(!old || !old.size) return '';
+  if(!old.has(id)) return `<span class="mv new" title="Nowość w rankingu w ostatnich ${MOVE_DAYS} dniach">nowe</span>`;
+  const d = old.get(id) - pos; if(!d) return '';
+  return `<span class="mv ${d > 0 ? 'up' : 'dn'}" title="${d > 0 ? 'W górę' : 'W dół'} o ${Math.abs(d)} ${pl(Math.abs(d),'miejsce','miejsca','miejsc')} w ostatnich ${MOVE_DAYS} dniach (było ${old.get(id)}.)">${d > 0 ? '▲' : '▼'}${Math.abs(d)}</span>`;
+}
+function rankList({year = null, min = S.f.min, type = S.f.type, kind = S.f.kind, at = null} = {}){
   const out = [];
   for(const a of S.albums.values()){
     if(year != null && a.year !== year) continue;
     if(!kindOk(a, kind)) continue;
     if(hiddenAlbum(a.id)) continue;
     if(kind === 'albums' && type !== 'all' && typeGroup(a.type) !== type) continue;
-    const st = stats(a.id);
+    const st = at ? statsAt(a.id, at, false) : stats(a.id);
     if(st.n === 0 || st.n < min) continue;
     out.push({a, st});
   }
@@ -1482,10 +1514,10 @@ function myPill(aid){
     : '<span class="mypill no" title="Jeszcze nie oceniłeś"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.6" stroke-dasharray="3 3" aria-hidden="true"><circle cx="12" cy="12" r="8"/></svg>do oceny</span>';
 }
 const scMine = (badgeHtml, aid) => `<span class="scm">${badgeHtml}${myPill(aid)}</span>`;
-function rowHtml({a, st}, i){
+function rowHtml({a, st}, i, _arr, mvs){
   const mine = myRating(a.id);
   return `<a class="row ${i < 3 ? 'top' + (i + 1) : ''}" href="#/album/${a.id}">
-    <span class="rk">${i + 1}</span>${coverHtml(a)}
+    <span class="rk">${i + 1}${mvs && mvs.get ? moveHtml(a.id, i + 1, mvs) : ''}</span>${coverHtml(a)}
     <span class="meta"><b>${esc(a.title)}</b><span>${esc(a.artist)}</span><small>${[a.year ?? '-', a.type, ocen(st.n)].filter(Boolean).map(esc).join(' · ')}</small></span>
     <span class="sc">${badge(st.avg, 'big')}${myPill(a.id)}</span></a>`;
 }
@@ -1502,8 +1534,8 @@ function bindFilters(){
   document.getElementById('ftype').onchange = e => { S.f.type = e.target.value; render(); };
   bindSeg('fkind', v => { S.f.kind = v; render(); });
 }
-function listHtml(list){
-  return list.length ? `<div class="list">${list.map(rowHtml).join('')}</div>`
+function listHtml(list, mvs){
+  return list.length ? `<div class="list">${list.map((x, i) => rowHtml(x, i, null, mvs)).join('')}</div>`
     : `<div class="list"><div class="empty">Brak ${S.f.kind === 'singles' ? 'singli' : 'albumów'} spełniających kryteria. Zmień filtry albo dodaj oceny.</div></div>`;
 }
 
@@ -1543,10 +1575,11 @@ function viewYears(arg){
       ${rankTabs('lata')}${filtersHtml()}${blindNote()}<div class="years">${cards || '<div class="empty">Brak albumów z rokiem.</div>'}</div>`;
     bindFilters(); return;
   }
-  const list = rankList({year:y});
+  const list = rankList({year:y}), mvs = posMap(rankList({year:y, at:moveSince()}));
   app.innerHTML = `<h1>Najlepsze ${S.f.kind === 'singles' ? 'single' : 'albumy'} ${y}</h1><p class="sub">${list.length} ${S.f.kind === 'singles' ? pl(list.length,'oceniony singiel','ocenione single','ocenionych singli') : pl(list.length,'oceniony album','ocenione albumy','ocenionych albumów')}</p>
     <div class="chips">${ys.map(yr => `<a class="chip ${yr === y ? 'on' : ''}" href="#/lata/${yr}">${yr} <small>${years.get(yr)}</small></a>`).join('')}${years.has(y) ? '' : `<span class="chip on">${y} <small>0</small></span>`}</div>
-    ${filtersHtml()}${listHtml(list)}`;
+    ${filtersHtml()}${listHtml(list, mvs)}
+    ${list.length ? `<p class="note">▲▼ - zmiana miejsca w ostatnich ${MOVE_DAYS} dniach.</p>` : ''}`;
   bindFilters();
 }
 
@@ -1568,7 +1601,7 @@ function viewAlbum(arg){
     <div class="ainfo">
       <div class="ttl"><h1>${esc(a.title)}</h1><button class="heart ${isFav(id) ? 'on' : ''}" id="favB" title="${isFav(id) ? 'Usuń z ulubionych' : 'Dodaj do ulubionych'}" aria-label="Ulubione" aria-pressed="${isFav(id)}">${HEART}</button></div>
       <div class="artist">${artistLinks(a.artist)}</div>
-      <div class="facts">${a.year ? `<a href="#/lata/${a.year}"><b>${a.year}</b></a>` : 'rok nieznany'} · ${esc(a.type || '')}${a.created_by ? ` · dodał(a) ${esc(pname(a.created_by))}` : ''}</div>
+      <div class="facts">${a.year ? `<a href="#/lata/${a.year}"><b>${a.year}</b></a>` : 'rok nieznany'} · ${esc(a.type || '')}<span id="aLen"></span>${a.created_by ? ` · dodał(a) ${esc(pname(a.created_by))}` : ''}</div>
       <div class="avgbox">
         <div class="avgnum" style="background:${hid ? 'var(--none)' : col(st.avg == null ? null : Math.round(st.avg))}">${hid ? '🔒' : avgN(st.avg)}</div>
         <div>
@@ -2046,6 +2079,17 @@ function viewPerson(id){
 S.tr = {};
 let trCurId = null; // album, którego tracklista jest właśnie rysowana
 const fmtDur = t => t ? `${Math.floor(t / 60)}:${String(t % 60).padStart(2, '0')}` : '';
+// łączny czas albumu: „42 min” albo „1 godz. 12 min” (null, gdy brakuje czasów)
+function albumLen(T){
+  const tr = (T && T.state === 'ok' && T.tracks) || []; if(!tr.length) return null;
+  const known = tr.filter(t => t.duration > 0); if(known.length < tr.length * .8) return null;
+  const sec = known.reduce((s2, t) => s2 + t.duration, 0), m = Math.round(sec / 60), h = Math.floor(m / 60);
+  return {n:tr.length, sec, txt:h ? `${h} godz. ${m % 60} min` : `${m} min`, partial:known.length < tr.length};
+}
+function updAlbumLen(a){
+  const L = albumLen(S.tr[a.id]), el = document.getElementById('aLen');
+  if(el) el.innerHTML = L ? ` · ${L.n} ${pl(L.n,'utwór','utwory','utworów')}, ${L.partial ? 'ok. ' : ''}${L.txt}` : '';
+}
 const autoSkip = t => ({...t, skip:/\b(intro|interlude|skit|prelude|interludium)\b/i.test(t.title) || (t.duration != null && t.duration > 0 && t.duration < 60)});
 async function loadTracks(id, force){
   const T = S.tr[id] || (S.tr[id] = {});
@@ -2264,6 +2308,7 @@ const gaHtml = (o, hid, pos, view, avgHid = hid) => {
   return avgHid ? (o.others ? lockBadge('sm', trCurId) : '<small>-</small>') : o.n ? `<button type="button" class="gab gnum" data-gp="${pos}" title="Kto jak ocenił" aria-label="Pokaż, kto jak ocenił ten utwór" style="color:var(--tin-${({sg:'g', sy:'y', sr:'r'})[tinCls(Math.round(o.sum / o.n))]})">${avgN(o.sum / o.n)}</button><small>${o.n}${o.fav ? ' · ★' + o.fav : ''}</small>` : '<small>-</small>';
 };
 function drawTracks(a){
+  updAlbumLen(a);
   const T = S.tr[a.id], body = document.getElementById('trkBody'), tools = document.getElementById('trkTools');
   if(!body) return;
   if(T.edit) return drawTrackEditor(a);
@@ -2286,6 +2331,7 @@ function drawTracks(a){
         <button type="button" class="star ${o.myFav ? 'on' : ''}" data-fav="${t.position}" title="${o.myFav ? 'Twój ulubiony utwór' : 'Oznacz jako ulubiony'}" aria-pressed="${o.myFav}">★</button>
         <input class="tin ${tinCls(o.mine)}" data-pos="${t.position}" inputmode="decimal" enterkeyhint="next" value="${o.mine == null ? '' : num(o.mine)}" placeholder="-" aria-label="Twoja ocena: ${esc(t.title)}">
       </div>`; }).join('')}
+    ${(L => L ? `<div class="trlen"><span>${L.n} ${pl(L.n,'utwór','utwory','utworów')}</span><b>${L.partial ? 'ok. ' : ''}${L.txt}</b></div>` : '')(albumLen(T))}
     <div id="trkSum">${trackSumHtml(a)}</div>
     ${T.src ? `<p class="note">Tracklista pobrana z: ${T.src}. Błąd? Kliknij „Edytuj tracklistę”.</p>` : ''}`;
   document.getElementById('trEdit').onclick = () => { T.edit = true; drawTracks(a); };
@@ -2461,14 +2507,15 @@ function drawTrackEditor(a){
 
 /* ----- statystyki ----- */
 const MONTHS = ['sty','lut','mar','kwi','maj','cze','lip','sie','wrz','paź','lis','gru'];
-function statRow(i, a, right, sub){
-  return `<a class="mrow" href="#/album/${a.id}"><span class="rk">${i}</span>${coverHtml(a, 'c48')}
+function statRow(i, a, right, sub, mv = ''){
+  return `<a class="mrow" href="#/album/${a.id}"><span class="rk">${i}${mv}</span>${coverHtml(a, 'c48')}
     <span class="meta"><b>${esc(a.title)}</b><span>${esc(a.artist)}</span>${sub ? `<small>${sub}</small>` : ''}</span><span class="r2">${right}</span></a>`;
 }
 function viewStats(arg){
-  const tab = ['zgodnosc','kontrowersyjne','podsumowanie','piosenki'].includes(arg) ? arg : 'przeglad';
-  const tabs = `<div class="chips" style="margin-bottom:18px">${[['przeglad','Przegląd'],['piosenki','Piosenki'],['zgodnosc','Zgodność gustu'],['kontrowersyjne','Kontrowersyjne'],['podsumowanie','Podsumowanie roku']]
-    .map(([k, l]) => `<a class="chip ${tab === k ? 'on' : ''}" href="#/statystyki${k === 'przeglad' ? '' : '/' + k}">${l}</a>`).join('')}</div>`;
+  // domyślnie (samo „Statystyki”) otwiera się podsumowanie roku
+  const tab = ['zgodnosc','kontrowersyjne','przeglad','piosenki'].includes(arg) ? arg : 'podsumowanie';
+  const tabs = `<div class="chips" style="margin-bottom:18px">${[['podsumowanie','Podsumowanie roku'],['przeglad','Przegląd'],['piosenki','Piosenki'],['zgodnosc','Zgodność gustu'],['kontrowersyjne','Kontrowersyjne']]
+    .map(([k, l]) => `<a class="chip ${tab === k ? 'on' : ''}" href="#/statystyki${k === 'podsumowanie' ? '' : '/' + k}">${l}</a>`).join('')}</div>`;
   ({przeglad:statsOverview, piosenki:statsSongs, zgodnosc:statsCompat, kontrowersyjne:statsControversial, podsumowanie:statsYear})[tab](tabs);
 }
 function statsOverview(tabs){
@@ -2631,10 +2678,11 @@ function statsYear(tabs){
   const years = [...new Set(R.map(r => S.albums.get(r.album_id).year).filter(Boolean))].sort((a, b) => b - a);
   if(!years.includes(T.year)) years.unshift(T.year), years.sort((a, b) => b - a);
   const y = T.year;
-  const ranked = (kind, min) => [...S.albums.values()].filter(a => a.year === y && kindOk(a, kind)).map(a => ({a, st:visStats(a.id)})).filter(x => x.st.n >= min)
+  const ranked = (kind, min, at) => [...S.albums.values()].filter(a => a.year === y && kindOk(a, kind) && !hiddenAlbum(a.id)).map(a => ({a, st:at ? statsAt(a.id, at, true) : visStats(a.id)})).filter(x => x.st.n >= min)
     .sort((p, q) => q.st.avg - p.st.avg || q.st.n - p.st.n);
   let albums = ranked('albums', 2), minNote = 2; if(!albums.length){ albums = ranked('albums', 1); minNote = 1; }
   const singles = ranked('singles', 1), hero = albums[0];
+  const mvA = posMap(ranked('albums', minNote, moveSince())), mvS = posMap(ranked('singles', 1, moveSince()));
   const yR = R.filter(r => S.albums.get(r.album_id).year === y);
   const per = [...S.profiles.values()].map(p => { const rs = yR.filter(r => r.user_id === p.id && !isSingle(S.albums.get(r.album_id))).sort((a, b) => b.score - a.score);
     return {p, top:rs[0], n:rs.length, avg:rs.length ? rs.reduce((s, r) => s + r.score, 0) / rs.length : null}; }).filter(x => x.top);
@@ -2659,12 +2707,12 @@ function statsYear(tabs){
       ${div ? `<div class="tile2"><div class="l">Najbardziej podzielił</div><div class="s" style="margin-top:8px"><a class="link" href="#/album/${div.a.id}">${esc(div.a.title)}</a></div><div class="s muted">rozrzut ±${num(div.sd)}</div></div>` : ''}
     </div>
     <div class="sgrid">
-      <section class="card"><h2>Top 10 albumów ${y}</h2>${albums.length ? albums.slice(0, 10).map((x, i) => statRow(i + 1, x.a, scMine(badge(x.st.avg, 'big'), x.a.id), ocen(x.st.n))).join('')
-        + (minNote === 2 ? '<p class="note">Albumy z min. 2 ocenami.</p>' : '') : '<div class="empty">Brak danych.</div>'}</section>
+      <section class="card"><h2>Top 10 albumów ${y}</h2>${albums.length ? albums.slice(0, 10).map((x, i) => statRow(i + 1, x.a, scMine(badge(x.st.avg, 'big'), x.a.id), ocen(x.st.n), moveHtml(x.a.id, i + 1, mvA))).join('')
+        + `<p class="note">${minNote === 2 ? 'Albumy z min. 2 ocenami. ' : ''}▲▼ - zmiana miejsca w ostatnich ${MOVE_DAYS} dniach.</p>` : '<div class="empty">Brak danych.</div>'}</section>
       <div style="display:grid;gap:18px;align-content:start">
         <section class="card"><h2>Numer 1 każdego z was</h2>${per.length ? `<div class="p1">${per.map(x => { const a = S.albums.get(x.top.album_id);
           return `<div><div class="who">${avatar(x.p.id, 22)}${nm(x.p)}</div><a class="tile" href="#/album/${a.id}"><div class="cw">${coverHtml(a, 'cfull')}${tpBadge(a.id, x.p.id, x.top.score)}</div><div class="t">${esc(a.title)}</div><div class="a">${esc(a.artist)}</div></a></div>`; }).join('')}</div>` : '<div class="empty">Brak danych.</div>'}</section>
-        ${singles.length ? `<section class="card"><h2>Top single ${y}</h2>${singles.slice(0, 5).map((x, i) => statRow(i + 1, x.a, scMine(badge(x.st.avg, 'sm'), x.a.id), ocen(x.st.n))).join('')}</section>` : ''}
+        ${singles.length ? `<section class="card"><h2>Top single ${y}</h2>${singles.slice(0, 5).map((x, i) => statRow(i + 1, x.a, scMine(badge(x.st.avg, 'sm'), x.a.id), ocen(x.st.n), moveHtml(x.a.id, i + 1, mvS))).join('')}</section>` : ''}
       </div>
     </div>`;
   document.getElementById('sy').onchange = e => { T.year = +e.target.value; render(); };
