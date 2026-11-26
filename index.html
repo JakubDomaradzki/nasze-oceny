@@ -285,7 +285,10 @@ h2{font-size:17px;letter-spacing:-.2px;color:var(--text);margin:0 0 12px;font-we
 .three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
 @media (max-width:560px){.three{grid-template-columns:1fr 1fr}}
 .btns{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.scorein{font-size:26px;font-weight:800;text-align:center;max-width:120px;padding:6px}
+.scorein{font-size:26px;font-weight:800;text-align:center;max-width:120px;padding:6px;transition:color .15s,border-color .15s}
+.scorein.sg{color:var(--tin-g);border-color:color-mix(in srgb,var(--tin-g) 55%,transparent)}
+.scorein.sy{color:var(--tin-y);border-color:color-mix(in srgb,var(--tin-y) 55%,transparent)}
+.scorein.sr{color:var(--tin-r);border-color:color-mix(in srgb,var(--tin-r) 55%,transparent)}
 
 /* add */
 .mbres{display:grid;gap:6px;margin-top:10px;max-height:420px;overflow:auto}
@@ -1673,6 +1676,11 @@ function viewAlbum(arg){
   </div>
   <section class="card trk" id="trk"><div class="shead"><h2>Utwory</h2><span id="trkTools"></span></div><div id="trkBody"><div class="muted small">Ładowanie tracklisty…</div></div></section>
   <section class="card calc" id="calcCard"><details id="calcD" ${S.calcOpen ? 'open' : ''}><summary><span class="ch">Kalkulator oceny</span><span class="muted small">suwaki, ręczne wpisywanie, skala 0-10 lub 0-100</span></summary><div id="calcBody"></div></details></section>`;
+  // ocena w polu w kolorze: zielona / żółta / czerwona (tak jak w trackliście)
+  const rsI = document.getElementById('rs');
+  if(rsI){ const colRs = () => { const v = rsI.value.trim() ? parseScore(rsI.value) : null, c = tinCls(v == null ? null : Math.round(v));
+      rsI.classList.remove('sg', 'sy', 'sr'); if(c) rsI.classList.add(c); };
+    rsI.addEventListener('input', colRs); colRs(); }
   document.getElementById('rf').onsubmit = async e => {
     e.preventDefault();
     const sc = parseScore(document.getElementById('rs').value), er = document.getElementById('rerr');
@@ -2444,6 +2452,7 @@ async function showUserTracksPop(a, u, el){
 function markRaters(a){ const T = S.tr[a.id]; document.querySelectorAll('.rlist [data-ru]').forEach(b => b.classList.toggle('on', !!T && T.view === b.dataset.ru)); }
 function putScore(v){
   const rs = document.getElementById('rs'); if(!rs) return;
+  setTimeout(() => rs.dispatchEvent(new Event('input')), 0);
   rs.value = num(v); rs.scrollIntoView({behavior:'smooth', block:'center'}); setTimeout(() => rs.focus({preventScroll:true}), 350);
   toast('Wpisano ' + num(v) + ' - kliknij „Zapisz”, żeby zatwierdzić');
 }
