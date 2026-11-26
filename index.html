@@ -577,6 +577,11 @@ tr.cl:hover td{background:var(--soft)}
 .tin.sg{border-left-color:var(--g)!important}.tin.sy{border-left-color:var(--y)!important}.tin.sr{border-left-color:var(--r)!important}
 .gab:hover .score,.rbtn:hover .score{filter:brightness(1.1);box-shadow:0 0 0 2px var(--card),0 0 0 4px color-mix(in srgb,var(--text),transparent 70%)}
 .rbtn.on .score{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--text)}
+.mvpop{min-width:0;max-width:260px;padding:10px 12px}
+.mvpop .mvt{font-weight:800;font-size:14px}.mvpop .mvt.up{color:var(--gt)}.mvpop .mvt.dn{color:var(--rt)}.mvpop .mvt.new{color:var(--accent)}
+.mvpop .mvw{font-size:12.5px;color:var(--muted);margin-top:3px}
+.mv[data-tip]{cursor:pointer;padding:3px 4px;margin:0 -4px -3px;border-radius:5px}
+.mv[data-tip]:hover{background:var(--soft)}
 .tpop{position:fixed;z-index:70;min-width:220px;max-width:300px;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 32px rgba(0,0,0,.28);padding:8px}
 .tpop .tph{font-weight:700;font-size:13.5px;padding:4px 6px 8px;border-bottom:1px solid var(--line);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tpop a{display:grid;grid-template-columns:24px 1fr auto;gap:8px;align-items:center;padding:5px 6px;border-radius:8px;font-size:14px}
@@ -967,9 +972,9 @@ const moveNote = () => moveMode() === 'day' ? '▲▼ - zmiana miejsca w ostatni
 function moveHtml(id, pos, mv){
   const m = mv && mv.get(id); if(!m) return '';
   const what = m.day ? 'W ostatnich 24 godzinach' : `${m.changed ? 'Zmiana oceny' : 'Ocena'}: ${pname(m.who)}, ${timeAgo(new Date(m.t).toISOString())}`;
-  if(m.from == null) return `<span class="mv new" title="${esc(what)} - album wszedł do rankingu (na ${m.to}. miejsce)">nowe</span>`;
+  if(m.from == null) return `<span class="mv new" role="button" tabindex="0" data-tip="${esc(what)}|wszedł do rankingu na ${m.to}. miejsce" title="${esc(what)} - album wszedł do rankingu (na ${m.to}. miejsce)">nowe</span>`;
   const d = m.from - m.to; if(!d) return '';
-  return `<span class="mv ${d > 0 ? 'up' : 'dn'}" title="${esc(what)} ${m.day ? 'album przesunął się' : '- od tamtej pory album przesunął się'} z ${m.from}. na ${m.to}. miejsce">${d > 0 ? '▲' : '▼'}${Math.abs(d)}</span>`;
+  return `<span class="mv ${d > 0 ? 'up' : 'dn'}" role="button" tabindex="0" data-tip="${esc(what)}|${d > 0 ? '▲ awans' : '▼ spadek'} z ${m.from}. na ${m.to}. miejsce" title="${esc(what)} ${m.day ? 'album przesunął się' : '- od tamtej pory album przesunął się'} z ${m.from}. na ${m.to}. miejsce">${d > 0 ? '▲' : '▼'}${Math.abs(d)}</span>`;
 }
 function rankList({year = null, min = S.f.min, type = S.f.type, kind = S.f.kind, at = null} = {}){
   const out = [];
@@ -2378,6 +2383,20 @@ function bindGab(a){ document.querySelectorAll('#trkBody .gab').forEach(b => b.o
 // dymek: kto jak ocenił utwór
 // przewijanie wewnątrz okienka go nie zamyka - tylko przewijanie strony
 function popScroll(e){ const p = document.getElementById('tpop'); if(p && e.target instanceof Node && p.contains(e.target)) return; closePop(); }
+// klik (dotknięcie) strzałki w rankingu: okienko z tym samym opisem co dymek na komputerze
+function showMovePop(el){
+  closePop();
+  const [who, txt] = (el.dataset.tip || '').split('|');
+  const pop = document.createElement('div'); pop.id = 'tpop'; pop.className = 'tpop mvpop'; pop.setAttribute('role', 'dialog');
+  pop.innerHTML = `<div class="mvt ${el.classList.contains('dn') ? 'dn' : el.classList.contains('up') ? 'up' : 'new'}">${esc(txt || '')}</div><div class="mvw">${esc(who || '')}</div>`;
+  document.body.appendChild(pop); placePop(pop, el);
+  pop.onclick = ev => ev.stopPropagation();
+  setTimeout(() => { document.addEventListener('click', closePop); window.addEventListener('scroll', popScroll, true); }, 0);
+}
+document.addEventListener('click', e => {
+  const m = e.target.closest && e.target.closest('.mv[data-tip]'); if(!m) return;
+  e.preventDefault(); e.stopPropagation(); showMovePop(m);
+}, true);
 function closePop(){ const p = document.getElementById('tpop'); if(p) p.remove(); document.removeEventListener('click', closePop); window.removeEventListener('scroll', popScroll, true); }
 function placePop(pop, el){
   const rc = el.getBoundingClientRect(), pw = pop.offsetWidth, tb = document.querySelector('.tabbar'), tbH = tb && tb.offsetHeight ? tb.offsetHeight : 0, maxB = window.innerHeight - tbH - 8;
