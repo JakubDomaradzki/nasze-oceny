@@ -919,8 +919,20 @@ function removeLocalRating(albumId, userId){
   S.ratings = S.ratings.filter(r => !(r.album_id === albumId && r.user_id === userId)); reindex();
 }
 /* ---------- zmiany miejsc w rankingach (ostatnie 7 dni) ---------- */
-// porównanie z rankingiem sprzed doby
-const moveSince = () => Date.now() - 864e5;
+// zmiany miejsc „od Twojej ostatniej wizyty”: każdy ranking zapamiętuje (na tym urządzeniu) kolejność,
+// którą ostatnio widziałeś; przy kolejnym wejściu strzałki pokazują różnicę względem niej
+let visitN = 0; // rośnie przy każdym przejściu na inną stronę (nie przy odświeżeniu widoku)
+const rankStoreKey = () => 'oceny_rank_' + S.user.id;
+function rankStore(){ try { return JSON.parse(localStorage.getItem(rankStoreKey()) || '{}'); } catch(e){ return {}; } }
+// kolejność z poprzedniej wizyty (stała przez całą bieżącą wizytę), potem zapis obecnej
+function rankBaseline(key, list){
+  S.mvB = S.mvB || {};
+  let b = S.mvB[key];
+  if(!b || b.v !== visitN){ const st = rankStore()[key]; b = S.mvB[key] = {v:visitN, m:st ? new Map(st.map((id, i) => [id, i + 1])) : null}; }
+  const st = rankStore(); st[key] = list.map(x => x.a.id);
+  try { localStorage.setItem(rankStoreKey(), JSON.stringify(st)); } catch(e){}
+  return b.m;
+}
 // ocena, jaka była w chwili t (null = jeszcze jej nie było); korzysta z historii zmian ocen
 function scoreAt(r, t){
   if((Date.parse(r.created_at || '') || 0) > t) return null;
@@ -940,9 +952,9 @@ function statsAt(id, t, vis){
 const posMap = list => new Map(list.map((x, i) => [x.a.id, i + 1]));
 function moveHtml(id, pos, old){
   if(!old || !old.size) return '';
-  if(!old.has(id)) return `<span class="mv new" title="Nowość w rankingu w ostatnich 24 godzinach">nowe</span>`;
+  if(!old.has(id)) return `<span class="mv new" title="Nowość w rankingu od Twojej ostatniej wizyty">nowe</span>`;
   const d = old.get(id) - pos; if(!d) return '';
-  return `<span class="mv ${d > 0 ? 'up' : 'dn'}" title="${d > 0 ? 'W górę' : 'W dół'} o ${Math.abs(d)} ${pl(Math.abs(d),'miejsce','miejsca','miejsc')} w ostatnich 24 godzinach (było ${old.get(id)}.)">${d > 0 ? '▲' : '▼'}${Math.abs(d)}</span>`;
+  return `<span class="mv ${d > 0 ? 'up' : 'dn'}" title="${d > 0 ? 'W górę' : 'W dół'} o ${Math.abs(d)} ${pl(Math.abs(d),'miejsce','miejsca','miejsc')} od Twojej ostatniej wizyty (było ${old.get(id)}.)">${d > 0 ? '▲' : '▼'}${Math.abs(d)}</span>`;
 }
 function rankList({year = null, min = S.f.min, type = S.f.type, kind = S.f.kind, at = null} = {}){
   const out = [];
@@ -1575,11 +1587,11 @@ function viewYears(arg){
       ${rankTabs('lata')}${filtersHtml()}${blindNote()}<div class="years">${cards || '<div class="empty">Brak albumów z rokiem.</div>'}</div>`;
     bindFilters(); return;
   }
-  const list = rankList({year:y}), mvs = posMap(rankList({year:y, at:moveSince()}));
+  const list = rankList({year:y}), mvs = rankBaseline(['lata', y, S.f.kind, S.f.type, S.f.min].join(':'), list);
   app.innerHTML = `<h1>Najlepsze ${S.f.kind === 'singles' ? 'single' : 'albumy'} ${y}</h1><p class="sub">${list.length} ${S.f.kind === 'singles' ? pl(list.length,'oceniony singiel','ocenione single','ocenionych singli') : pl(list.length,'oceniony album','ocenione albumy','ocenionych albumów')}</p>
     <div class="chips">${ys.map(yr => `<a class="chip ${yr === y ? 'on' : ''}" href="#/lata/${yr}">${yr} <small>${years.get(yr)}</small></a>`).join('')}${years.has(y) ? '' : `<span class="chip on">${y} <small>0</small></span>`}</div>
     ${filtersHtml()}${listHtml(list, mvs)}
-    ${list.length ? `<p class="note">▲▼ - zmiana miejsca w ostatnich 24 godzinach.</p>` : ''}`;
+    ${list.length ? `<p class="note">▲▼ - zmiana miejsca od Twojej ostatniej wizyty w tym rankingu.</p>` : ''}`;
   bindFilters();
 }
 
@@ -2682,7 +2694,7 @@ function statsYear(tabs){
     .sort((p, q) => q.st.avg - p.st.avg || q.st.n - p.st.n);
   let albums = ranked('albums', 2), minNote = 2; if(!albums.length){ albums = ranked('albums', 1); minNote = 1; }
   const singles = ranked('singles', 1), hero = albums[0];
-  const mvA = posMap(ranked('albums', minNote, moveSince())), mvS = posMap(ranked('singles', 1, moveSince()));
+  const mvA = rankBaseline('rok:' + y + ':albums', albums), mvS = rankBaseline('rok:' + y + ':singles', singles);
   const yR = R.filter(r => S.albums.get(r.album_id).year === y);
   const per = [...S.profiles.values()].map(p => { const rs = yR.filter(r => r.user_id === p.id && !isSingle(S.albums.get(r.album_id))).sort((a, b) => b.score - a.score);
     return {p, top:rs[0], n:rs.length, avg:rs.length ? rs.reduce((s, r) => s + r.score, 0) / rs.length : null}; }).filter(x => x.top);
@@ -2708,7 +2720,7 @@ function statsYear(tabs){
     </div>
     <div class="sgrid">
       <section class="card"><h2>Top 10 albumów ${y}</h2>${albums.length ? albums.slice(0, 10).map((x, i) => statRow(i + 1, x.a, scMine(badge(x.st.avg, 'big'), x.a.id), ocen(x.st.n), moveHtml(x.a.id, i + 1, mvA))).join('')
-        + `<p class="note">${minNote === 2 ? 'Albumy z min. 2 ocenami. ' : ''}▲▼ - zmiana miejsca w ostatnich 24 godzinach.</p>` : '<div class="empty">Brak danych.</div>'}</section>
+        + `<p class="note">${minNote === 2 ? 'Albumy z min. 2 ocenami. ' : ''}▲▼ - zmiana miejsca od Twojej ostatniej wizyty.</p>` : '<div class="empty">Brak danych.</div>'}</section>
       <div style="display:grid;gap:18px;align-content:start">
         <section class="card"><h2>Numer 1 każdego z was</h2>${per.length ? `<div class="p1">${per.map(x => { const a = S.albums.get(x.top.album_id);
           return `<div><div class="who">${avatar(x.p.id, 22)}${nm(x.p)}</div><a class="tile" href="#/album/${a.id}"><div class="cw">${coverHtml(a, 'cfull')}${tpBadge(a.id, x.p.id, x.top.score)}</div><div class="t">${esc(a.title)}</div><div class="a">${esc(a.artist)}</div></a></div>`; }).join('')}</div>` : '<div class="empty">Brak danych.</div>'}</section>
@@ -3805,7 +3817,7 @@ async function init(){
   if(session){ S.user = session.user; app.innerHTML = '<div class="loading">Ładowanie ocen…</div>'; await safeLoad(); initSeen(); }
   render();
   sb.auth.onAuthStateChange((ev, session) => { if(ev === 'SIGNED_OUT' && S.user){ S.user = null; render(); } });
-  window.addEventListener('hashchange', () => { closePop(); closeSearch(); render(); });
+  window.addEventListener('hashchange', () => { visitN++; closePop(); closeSearch(); render(); });
   // klik w ocenę na okładce -> okienko z ocenami piosenek (nie przechodzi do albumu)
   const tpOpen = e => { const t = e.target.closest && e.target.closest('[data-tp]'); if(!t) return false;
     e.preventDefault(); e.stopPropagation(); const a = S.albums.get(Number(t.dataset.tp)); if(a) showUserTracksPop(a, t.dataset.tu, t); return true; };
