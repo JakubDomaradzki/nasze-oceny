@@ -1580,7 +1580,8 @@ function viewRanking(){
   const list = rankList();
   app.innerHTML = `<h1>${S.f.kind === 'singles' ? 'Ranking singli' : 'Ranking wszech czasów'}</h1>
     <p class="sub">${(() => { const n = [...S.albums.values()].filter(a => kindOk(a, S.f.kind)).length; return S.f.kind === 'singles' ? `${n} ${pl(n,'singiel','single','singli')}` : `${n} ${pl(n,'album','albumy','albumów')}`; })()} w bazie · kolejność według średniej grupy</p>
-    ${rankTabs('ranking')}${filtersHtml()}${blindNote()}${listHtml(list)}`;
+    ${rankTabs('ranking')}${filtersHtml()}${blindNote()}${listHtml(list, rankMoves(list, t => rankList({at:t})))}
+    ${list.length ? `<p class="note">${moveNote()} Najedź na strzałkę, żeby zobaczyć szczegóły.</p>` : ''}`;
   bindFilters();
 }
 
@@ -3770,7 +3771,7 @@ function viewAccount(){
   <div class="card" style="margin-bottom:18px"><h2>▲▼ Strzałki w rankingach</h2>
     <div class="btns">${segHtml('mvseg', moveMode(), [['event','Ostatnia ocena'],['day','Ostatnie 24 h']])}</div>
     <p class="note">${moveMode() === 'day' ? 'Strzałki pokazują, o ile miejsc album przesunął się w rankingu w ciągu ostatnich 24 godzin - z jakiegokolwiek powodu.' : 'Strzałka pojawia się tylko przy albumie, którego ocenę ktoś dodał albo zmienił (w ostatnich 3 dniach), i pokazuje, o ile miejsc album przesunął się od tamtej oceny.'}
-      Dotyczy podsumowania roku i rankingów lat. Ustawienie zapisuje się na tym urządzeniu.</p></div>
+      Dotyczy rankingu wszech czasów, rankingów lat i podsumowania roku. Ustawienie zapisuje się na tym urządzeniu.</p></div>
   <div class="card" style="margin-bottom:18px"><h2>Avatar</h2>
     <div class="btns" style="gap:18px"><span id="avp">${avatar(S.user.id, 96)}</span>
       <div class="form"><label>Wgraj zdjęcie<input type="file" id="avf" accept="image/*"></label>
