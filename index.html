@@ -739,6 +739,13 @@ a.ps-row[href]:hover{background:var(--soft)}
 .trsum .sr button{padding:5px 12px;font-size:13px}
 .tred textarea{min-height:260px;font-size:14px;line-height:1.55}
 @media (max-width:560px){.trh,.trw{grid-template-columns:20px minmax(0,1fr) 44px 28px 62px;column-gap:12px}.trw .ga small{display:none}.trw .tt b{white-space:normal;line-height:1.25}}
+@media (max-width:340px){.sheet-row{flex-wrap:wrap}.sheet-g{gap:8px}}
+/* listy z miejscem w rankingu (podsumowanie roku, profile) na węższych telefonach - więcej miejsca na tytuł */
+@media (max-width:400px){.mrow{grid-template-columns:18px 42px minmax(0,1fr) auto;gap:9px;padding:7px 2px}.mrow .c48{width:42px;height:42px}
+  .mrow .score.big{min-width:46px;height:34px;font-size:17px}.mrow .scm{width:66px;gap:4px}.mrow .scm .mypill{padding:0 4px;font-size:10.5px}
+  .mrow .meta b{font-size:14.5px}.mrow .meta span{font-size:13px}.mrow .rk{font-size:13px}}
+/* wąskie telefony (iPhone SE/mini) i powiększony tekst w Safari: ciaśniej, żeby tytuły miały miejsce */
+@media (max-width:400px){.trh,.trw{grid-template-columns:16px minmax(0,1fr) 36px 22px 54px;column-gap:8px}.trw .gab.gnum{font-size:16px;padding:1px 2px}.trw .tt b{font-size:14.5px}.trw .tin{font-size:15px;padding-left:4px;padding-right:4px}.trw .tn{font-size:13px}}
 
 /* login */
 .login{max-width:360px;margin:9vh auto 0}
@@ -2354,8 +2361,12 @@ function refreshTrackRow(a, pos){
   if(S.calcSrc !== 'manual'){ if(document.getElementById('cresW')) refreshCalc(a); else drawCalc(a); }
 }
 async function trackData(a){ const T = S.tr[a.id]; return T && T.state === 'ok' && T.tracks ? T : loadTracks(a.id, true); }
+// zapisy ocen piosenek i gwiazdek idą po kolei - inaczej „wpisz ocenę i od razu kliknij ★”
+// wysyłało dwa zapisy naraz i późniejszy kasował ocenę
+let trQ = Promise.resolve();
+const trQueue = fn => { const p = trQ.then(fn, fn); trQ = p.catch(() => {}); return p; };
 async function saveTrackScore(a, pos, inp){
-  try { return await saveTrackScore_(a, pos, inp); }
+  try { return await trQueue(() => saveTrackScore_(a, pos, inp)); }
   catch(e){ console.error(e); toast('Nie udało się zapisać oceny piosenki - sprawdź internet i spróbuj jeszcze raz', true); }
 }
 async function saveTrackScore_(a, pos, inp){
@@ -2380,7 +2391,7 @@ async function saveTrackScore_(a, pos, inp){
   refreshTrackRow(a, pos);
 }
 async function toggleFavTrack(a, pos){
-  try { return await toggleFavTrack_(a, pos); }
+  try { return await trQueue(() => toggleFavTrack_(a, pos)); }
   catch(e){ console.error(e); toast('Nie udało się zapisać - sprawdź internet i spróbuj jeszcze raz', true); }
 }
 async function toggleFavTrack_(a, pos){
@@ -2389,13 +2400,15 @@ async function toggleFavTrack_(a, pos){
   const cur = mine.find(r => r.position === pos), on = !(cur && cur.fav);
   const rows = [];
   if(on) for(const r of mine) if(r.fav && r.position !== pos) rows.push({user_id:uid, album_id:a.id, position:r.position, score:r.score, fav:false});
-  rows.push({user_id:uid, album_id:a.id, position:pos, score:cur ? cur.score : null, fav:on});
+  // ocena wpisana w tym wierszu, ale jeszcze niezapisana - zapisz ją razem z gwiazdką
+  const inp = document.querySelector(`#trkBody .tin[data-pos="${pos}"]`), typed = inp && inp.value.trim() ? parseScore(inp.value) : null;
+  rows.push({user_id:uid, album_id:a.id, position:pos, score:typed != null ? typed : cur ? cur.score : null, fav:on});
   const { data, error } = await sb.from('track_ratings').upsert(rows, {onConflict:'user_id,album_id,position'}).select();
   if(error) return toast(errMsg(error), true);
   for(const d of data){ const nr = {...d, position:Number(d.position), score:d.score == null ? null : Number(d.score)};
     T.ratings = T.ratings.filter(r => !(r.user_id === uid && r.position === nr.position)).concat(nr); }
   // wiersz tylko z gwiazdką (bez oceny) po odznaczeniu - usuń
-  if(!on && cur && cur.score == null){ await sb.from('track_ratings').delete().eq('user_id', uid).eq('album_id', a.id).eq('position', pos);
+  if(!on && cur && cur.score == null && typed == null){ await sb.from('track_ratings').delete().eq('user_id', uid).eq('album_id', a.id).eq('position', pos);
     T.ratings = T.ratings.filter(r => !(r.user_id === uid && r.position === pos)); }
   refreshTrackRow(a, pos);
   if(on) toast('Ulubiony utwór: ' + (T.tracks.find(t => t.position === pos) || {}).title);
