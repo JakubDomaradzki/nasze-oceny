@@ -359,6 +359,62 @@ tr.cl:hover td{background:var(--soft)}
 @media (min-width:1000px){.hello .htx{flex:0 1 auto}}
 @media (max-width:520px){.wrapt{padding:14px 16px;border-radius:16px;gap:10px}.wrapt .wt{font-size:clamp(32px,10.5vw,42px)}.wrapt .wl{gap:7px}.wrapt .ws{font-size:13.5px}.wr{gap:10px 14px}.wst:nth-child(n+3){display:none}.wrapt>.wpill{position:static;order:-1;justify-self:start;margin-bottom:-4px}}
 @media (prefers-reduced-motion:reduce){.red{animation:none}.wrapt{transition:none}}
+/* wrapped - opowieść slajd po slajdzie */
+.wov{position:fixed;inset:0;z-index:80;background:rgba(5,6,8,.88);display:flex;align-items:center;justify-content:center;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.wstory{position:relative;width:min(430px,100vw);height:min(780px,100dvh);border-radius:24px;overflow:hidden;color:#fff;box-shadow:0 30px 80px -20px rgba(0,0,0,.7);background:#111}
+@media (max-width:520px){.wstory{width:100vw;height:100dvh;border-radius:0}}
+.wslide{position:absolute;inset:0;z-index:0;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:10px;padding:64px 28px 40px;animation:wIn .45s cubic-bezier(.2,.8,.2,1)}
+@keyframes wIn{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.wslide{animation:none}}
+.wslide::before{content:"";position:absolute;inset:0;z-index:-1}
+.w0::before{background:radial-gradient(120% 80% at 10% 0%,#2ad36b 0,transparent 55%),radial-gradient(90% 70% at 100% 100%,#7a3cff 0,transparent 60%),#0c0e12}
+.w1::before{background:linear-gradient(160deg,#ff5a36,#ff2d87 60%,#6b1cff)}
+.w2::before{background:linear-gradient(170deg,#0f3d2e,#0b1f2a 70%)}
+.w3::before{background:radial-gradient(100% 70% at 80% 10%,#ffcf3a 0,transparent 55%),linear-gradient(180deg,#1d1a10,#0e0e0e)}
+.w4::before{background:linear-gradient(180deg,#2a1a5e,#0d0b1c)}
+.w5::before{background:linear-gradient(170deg,#0e2b5e,#071226)}
+.w6::before{background:linear-gradient(160deg,#ff9f1c,#e4572e 55%,#5e1a12)}
+.w7::before{background:repeating-linear-gradient(135deg,#d7263d 0 22px,#c21f35 22px 44px)}
+.w8::before{background:linear-gradient(180deg,#3b3f46,#16181c)}
+.w9::before{background:linear-gradient(160deg,#00b4d8,#0353a4 60%,#021b3a)}
+.w10::before{background:radial-gradient(90% 60% at 50% 30%,#ff7eb6 0,transparent 60%),linear-gradient(180deg,#3a1036,#12060f)}
+.w11::before{background:linear-gradient(160deg,#c6f432,#2bb24c 50%,#0c3a1c)}
+.w12::before{background:radial-gradient(120% 80% at 0% 0%,#2ad36b 0,transparent 50%),radial-gradient(100% 80% at 100% 100%,#ff2d87 0,transparent 55%),#0c0e12}
+.wk{margin:0;font-size:15px;font-weight:700;letter-spacing:.2px;opacity:.85}
+.wbig{font-size:68px;font-weight:800;line-height:.9;letter-spacing:-3px}.wbig span{display:block;font-size:110px;-webkit-text-stroke:2px #fff;color:transparent;letter-spacing:-5px}
+.wnum{font-size:120px;font-weight:800;line-height:.9;letter-spacing:-6px;font-variant-numeric:tabular-nums}
+.wnum.sm{font-size:80px;letter-spacing:-4px}
+.wh{font-size:38px;font-weight:800;line-height:1.02;letter-spacing:-1.2px;margin:0;overflow-wrap:anywhere}
+.wh2{font-size:28px;font-weight:800;line-height:1.08;letter-spacing:-.8px;overflow-wrap:anywhere;margin-top:6px}
+.wlead{margin:0;font-size:16.5px;line-height:1.4;opacity:.92}.wlead small{opacity:.75;font-size:12.5px}
+.wtap{position:absolute;left:28px;right:28px;bottom:26px;margin:0;font-size:13px;opacity:.7}
+.wrow{display:flex;gap:22px;margin:14px 0 6px}.wrow div{display:flex;flex-direction:column}.wrow b{font-size:32px;font-weight:800;letter-spacing:-1px}.wrow span{font-size:13px;opacity:.85}
+.wbars{display:grid;grid-template-columns:repeat(12,1fr);gap:5px;width:100%;height:190px;margin-top:22px;align-items:end}
+.wbars div{height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:6px}
+.wbars i{display:block;width:100%;border-radius:5px;background:rgba(255,255,255,.28)}.wbars .on i{background:#2ad36b}
+.wbars span{font-size:11px;opacity:.75}
+.wcv{display:block;width:62%;margin:6px 0 4px;line-height:0;border-radius:12px;overflow:hidden;box-shadow:0 18px 40px -12px rgba(0,0,0,.6)}.wcv.big{width:78%}
+.wcv .cover{border-radius:12px;display:block}
+.wsc{display:inline-flex;align-items:center;justify-content:center;min-width:64px;height:44px;padding:0 14px;border-radius:999px;font-family:"JetBrains Mono",ui-monospace,monospace;font-weight:800;font-size:22px;color:#fff;margin-top:6px}
+.wtop{list-style:none;margin:6px 0 0;padding:0;width:100%;display:grid;gap:7px}
+.wtop li{display:grid;grid-template-columns:20px 40px minmax(0,1fr) auto;gap:10px;align-items:center}
+.wtop .wi{font-weight:800;opacity:.7;text-align:right}.wtop .wt2{min-width:0;display:flex;flex-direction:column}.wtop b,.wtop small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.wtop small{opacity:.75}
+.wtop .wsc{min-width:46px;height:28px;font-size:14px;padding:0 9px;margin:0}
+.wtop li:first-child b{font-size:17px}
+.wcovs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:100%;margin:12px 0 6px}.wcovs .cover{border-radius:8px}
+.wvs{display:flex;gap:20px;margin:8px 0}.wvs div{display:flex;flex-direction:column;gap:2px}.wvs>div>span:first-child{font-size:12.5px;opacity:.85}
+.wav{line-height:0;margin:6px 0}.wav .av{box-shadow:0 0 0 4px rgba(255,255,255,.85)}
+.wsum{width:100%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);border-radius:20px;padding:18px;display:grid;gap:14px;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.wsh{display:flex;justify-content:space-between;align-items:baseline;gap:10px}.wsh span{font-weight:800;letter-spacing:-.5px;font-size:20px}.wsh b{font-size:14px;opacity:.85}
+.wsa{display:grid;grid-template-columns:84px minmax(0,1fr);gap:12px;align-items:center}.wsa .cover{border-radius:10px}.wsa div{display:flex;flex-direction:column;min-width:0}.wsa small{opacity:.75;font-size:12px}.wsa b{font-size:18px;line-height:1.15}.wsa span{opacity:.8;font-size:13.5px}
+.wsg{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px}.wsg div{display:flex;flex-direction:column;min-width:0}.wsg small{opacity:.7;font-size:11.5px}.wsg b{font-size:18px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wst{margin:0;padding-left:18px;font-size:13.5px;line-height:1.5;opacity:.9}.wst li{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wprog{position:absolute;z-index:3;top:12px;left:12px;right:12px;display:flex;gap:4px}
+.wprog i{flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.3)}.wprog i.done,.wprog i.on{background:#fff}
+.wx{position:absolute;z-index:4;top:22px;right:12px;width:36px;height:36px;padding:0;border:0;border-radius:50%;background:rgba(0,0,0,.25);color:#fff;font-size:24px;line-height:1}
+.wnav{position:absolute;z-index:2;top:60px;bottom:0;border:0;background:none;padding:0;border-radius:0}.wnav.wl{left:0;width:32%}.wnav.wr{right:0;width:68%}
+.wnav:hover,.wnav:focus{background:none;filter:none;transform:none}
+
 .hello h1{margin:0}
 .home{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:18px;align-items:start}
 @media (max-width:900px){.home{grid-template-columns:1fr}}
@@ -3469,9 +3525,10 @@ function wrapTeaserHtml(){
   return `<button type="button" class="wrapt" id="wrapT" aria-label="Wrapped ${WRAP_YEAR} - zapowiedź">
     <span class="wl"><span class="wt">WRAPPED<span class="wy">’${String(WRAP_YEAR).slice(2)}</span></span>
       <span class="ws">Twój rok w ocenach</span></span>
-    <span class="wpill">🔒 Wkrótce</span></button>`;
+    <span class="wpill">${wrapPreview() ? '▶ Podgląd' : '🔒 Wkrótce'}</span></button>`;
 }
 function openWrapTeaser(){
+  if(wrapPreview()) return openWrapped();
   const uid = S.user.id, n = (S.byUser.get(uid) || []).filter(r => { const a = S.albums.get(r.album_id); return a && a.year === WRAP_YEAR && !isSingle(a); }).length;
   const bg = document.createElement('div'); bg.className = 'modal-bg';
   bg.innerHTML = `<div class="modal wmodal" role="dialog" aria-label="Wrapped ${WRAP_YEAR}">
@@ -3486,6 +3543,133 @@ function openWrapTeaser(){
   document.addEventListener('keydown', k);
   bg.onclick = e => { if(e.target === bg) close(); };
   bg.querySelector('#wOk').onclick = close; bg.querySelector('#wOk').focus();
+}
+/* ---------- WRAPPED (podgląd - na razie tylko dla admina) ---------- */
+const wrapPreview = () => !!me().is_admin;
+const MONTHS_FULL = ['styczeń','luty','marzec','kwiecień','maj','czerwiec','lipiec','sierpień','wrzesień','październik','listopad','grudzień'];
+const yearOf = d => d ? new Date(d).getFullYear() : null;
+async function wrappedData(uid, Y){
+  const all = (S.byUser.get(uid) || []).filter(r => S.albums.has(r.album_id));
+  const R = all.filter(r => yearOf(r.created_at || r.updated_at) === Y);           // oceny wystawione w tym roku
+  const RA = R.filter(r => !isSingle(S.albums.get(r.album_id))), RS = R.filter(r => isSingle(S.albums.get(r.album_id)));
+  const A = r => S.albums.get(r.album_id);
+  const D = {Y, n:R.length, nA:RA.length, nS:RS.length};
+  if(!R.length) return D;
+  D.avg = mean(R.map(r => r.score));
+  D.max = Math.max(...R.map(r => r.score)); D.n100 = R.filter(r => r.score >= 100).length;
+  // średnia na tle grupy (tylko osoby z min. 5 ocenami w tym roku)
+  const avgs = [...S.profiles.values()].map(p => { const rs = (S.byUser.get(p.id) || []).filter(r => S.albums.has(r.album_id) && yearOf(r.created_at || r.updated_at) === Y);
+    return {id:p.id, n:rs.length, avg:mean(rs.map(r => r.score))}; }).filter(x => x.n >= 5).sort((a, b) => b.avg - a.avg);
+  D.rank = avgs.findIndex(x => x.id === uid) + 1; D.rankOf = avgs.length; D.gAvg = mean(avgs.map(x => x.avg));
+  // miesiące
+  D.months = Array(12).fill(0); R.forEach(r => D.months[new Date(r.created_at || r.updated_at).getMonth()]++);
+  D.bestM = D.months.indexOf(Math.max(...D.months));
+  // album roku = najwyżej ocenione albumy WYDANE w tym roku
+  D.top = all.filter(r => { const a = A(r); return a.year === Y && !isSingle(a); }).sort((a, b) => b.score - a.score || tsOf(a) - tsOf(b)).slice(0, 10);
+  // rozczarowanie = najniżej oceniony album (z ocen wystawionych w tym roku)
+  D.worst = RA.length > 3 ? [...RA].sort((a, b) => a.score - b.score)[0] : null;
+  // wykonawca roku
+  const am = new Map();
+  for(const r of RA){ for(const p of artistParts(A(r).artist)){ const k = simp(p); const o = am.get(k) || {name:p, rs:[]}; o.rs.push(r); am.set(k, o); } }
+  D.artist = [...am.values()].filter(o => o.rs.length >= 2).sort((a, b) => b.rs.length - a.rs.length || mean(b.rs.map(r => r.score)) - mean(a.rs.map(r => r.score)))[0] || null;
+  // nowi wykonawcy (pierwsza ocena w tym roku)
+  const first = new Map();
+  for(const r of all){ const t = Date.parse(r.created_at || r.updated_at) || 0; for(const p of artistParts(A(r).artist)){ const k = simp(p); if(!first.has(k) || t < first.get(k)) first.set(k, t); } }
+  D.newArtists = [...first.values()].filter(t => new Date(t).getFullYear() === Y).length;
+  // dekada
+  const dec = new Map(); RA.forEach(r => { const y = A(r).year; if(y) dec.set(Math.floor(y / 10) * 10, (dec.get(Math.floor(y / 10) * 10) || 0) + 1); });
+  D.decade = [...dec.entries()].sort((a, b) => b[1] - a[1])[0] || null;
+  D.oldest = RA.filter(r => A(r).year).sort((a, b) => A(a).year - A(b).year)[0] || null;
+  // gorąca opinia: największa różnica względem reszty grupy (min. 2 inne oceny)
+  let hot = null;
+  for(const r of RA){ const o = (S.byAlbum.get(r.album_id) || []).filter(x => x.user_id !== uid); if(o.length < 2) continue;
+    const g = mean(o.map(x => x.score)), d = r.score - g; if(!hot || Math.abs(d) > Math.abs(hot.d)) hot = {r, g, d, n:o.length}; }
+  D.hot = hot && Math.abs(hot.d) >= 8 ? hot : null;
+  // muzyczny bliźniak
+  D.twin = [...S.profiles.values()].filter(p => p.id !== uid).map(p => ({p, c:compat(uid, p.id)})).filter(x => x.c.pct != null && x.c.n >= 5).sort((a, b) => b.c.pct - a.c.pct)[0] || null;
+  D.first = [...R].sort((a, b) => tsOf(a) - tsOf(b))[0];
+  // piosenki i czas słuchania (z tracklist w bazie)
+  try {
+    const tracks = await loadTrackIdx(), tb = new Map();
+    for(const t of tracks || []) push(tb, Number(t.album_id), t);
+    let sec = 0, withLen = 0;
+    for(const r of R){ const tr = tb.get(r.album_id) || []; const s2 = tr.reduce((s3, t) => s3 + (t.duration > 0 ? t.duration : 0), 0); if(s2){ sec += s2; withLen++; } }
+    D.hours = sec / 3600; D.withLen = withLen;
+    let trs = [], from = 0;
+    for(;;){ const { data, error } = await sb.from('track_ratings').select('album_id,position,score,fav,updated_at').eq('user_id', uid).range(from, from + 999);
+      if(error || !data) break; trs = trs.concat(data); if(data.length < 1000) break; from += 1000; }
+    trs = trs.filter(t => yearOf(t.updated_at) === Y && S.albums.has(Number(t.album_id)));
+    D.nSongs = trs.filter(t => t.score != null).length;
+    const best = trs.filter(t => t.score != null).sort((a, b) => (b.fav - a.fav) || b.score - a.score)[0];
+    if(best){ const a = S.albums.get(Number(best.album_id)), t = (tb.get(a.id) || []).find(x => Number(x.position) === Number(best.position));
+      if(t) D.song = {a, title:t.title, score:Number(best.score), fav:best.fav}; }
+  } catch(e){ console.warn('wrapped tracks', e); }
+  return D;
+}
+function wrappedSlides(D){
+  const name = esc(me().display_name || ''), yy = String(D.Y).slice(2), S_ = [];
+  const cov = (a, cls = 'wcv') => `<span class="${cls}">${coverHtml(a, 'cfull')}</span>`;
+  const sc = v => `<span class="wsc" style="background:${col(Math.round(v))}">${num(v)}</span>`;
+  S_.push({bg:'w0', html:`<div class="wbig">WRAPPED<span>’${yy}</span></div><p class="wlead">${name}, oto Twój ${D.Y} w ocenach.</p><p class="wtap">Dotknij, żeby przejść dalej →</p>`});
+  if(!D.n){ S_.push({bg:'w1', html:`<p class="wk">Hmm…</p><div class="wh">Jeszcze nic nie oceniono w ${D.Y}</div><p class="wlead">Oceń kilka albumów - podsumowanie zbuduje się samo.</p>`}); return S_; }
+  S_.push({bg:'w1', html:`<p class="wk">W ${D.Y} wystawiono</p><div class="wnum">${D.n}</div><p class="wh">${pl(D.n,'ocenę','oceny','ocen')}</p>
+    <div class="wrow">${D.nA ? `<div><b>${D.nA}</b><span>${pl(D.nA,'album','albumy','albumów')}</span></div>` : ''}${D.nS ? `<div><b>${D.nS}</b><span>${pl(D.nS,'singiel','single','singli')}</span></div>` : ''}${D.nSongs ? `<div><b>${D.nSongs}</b><span>${pl(D.nSongs,'piosenka','piosenki','piosenek')}</span></div>` : ''}</div>
+    ${D.hours >= 1 ? `<p class="wlead">To co najmniej <b>${Math.round(D.hours)} ${pl(Math.round(D.hours),'godzina','godziny','godzin')}</b> muzyki${D.withLen < D.n ? ` <small>(liczone z ${D.withLen} ${pl(D.withLen,'płyty','płyt','płyt')} z tracklistą)</small>` : ''}.</p>` : ''}`});
+  const mx = Math.max(...D.months);
+  S_.push({bg:'w2', html:`<p class="wk">Najwięcej słuchania</p><div class="wh">${MONTHS_FULL[D.bestM]}</div><p class="wlead">${D.months[D.bestM]} ${pl(D.months[D.bestM],'ocena','oceny','ocen')} w jednym miesiącu</p>
+    <div class="wbars">${D.months.map((m, i) => `<div class="${i === D.bestM ? 'on' : ''}"><i style="height:${mx ? Math.max(3, m / mx * 100) : 3}%"></i><span>${MONTHS[i].slice(0, 1).toUpperCase()}</span></div>`).join('')}</div>`});
+  S_.push({bg:'w3', html:`<p class="wk">Twoja średnia</p><div class="wnum" style="color:${colT(Math.round(D.avg))}">${num(Math.round(D.avg * 10) / 10)}</div>
+    ${D.rank ? `<p class="wh">${D.rank === 1 ? 'Najhojniejsza ręka w grupie' : D.rank === D.rankOf ? 'Najsurowszy krytyk w grupie' : `${D.rank}. miejsce na ${D.rankOf} w hojności`}</p><p class="wlead">Średnia grupy w ${D.Y}: ${num(Math.round(D.gAvg * 10) / 10)}</p>` : ''}
+    ${D.n100 ? `<p class="wlead">Do tego ${D.n100}× okrągła setka 💯</p>` : `<p class="wlead">Najwyższa ocena roku: <b>${num(D.max)}</b></p>`}`});
+  if(D.top.length){ const t = D.top[0], a = S.albums.get(t.album_id);
+    S_.push({bg:'w4', html:`<p class="wk">Twój album roku ${D.Y}</p>${cov(a, 'wcv big')}<div class="wh2">${esc(a.title)}</div><p class="wlead">${esc(a.artist)}</p>${sc(t.score)}`}); }
+  if(D.top.length > 2) S_.push({bg:'w5', html:`<p class="wk">Twoja topka ${D.Y}</p><ol class="wtop">${D.top.map((r, i) => { const a = S.albums.get(r.album_id);
+      return `<li><span class="wi">${i + 1}</span>${coverHtml(a, 'c40')}<span class="wt2"><b>${esc(a.title)}</b><small>${esc(a.artist)}</small></span>${sc(r.score)}</li>`; }).join('')}</ol>`});
+  if(D.artist){ const o = D.artist, al = [...new Set(o.rs.map(r => r.album_id))].slice(0, 4).map(id => S.albums.get(id));
+    S_.push({bg:'w6', html:`<p class="wk">Wykonawca roku</p><div class="wh">${esc(o.name)}</div><div class="wcovs">${al.map(a => coverHtml(a, 'cfull')).join('')}</div>
+      <p class="wlead">${o.rs.length} ${pl(o.rs.length,'płyta','płyty','płyt')} · średnio <b>${num(Math.round(mean(o.rs.map(r => r.score))))}</b></p>`}); }
+  if(D.hot){ const a = S.albums.get(D.hot.r.album_id), up = D.hot.d > 0;
+    S_.push({bg:'w7', html:`<p class="wk">${up ? 'Bronisz sam(a) jak lew' : 'Ty przeciw wszystkim'}</p>${cov(a)}<div class="wh2">${esc(a.title)}</div><p class="wlead">${esc(a.artist)}</p>
+      <div class="wvs"><div><span>Ty</span>${sc(D.hot.r.score)}</div><div><span>Reszta grupy (${D.hot.n})</span>${sc(D.hot.g)}</div></div>
+      <p class="wlead">Podobał Ci się o <b>${num(Math.round(Math.abs(D.hot.d)))}</b> pkt ${up ? 'bardziej' : 'mniej'} niż reszcie.</p>`}); }
+  if(D.worst && (!D.hot || D.worst.album_id !== D.hot.r.album_id)){ const a = S.albums.get(D.worst.album_id);
+    S_.push({bg:'w8', html:`<p class="wk">Rozczarowanie roku</p>${cov(a)}<div class="wh2">${esc(a.title)}</div><p class="wlead">${esc(a.artist)}</p>${sc(D.worst.score)}`}); }
+  if(D.song) S_.push({bg:'w9', html:`<p class="wk">Piosenka roku</p>${cov(D.song.a)}<div class="wh2">${D.song.fav ? '★ ' : ''}${esc(D.song.title)}</div><p class="wlead">${esc(D.song.a.artist)} · ${esc(D.song.a.title)}</p>${sc(D.song.score)}`});
+  if(D.twin) S_.push({bg:'w10', html:`<p class="wk">Twój muzyczny bliźniak</p><div class="wav">${avatar(D.twin.p.id, 120)}</div><div class="wh">${esc(pname(D.twin.p.id))}</div>
+    <div class="wnum sm">${D.twin.c.pct}%</div><p class="wlead">zgodności na ${D.twin.c.n} ${pl(D.twin.c.n,'wspólnym albumie','wspólnych albumach','wspólnych albumach')}</p>`});
+  if(D.newArtists || D.decade) S_.push({bg:'w11', html:`<p class="wk">Odkrycia</p>${D.newArtists ? `<div class="wnum">${D.newArtists}</div><p class="wh">${pl(D.newArtists,'nowy wykonawca','nowych wykonawców','nowych wykonawców')}</p>` : ''}
+    ${D.decade ? `<p class="wlead">Ulubiona dekada: <b>${D.decade[0]}–${D.decade[0] + 9}</b></p>` : ''}
+    ${D.oldest ? `<p class="wlead">Najstarsza płyta roku: <b>${esc(S.albums.get(D.oldest.album_id).title)}</b> (${S.albums.get(D.oldest.album_id).year})</p>` : ''}`});
+  const t1 = D.top[0] && S.albums.get(D.top[0].album_id);
+  S_.push({bg:'w12', html:`<div class="wsum"><div class="wsh"><span>WRAPPED ’${yy}</span><b>${name}</b></div>
+    ${t1 ? `<div class="wsa">${coverHtml(t1, 'cfull')}<div><small>Album roku</small><b>${esc(t1.title)}</b><span>${esc(t1.artist)}</span></div></div>` : ''}
+    <div class="wsg"><div><small>Oceny</small><b>${D.n}</b></div><div><small>Średnia</small><b>${num(Math.round(D.avg))}</b></div>
+      <div><small>Najwięcej w</small><b>${MONTHS_FULL[D.bestM]}</b></div>${D.artist ? `<div><small>Wykonawca roku</small><b>${esc(D.artist.name)}</b></div>` : `<div><small>Single</small><b>${D.nS}</b></div>`}
+      ${D.twin ? `<div><small>Bliźniak</small><b>${esc(pname(D.twin.p.id))}</b></div>` : ''}${D.hours >= 1 ? `<div><small>Godzin muzyki</small><b>${Math.round(D.hours)}+</b></div>` : ''}</div>
+    ${D.top.length > 1 ? `<ol class="wst">${D.top.slice(0, 5).map(r => `<li>${esc(S.albums.get(r.album_id).title)}</li>`).join('')}</ol>` : ''}</div>
+    <p class="wtap">Podgląd - tylko Ty to widzisz. Dane z ${new Date().toLocaleDateString('pl-PL')}.</p>`});
+  return S_;
+}
+async function openWrapped(){
+  const ov = document.createElement('div'); ov.className = 'wov'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-label', 'Wrapped ' + WRAP_YEAR);
+  ov.innerHTML = `<div class="wstory"><div class="wslide w0"><div class="wbig">WRAPPED<span>’${String(WRAP_YEAR).slice(2)}</span></div><p class="wlead">Liczę Twój rok…</p></div></div>`;
+  document.body.appendChild(ov); document.documentElement.classList.add('noscroll');
+  const D = await wrappedData(S.user.id, WRAP_YEAR), sl = wrappedSlides(D); let i = 0;
+  const box = ov.querySelector('.wstory');
+  const draw = () => {
+    box.innerHTML = `<div class="wprog">${sl.map((_, k) => `<i class="${k < i ? 'done' : k === i ? 'on' : ''}"></i>`).join('')}</div>
+      <button type="button" class="wx" aria-label="Zamknij">×</button>
+      <div class="wslide ${sl[i].bg}">${sl[i].html}</div>
+      <button type="button" class="wnav wl" aria-label="Wstecz"></button><button type="button" class="wnav wr" aria-label="Dalej"></button>`;
+    box.querySelector('.wx').onclick = close;
+    box.querySelector('.wl').onclick = () => go(-1); box.querySelector('.wr').onclick = () => go(1);
+  };
+  const go = d => { const n = i + d; if(n < 0) return; if(n >= sl.length) return close(); i = n; draw(); };
+  const key = e => { if(e.key === 'Escape') close(); else if(e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); go(1); } else if(e.key === 'ArrowLeft') go(-1); };
+  function close(){ ov.remove(); document.documentElement.classList.remove('noscroll'); document.removeEventListener('keydown', key); }
+  document.addEventListener('keydown', key);
+  ov.onclick = e => { if(e.target === ov) close(); };
+  draw();
 }
 function viewHome(){
   const H = S.home, uid = S.user.id;
