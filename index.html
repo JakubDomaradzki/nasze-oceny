@@ -379,7 +379,9 @@ tr.cl:hover td{background:var(--soft)}
 @media (max-width:900px){.feed{position:static;max-height:540px}}
 .fi{display:grid;grid-template-columns:34px minmax(0,1fr);gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
 .fi:last-child{border-bottom:none}
-.feedh{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));column-gap:24px;padding-left:10px}
+.feedh{display:grid;grid-template-columns:1fr;padding-left:10px}
+.feedh .fi:last-child{border-bottom:none}
+main.feedw{max-width:780px}
 .feedh .fi{border-bottom:1px solid var(--line)}
 .only-m{display:none!important}
 @media (max-width:900px){.only-m{display:block!important}.only-d{display:none!important}}
@@ -468,6 +470,9 @@ tr.cl:hover td{background:var(--soft)}
 .rnote .muted{font-style:normal}
 .inbox .rec.new{box-shadow:inset 3px 0 0 var(--accent)}
 .inbox .rec .btns a{text-decoration:none}
+.inbox .rec .btns button.sm{border-radius:999px}
+.inbox .rec .ab.sm{padding:6px 12px 6px 10px;gap:6px}
+.inbox .rec .ab.sm svg{width:15px;height:15px}
 .fromrec{margin-left:8px;font-size:11.5px;color:var(--accent);font-weight:700}
 .nb{display:inline-block;min-width:18px;height:18px;line-height:18px;border-radius:9px;background:var(--r);color:#fff;font-size:11px;font-weight:800;text-align:center;padding:0 5px;margin-left:5px;vertical-align:1px}
 
@@ -935,15 +940,21 @@ const LISTEN_MS = 20 * 60 * 1000; // ostatnia oceniona piosenka max 20 min temu
 S.listening = new Map();
 async function refreshListening(){
   if(!S.user) return;
-  const { data, error } = await sb.from('track_ratings').select('user_id,album_id,position,updated_at').gt('updated_at', new Date(Date.now() - LISTEN_MS).toISOString());
+  const since = new Date(Date.now() - LISTEN_MS).toISOString();
+  const [{ data, error }, rr] = await Promise.all([sb.from('track_ratings').select('user_id,album_id,position,updated_at').gt('updated_at', since),
+    sb.from('ratings').select('user_id,album_id,updated_at').gt('updated_at', since)]);
   if(error || !data) return;
+  S.freshRated = (rr && rr.data || []).map(r => ({user_id:r.user_id, album_id:Number(r.album_id), t:Date.parse(r.updated_at) || 0}));
   const m = new Map();
   for(const r of data){ const t = Date.parse(r.updated_at) || 0, o = m.get(r.user_id);
     if(!o || t > o.at) m.set(r.user_id, {album_id:Number(r.album_id), at:t}); }
   for(const [u, o] of m) o.n = data.filter(r => r.user_id === u && Number(r.album_id) === o.album_id).length;
   S.listening = m; fillListening(true);
 }
-const listenOf = uid => { const o = S.listening.get(uid); return o && Date.now() - o.at < LISTEN_MS && S.albums.has(o.album_id) ? o : null; };
+// kto oceni cały album, przestaje „słuchać” (ocena albumu nowsza niż ostatnia oceniona piosenka)
+const ratedAfter = (uid, o) => (S.freshRated || []).some(r => r.user_id === uid && r.album_id === o.album_id && r.t >= o.at)
+  || (S.byAlbum.get(o.album_id) || []).some(r => r.user_id === uid && tsOf(r) >= o.at);
+const listenOf = uid => { const o = S.listening.get(uid); return o && Date.now() - o.at < LISTEN_MS && S.albums.has(o.album_id) && !ratedAfter(uid, o) ? o : null; };
 // wypełnia miejsca oznaczone data-listen (profil, Osoby) i data-listen-album (strona albumu)
 function fillListening(again){
   document.querySelectorAll('[data-listen]').forEach(el => { const o = listenOf(el.dataset.listen);
@@ -958,7 +969,7 @@ function fillListening(again){
     el.innerHTML = now.length ? `<section class="card lsnhome"><div class="shead"><h2><span class="eq" aria-hidden="true"><i></i><i></i><i></i></span>Teraz słuchają</h2></div>
       ${[...now.reduce((m, x) => { const g = m.get(x.o.album_id) || []; g.push(x); return m.set(x.o.album_id, g); }, new Map()).values()].map(g => { const a = S.albums.get(g[0].o.album_id), at = g[0].o.at;
         return `<a class="lsnrow" href="#/album/${a.id}">${coverHtml(a, 'c48')}<span class="lsnt"><b>${esc(a.title)}</b><span>${esc(a.artist)}</span>
-          <small>${g.map(({u}) => `${avatar(u, 20)}<b>${u === S.user.id ? 'Ty' : esc(pname(u))}</b>`).join('')} · ${Date.now() - at < 60000 ? 'przed chwilą' : Math.floor((Date.now() - at) / 60000) + ' min temu'}</small></span></a>`; }).join('')}</section>` : ''; });
+          <small>${g.map(({u}) => `${avatar(u, 20)}<b>${u === S.user.id ? 'Ty' : esc(pname(u))}</b>`).join('')}</small></span></a>`; }).join('')}</section>` : ''; });
   document.querySelectorAll('[data-listen-album]').forEach(el => { const id = +el.dataset.listenAlbum;
     const who = [...S.listening.keys()].filter(u => { const o = listenOf(u); return o && o.album_id === id; });
     el.innerHTML = who.length ? `<div class="lsnalb"><span class="eq" aria-hidden="true"><i></i><i></i><i></i></span>${who.map(u => `<a href="#/osoba/${u}">${avatar(u, 22)}<b>${u === S.user.id ? 'Ty' : esc(pname(u))}</b></a>`).join('')}<span>${who.includes(S.user.id) ? (who.length > 1 ? 'słuchacie' : 'słuchasz') : who.length > 1 ? 'słuchają' : 'słucha'} teraz tego albumu</span></div>` : ''; });
@@ -1562,6 +1573,7 @@ function render(){
   if(page !== lastPage){ S.lexp = null; S.recOpen = null; } // rozwinięta lista „do posłuchania” zwija się po zmianie strony
   // listy (rankingi), formularze i aktywność zostają węższe - tam szerokość tylko rozciąga puste miejsce
   app.classList.toggle('narrow', ['ranking','lata','konto','import','dodaj','aktywnosc','edytuj','porownaj'].includes(page));
+  app.classList.toggle('feedw', page === 'aktywnosc'); // aktywność: jedna kolumna, więc węższa strona
   lastPage = page;
   const V = {staty:viewPersonStats, odkrywaj:viewDiscover, oceny:viewRatings, aktywnosc:viewActivity, start:viewHome, losuj:viewRandom, statystyki:viewStats, wykonawca:viewArtist, porownaj:viewCompare, ranking:viewRanking, lata:viewYears, album:viewAlbum, albumy:viewAlbums, dodaj:viewAdd, osoby:viewPeople,
              osoba:viewPerson, import:viewImport, konto:viewAccount, edytuj:viewEdit}[page] || viewHome;
@@ -2271,7 +2283,7 @@ function viewPerson(id){
       : '<div class="empty">Brak ocen.</div>'}
   </section>
 
-  <section class="card" style="margin-top:18px"><div class="shead"><h2>Do posłuchania (${S.listen.filter(x => x.user_id === id && S.albums.has(x.album_id)).length})</h2>${isMe && S.listen.some(x => x.user_id === id) ? '<a href="#/odkrywaj" data-rlist><button>🎲 Wylosuj z listy</button></a>' : ''}</div>
+  <section class="card" style="margin-top:18px"><div class="shead"><h2>Do posłuchania (${S.listen.filter(x => x.user_id === id && S.albums.has(x.album_id)).length})</h2>${isMe && S.listen.some(x => x.user_id === id) ? '<a href="#/odkrywaj" data-rlist><button>Wylosuj z listy</button></a>' : ''}</div>
     ${listenRowHtml(id, isMe)}</section>
 
   <div class="prow">
@@ -3008,7 +3020,7 @@ function recListHtml(groups){
     return `<div class="row rec ${isNew ? 'new' : ''}"><a href="#/album/${a.id}">${coverHtml(a, 'c56')}</a>
       <div class="meta"><a href="#/album/${a.id}"><b>${esc(a.title)}</b></a><span>${esc(a.artist)}${a.year ? ' · ' + a.year : ''}${a.type ? ' · ' + esc(a.type) : ''}</span>
         <small class="why">${g.recs.length > 1 ? 'Polecają:' : 'Poleca:'}${by}<span class="muted"> · ${timeAgo(new Date(g.ts).toISOString())}</span></small>${notes}
-        <div class="btns"><a href="#/album/${a.id}"><button type="button" class="sm btn-p">Oceń</button></a><button type="button" class="sm ${lis ? 'btn-on' : ''}" data-rl="${a.id}">${lis ? '✓ Do posłuchania' : '+ Do posłuchania'}</button><button type="button" class="sm ghost" data-rx="${a.id}" title="Ukryj to polecenie">Odrzuć</button></div></div></div>`; }).join('')}</div>`;
+        <div class="btns"><a href="#/album/${a.id}"><button type="button" class="sm btn-p">Oceń</button></a><button type="button" class="ab sm ${lis ? 'on' : ''}" data-rl="${a.id}" aria-pressed="${lis}">${BOOKMARK}<span>${lis ? 'Na liście' : 'Do posłuchania'}</span></button><button type="button" class="sm ghost" data-rx="${a.id}" title="Ukryj to polecenie">Odrzuć</button></div></div></div>`; }).join('')}</div>`;
 }
 function bindRecList(root){
   root.querySelectorAll('[data-rl]').forEach(b => b.onclick = async () => { const id = +b.dataset.rl; b.disabled = true;
@@ -3496,7 +3508,7 @@ function viewHome(){
       ${recG.length ? `<section class="card"><div class="shead"><h2>💌 Polecone dla Ciebie (${recG.length})</h2>${recG.length > 3 ? '<a class="link small" href="#/aktywnosc">Wszystkie →</a>' : ''}</div>${recListHtml(recG.slice(0, 3))}</section>` : ''}
 
       <section class="card">
-        <div class="shead"><h2>Do posłuchania (${listen.length})</h2>${listen.length ? '<a href="#/odkrywaj" data-rlist><button>🎲 Wylosuj z listy</button></a>' : ''}</div>
+        <div class="shead"><h2>Do posłuchania (${listen.length})</h2>${listen.length ? '<a href="#/odkrywaj" data-rlist><button>Wylosuj z listy</button></a>' : ''}</div>
         ${pickerHtml('lpick', 'Dodaj album do posłuchania - wpisz wykonawcę lub tytuł…')}
         ${listenRowHtml(uid, true)}
       </section>
