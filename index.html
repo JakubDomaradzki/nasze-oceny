@@ -760,16 +760,15 @@ a.ps-row[href]:hover{background:var(--soft)}
 .rtile .rbar{display:block;height:4px;border-radius:0 0 4px 4px;background:var(--line);overflow:hidden}
 .rtile .rbar i{display:block;height:100%}
 .rtile .rrow{display:flex;align-items:center;gap:5px;margin:8px 0 5px;min-width:0}
-.rtile .rrow .rpill{height:28px;min-width:42px;padding:0 11px;font-size:16px;font-family:"JetBrains Mono",ui-monospace,monospace;font-weight:800;letter-spacing:-.3px;background:var(--pill)!important;--yt:var(--yt-pill)}
-.card .rtile .rrow .rpill{background:var(--pill-c)!important}
-.rtile .rrow .rpill.lock{font-family:inherit;font-size:13px}
+.rtile .rrow .rpill{height:25px;min-width:38px;padding:0 9px;font-size:14.5px;font-family:"JetBrains Mono",ui-monospace,monospace;font-weight:800;letter-spacing:-.3px;color:#fff!important;background:var(--pc)!important}
+.rtile .rrow .rpill.lock{font-family:inherit;font-size:13px;background:var(--soft)!important;color:var(--muted)!important}
 .rtile .was3{font-size:12px;font-weight:600;color:var(--muted)}
 .rtile .t{font-size:14px}
 .rtile .rti .a{font-size:13.5px}
 .rtile .mt{font-size:12.5px;color:var(--muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rtile .dt2{font-size:11.5px;color:var(--muted);margin-left:auto;white-space:nowrap}
 .rpill{display:inline-flex;align-items:center;justify-content:center;min-width:40px;height:28px;padding:0 10px;border-radius:999px;font-weight:800;font-size:15px;font-variant-numeric:tabular-nums;cursor:pointer;flex:none;transition:filter .15s,box-shadow .15s}
-.rpill:hover{filter:brightness(1.12);box-shadow:0 0 0 1.5px currentColor}
+.rpill:hover{filter:brightness(1.08);box-shadow:0 0 0 2px color-mix(in srgb,var(--pc,currentColor) 40%,transparent)}
 .rpill.lock{cursor:default;background:var(--soft);color:var(--muted);font-size:13px}
 .rpill.lock:hover{filter:none;box-shadow:none}
 .rtile:hover .t{text-decoration:underline}
@@ -3291,7 +3290,7 @@ function rTile(a, r, was){
   const hd = isHidden(r), c = hd ? null : col(Math.round(r.score)), ct = hd ? null : colT(Math.round(r.score));
   const ch = was && !hd ? scoreChain(a.id, r.user_id) : null;
   const pill = hd ? `<span class="rpill lock" title="Ukryte${hideWhy(a.id)}">🔒</span>`
-    : `<span class="rpill" data-tp="${a.id}" data-tu="${esc(r.user_id)}" role="button" tabindex="0" title="Pokaż oceny piosenek" style="color:${ct};background:color-mix(in srgb,${c} 18%,transparent)">${num(r.score)}</span>`;
+    : `<span class="rpill" data-tp="${a.id}" data-tu="${esc(r.user_id)}" role="button" tabindex="0" title="Pokaż oceny piosenek" style="--pc:${c}">${num(r.score)}</span>`;
   // okładka z paskiem oceny pod spodem (wypełniony do wartości), potem pastylka + czas, na końcu opis
   return `<a class="tile rtile" href="#/album/${a.id}"><span class="rcv">${coverHtml(a, 'cfull')}<span class="rbar" aria-hidden="true">${hd ? '' : `<i style="width:${Math.max(0, Math.min(100, r.score))}%;background:${c}"></i>`}</span></span>
     <div class="rrow">${pill}${ch ? `<s class="was3" title="Poprzednia ocena">${num(ch.seq[ch.seq.length - 2])}</s>` : ''}<span class="dt2">${cardDate(r.updated_at || r.created_at)}</span></div>
