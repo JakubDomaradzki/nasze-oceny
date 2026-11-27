@@ -317,8 +317,9 @@ tr.cl:hover td{background:var(--soft)}
 .seg{padding:3px;gap:2px;border-radius:12px;background:var(--soft)}
 .seg button{border-radius:9px!important;padding:6px 14px}
 .seg button.on{background:var(--card);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.12),0 0 0 1px var(--line)}
-.av{overflow:hidden;flex:none}
-.av img{width:100%;height:100%;object-fit:cover;display:block}
+.av{flex:none;position:relative}
+.av img{width:100%;height:100%;object-fit:cover;display:block;border-radius:50%}
+.av .ondot{right:-1px;bottom:-1px}
 .btn-on{border-color:var(--accent);color:var(--accent);font-weight:600}
 
 /* strona główna */
@@ -382,6 +383,7 @@ tr.cl:hover td{background:var(--soft)}
 .feedh .fi{border-bottom:1px solid var(--line)}
 .only-m{display:none!important}
 @media (max-width:900px){.only-m{display:block!important}.only-d{display:none!important}}
+[data-listen-home]:empty.only-m,[data-listen-home]:empty.only-d{display:none!important}
 .side .feedh{grid-template-columns:1fr}
 .side .feedh .fi:last-child{border-bottom:none}
 @media (max-width:620px){.feedh .fi:last-child{border-bottom:none}}
@@ -414,6 +416,11 @@ tr.cl:hover td{background:var(--soft)}
 .rnd{display:grid;grid-template-columns:260px minmax(0,1fr);gap:26px;align-items:start;margin-top:18px}
 @media (max-width:640px){.rnd{grid-template-columns:1fr}}
 .dice{font-size:17px;padding:11px 26px}
+.rnd a.rlk{color:inherit;text-decoration:none;display:block}
+.rnd a.rlk .cover{transition:transform .15s}
+.rnd a.rlk:hover .cover{transform:scale(1.015)}
+.rnd h1 a.rlk{display:inline}
+.rnd h1 a.rlk:hover{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:4px}
 .who-rated{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 16px}
 .who-rated a{display:inline-flex;align-items:center;gap:6px;background:var(--soft);border:1px solid var(--line);border-radius:18px;padding:3px 10px 3px 3px;font-size:13px}
 .pool{font-size:14px;color:var(--muted);margin:4px 0 0}
@@ -439,6 +446,29 @@ tr.cl:hover td{background:var(--soft)}
 .lock{background:var(--none)!important}
 .fi.new{position:relative}
 .fi.new::before{content:'';position:absolute;left:-10px;top:18px;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+/* polecenia */
+.recp{margin:4px 0 14px;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--soft);display:grid;gap:10px}
+.recp-h{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:14.5px}
+.recpeople{display:flex;flex-wrap:wrap;gap:7px}
+.rpp{display:inline-flex;align-items:center;gap:7px;padding:3px 11px 3px 3px;border-radius:20px;font-weight:600;font-size:13.5px}
+.rpp small{font-weight:500;color:var(--muted);font-size:11.5px}
+.rpp.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.rpp:disabled{opacity:.55;cursor:default}
+.rpp.sent:disabled{opacity:.8}
+#recNote{width:100%;resize:vertical;min-height:52px}
+.recsent{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;font-size:13px;margin:-2px 0 12px}
+.recsent .rs1{display:inline-flex;align-items:center;gap:6px}
+.rsx{padding:0 7px;line-height:20px;border-radius:10px;font-size:13px;color:var(--muted);background:none;border-color:transparent}
+.rsx:hover{color:var(--r);border-color:var(--line)}
+.rsx.armed{color:var(--r);border-color:var(--r);font-size:12px}
+.recin{display:grid;gap:6px;margin:-4px 0 14px;padding:10px 12px;border-radius:12px;background:var(--accent-soft);font-size:14px}
+.recin>div{display:flex;align-items:flex-start;gap:8px}
+.recin>div>span{padding-top:1px}
+.rnote{font-size:13px;font-style:italic;margin-top:4px;overflow-wrap:anywhere}
+.rnote .muted{font-style:normal}
+.inbox .rec.new{box-shadow:inset 3px 0 0 var(--accent)}
+.inbox .rec .btns a{text-decoration:none}
+.fromrec{margin-left:8px;font-size:11.5px;color:var(--accent);font-weight:700}
 .nb{display:inline-block;min-width:18px;height:18px;line-height:18px;border-radius:9px;background:var(--r);color:#fff;font-size:11px;font-weight:800;text-align:center;padding:0 5px;margin-left:5px;vertical-align:1px}
 
 /* serduszko + linki */
@@ -449,6 +479,24 @@ tr.cl:hover td{background:var(--soft)}
 .heart.on svg{fill:currentColor}
 .heart:hover{color:#e0245e;filter:none}
 .heart.pop svg{animation:pop .35s ease}
+.pen{padding:6px;margin-top:2px;line-height:0;border-radius:50%;color:var(--muted);flex:none}
+.pen svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.pen:hover{color:var(--text);background:var(--soft)}
+/* przyciski pod linkami odsłuchu */
+.abtns{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.ab{display:inline-flex;align-items:center;gap:8px;padding:9px 16px 9px 13px;border-radius:999px;font-weight:650}
+.ab svg{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:fill .15s}
+.ab:hover{border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+.ab.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.ab.on svg{fill:currentColor}
+.ab.open{border-color:var(--accent);color:var(--accent)}
+@media (max-width:420px){.hide-xs{display:none}.abtns{display:grid;grid-template-columns:1fr 1fr}.ab{justify-content:center;padding:9px 10px;font-size:14px}.ab{min-width:0}.ab span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
+/* moja ocena - wyraźniej, kiedy już oceniłem */
+.rate.rated{border:2px solid color-mix(in srgb,var(--mc) 70%,transparent);background:linear-gradient(180deg,color-mix(in srgb,var(--mc) 11%,var(--card)),var(--card) 70%)}
+.rate .mhead{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
+.rate .mhead h2{margin:0 0 2px}
+.rate.rated .mhead .score.big{font-size:30px;min-width:76px;height:56px;padding:0 14px;border-radius:14px}
+@media (max-width:820px){.cols .rate{order:-1}}
 @keyframes pop{50%{transform:scale(1.3)}}
 .listen{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 14px}
 .lk{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;padding:5px 11px;border-radius:16px;border:1px solid var(--line);background:var(--card)}
@@ -531,6 +579,34 @@ tr.cl:hover td{background:var(--soft)}
 /* profil */
 .phead{display:flex;align-items:center;gap:18px;margin-bottom:22px;flex-wrap:wrap}
 .phead h1{margin:0}
+.lfm{display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px;margin-top:6px;font-size:13.5px}
+.lfml{display:inline-flex;align-items:center;gap:6px;font-weight:600;color:var(--muted)}
+.lfml:hover{color:var(--text)}
+.lfmnow{display:inline;min-width:0;line-height:1.5}
+.lfmnow .eq{margin-right:6px;vertical-align:-1px}
+.lfmnow a{color:inherit}
+.lfmnow.live{color:var(--gt);font-weight:600}
+.lfmnow.live b{color:var(--text)}
+.eq{display:inline-flex;align-items:flex-end;gap:2px;height:12px}
+.eq i{width:3px;background:var(--g);border-radius:1px;animation:eq 1s ease-in-out infinite}
+.eq i:nth-child(2){animation-delay:-.4s}.eq i:nth-child(3){animation-delay:-.7s}
+@keyframes eq{0%,100%{height:3px}50%{height:12px}}
+@media (prefers-reduced-motion:reduce){.eq i{animation:none;height:9px}}
+.pnow{color:var(--gt)!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap!important}
+.pnow:empty{display:none}
+.lfm:has(> [data-listen]:empty){display:none}
+.lsnalb{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin:-4px 0 10px;padding:8px 12px;border-radius:12px;background:var(--accent-soft);font-size:13.5px;color:var(--gt)}
+.lsnhome h2{display:flex;align-items:center;gap:8px}
+.lsnhome .eq{height:14px}
+.lsnrow{display:grid;grid-template-columns:48px minmax(0,1fr);gap:12px;align-items:center;padding:8px 0;color:inherit;border-bottom:1px solid var(--line)}
+.lsnrow:last-child{border-bottom:none;padding-bottom:0}
+.lsnrow:hover .lsnt>b{text-decoration:underline}
+.lsnt{min-width:0;display:flex;flex-direction:column;gap:1px}
+.lsnt>b,.lsnt>span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lsnt>span{color:var(--muted);font-size:13.5px}
+.lsnt small{display:flex;align-items:center;gap:5px;font-size:12.5px;color:var(--muted);margin-top:3px}
+.lsnt small b{color:var(--text);font-weight:600}
+.lsnalb a{display:inline-flex;align-items:center;gap:6px;color:var(--text)}
 .pstats{margin-left:auto;display:flex;gap:30px;text-align:right}
 .pstats .v{font-size:46px;font-weight:800;letter-spacing:-1.6px;line-height:1;font-variant-numeric:tabular-nums}
 .pstats .l{font-size:13px;color:var(--muted);font-weight:600;margin-top:4px}
@@ -726,6 +802,14 @@ a.ps-row[href]:hover{background:var(--soft)}
 .rec .why .av{vertical-align:middle;margin-right:2px}
 .rec .why .fan{display:inline-flex;align-items:center;gap:3px;white-space:nowrap;margin-left:4px}
 .rec .why .soon{color:var(--g);font-weight:700}
+.nsec{font-size:15px;margin:6px 0 10px}
+.nsec+.list{margin-bottom:22px}
+.cdown{display:flex;flex-direction:column;align-items:center;justify-content:center;width:52px;height:52px;border-radius:12px;background:var(--accent-soft);color:var(--accent);line-height:1}
+.cdown b{font-size:20px;font-weight:800}
+.cdown small{font-size:10.5px;color:var(--accent)!important;margin-top:2px}
+.upc .arch{color:inherit}
+.upc .upd{font-size:12px;color:var(--muted);white-space:nowrap}
+.upc .upd.soon{color:var(--accent);font-weight:700}
 .rec .btns{margin-top:8px;gap:6px}
 .rec button.sm{padding:6px 11px;font-size:13px}
 .rec button.ghost{background:none;border-color:transparent;color:var(--muted)}
@@ -790,6 +874,7 @@ const CONFIG = Object.assign({
   SUPABASE_KEY: 'sb_publishable_rpuWtPaSEj_IGrCzBi-a9g_AISeAbL0',
   LOGIN_DOMAIN: 'oceny.app',
   SITE_NAME: 'Nasze oceny',
+  LASTFM_KEY: '',   // klucz API Last.fm (last.fm/api/account/create) - bez niego na profilach jest tylko link, bez „teraz słucha”
 }, window.OCENY_CONFIG || {}); // dane z pliku config.js
 /* ===================================================================== */
 
@@ -835,12 +920,58 @@ function coverHtml(a, cls = 'c64'){
 const AV_COLORS = ['#e0573a','#2f9e44','#3b7dd8','#9c4fd6','#d6872f','#1f9e98','#d64f8a','#6b7a2f','#5a63d6','#a0522d'];
 function avColor(id){ let h = 0; for(const c of String(id)) h = (h * 31 + c.charCodeAt(0)) >>> 0; return AV_COLORS[h % AV_COLORS.length]; }
 function pname(id){ const p = S.profiles.get(id); return p ? (p.display_name || p.username || '?') : '(usunięty)'; }
+// zielona kropka = ktoś ma teraz otwartą stronę (przy małych avatarach się nie mieści, więc jej nie ma)
+const onDot = size => { const d = Math.max(8, Math.round(size * .3)); return `<i class="ondot" style="width:${d}px;height:${d}px" title="online"></i>`; };
 function avatar(id, size = 36){
   const p = S.profiles.get(id), u = safeUrl(p && p.avatar_url);
   const st = `width:${size}px;height:${size}px;font-size:${Math.round(size * .42)}px;background:${avColor(id)}`;
-  return u ? `<span class="av" style="${st}"><img src="${esc(u)}" alt="" loading="lazy" referrerpolicy="no-referrer"></span>`
-           : `<span class="av" style="${st}">${esc(pname(id).charAt(0).toUpperCase())}</span>`;
+  const dot = size >= 22 && isOnline(id) ? onDot(size) : '';
+  return u ? `<span class="av" data-av="${esc(id)}" data-s="${size}" style="${st}"><img src="${esc(u)}" alt="" loading="lazy" referrerpolicy="no-referrer">${dot}</span>`
+           : `<span class="av" data-av="${esc(id)}" data-s="${size}" style="${st}">${esc(pname(id).charAt(0).toUpperCase())}${dot}</span>`;
 }
+// co 2 minuty dociągnij, kto jest online, i popraw kropki na ekranie (bez przerysowywania strony)
+/* ---------- „teraz słucha” = ktoś właśnie ocenia piosenki z albumu ---------- */
+const LISTEN_MS = 20 * 60 * 1000; // ostatnia oceniona piosenka max 20 min temu
+S.listening = new Map();
+async function refreshListening(){
+  if(!S.user) return;
+  const { data, error } = await sb.from('track_ratings').select('user_id,album_id,position,updated_at').gt('updated_at', new Date(Date.now() - LISTEN_MS).toISOString());
+  if(error || !data) return;
+  const m = new Map();
+  for(const r of data){ if(r.user_id === S.user.id) continue; const t = Date.parse(r.updated_at) || 0, o = m.get(r.user_id);
+    if(!o || t > o.at) m.set(r.user_id, {album_id:Number(r.album_id), at:t}); }
+  for(const [u, o] of m) o.n = data.filter(r => r.user_id === u && Number(r.album_id) === o.album_id).length;
+  S.listening = m; fillListening(true);
+}
+const listenOf = uid => { const o = S.listening.get(uid); return o && Date.now() - o.at < LISTEN_MS && S.albums.has(o.album_id) ? o : null; };
+// wypełnia miejsca oznaczone data-listen (profil, Osoby) i data-listen-album (strona albumu)
+function fillListening(again){
+  document.querySelectorAll('[data-listen]').forEach(el => { const o = listenOf(el.dataset.listen);
+    if(!o){ if(again && el.dataset.lsn){ el.innerHTML = ''; delete el.dataset.lsn; el.classList.remove('lfmnow', 'live'); } return; }
+    const a = S.albums.get(o.album_id); el.dataset.lsn = '1';
+    if(el.dataset.mode === 'mini'){ el.textContent = '🎧 ' + a.title + ' - ' + a.artist; return; }
+    el.classList.add('lfmnow', 'live');
+    el.innerHTML = `<span class="eq" aria-hidden="true"><i></i><i></i><i></i></span>Teraz słucha: <a href="#/album/${a.id}"><b>${esc(a.title)}</b> <span class="muted">- ${esc(a.artist)}</span></a> <span class="muted" style="font-weight:500">· ${o.n} ${pl(o.n,'piosenka oceniona','piosenki ocenione','piosenek ocenionych')}</span>`; });
+  // karta na stronie głównej (nad aktywnością) - tylko gdy ktoś czegoś słucha
+  const now = [...S.listening.keys()].map(u => ({u, o:listenOf(u)})).filter(x => x.o).sort((x, y) => y.o.at - x.o.at);
+  document.querySelectorAll('[data-listen-home]').forEach(el => {
+    el.innerHTML = now.length ? `<section class="card lsnhome"><div class="shead"><h2><span class="eq" aria-hidden="true"><i></i><i></i><i></i></span>Teraz słuchają</h2></div>
+      ${now.map(({u, o}) => { const a = S.albums.get(o.album_id);
+        return `<a class="lsnrow" href="#/album/${a.id}">${coverHtml(a, 'c48')}<span class="lsnt"><b>${esc(a.title)}</b><span>${esc(a.artist)}</span>
+          <small>${avatar(u, 20)}<b>${esc(pname(u))}</b> · ${o.n} ${pl(o.n,'piosenka','piosenki','piosenek')} · ${Date.now() - o.at < 60000 ? 'przed chwilą' : Math.floor((Date.now() - o.at) / 60000) + ' min temu'}</small></span></a>`; }).join('')}</section>` : ''; });
+  document.querySelectorAll('[data-listen-album]').forEach(el => { const id = +el.dataset.listenAlbum;
+    const who = [...S.listening.keys()].filter(u => { const o = listenOf(u); return o && o.album_id === id; });
+    el.innerHTML = who.length ? `<div class="lsnalb"><span class="eq" aria-hidden="true"><i></i><i></i><i></i></span>${who.map(u => `<a href="#/osoba/${u}">${avatar(u, 22)}<b>${esc(pname(u))}</b></a>`).join('')}<span>${who.length > 1 ? 'słuchają' : 'słucha'} teraz tego albumu</span></div>` : ''; });
+}
+async function refreshPresence(){
+  if(!S.user || document.hidden) return;
+  refreshListening();
+  const { data, error } = await sb.from('profiles').select('id,last_active'); if(error || !data) return;
+  for(const x of data){ const p = S.profiles.get(x.id); if(p) p.last_active = x.last_active; }
+  document.querySelectorAll('.av[data-av]').forEach(el => { const s = +el.dataset.s, on = s >= 22 && isOnline(el.dataset.av), d = el.querySelector(':scope > .ondot');
+    if(on && !d) el.insertAdjacentHTML('beforeend', onDot(s)); else if(!on && d) d.remove(); });
+}
+setInterval(refreshPresence, 2 * 60 * 1000);
 const isSingle = a => a.type === 'Singiel';
 const kindOk = (a, kind) => kind === 'all' || (kind === 'singles' ? isSingle(a) : !isSingle(a));
 function timeAgo(d){
@@ -887,7 +1018,10 @@ async function loadData(){
   const opt = t => fetchAll(t).catch(e => { console.warn(t, e); missing = true; return []; });
   const [p, a, r, f, l, w] = await Promise.all([fetchAll('profiles'), fetchAll('albums'), fetchAll('ratings'), opt('favorites'), opt('listen_later'),
     fetchAll('weekly_album').catch(e => { console.warn(e); S.noWeekly = true; return []; })]);
-  const h = await fetchAll('rating_history').catch(e => { console.warn('rating_history', e); return null; });
+  const [h, rc] = await Promise.all([fetchAll('rating_history').catch(e => { console.warn('rating_history', e); return null; }),
+    fetchAll('recommendations').catch(e => { console.warn('recommendations', e); return null; })]);
+  S.recs = rc ? rc.map(x => ({...x, album_id:Number(x.album_id)})) : null; // null = nie ma jeszcze tabeli (update8.sql)
+  refreshListening();
   S.hist = null;
   if(h){ S.hist = new Map(); h.sort((x, y) => Number(x.id) - Number(y.id)).forEach(x => push(S.hist, Number(x.album_id) + '|' + x.user_id,
     {old:x.old_score == null ? null : Number(x.old_score), score:Number(x.new_score), at:x.changed_at})); }
@@ -1076,7 +1210,17 @@ function markSeen(){
 // od kiedy podświetlać jako nowe: na stronie aktywności - stan sprzed wejścia na nią
 const hlSince = () => route().page === 'aktywnosc' && S.actPrev != null ? S.actPrev : S.prevSeen;
 const tsOf = r => Date.parse(r.updated_at || r.created_at || 0) || 0;
-const newCount = () => S.ratings.filter(r => r.user_id !== S.user.id && tsOf(r) > S.prevSeen).length;
+const newCount = () => S.ratings.filter(r => r.user_id !== S.user.id && tsOf(r) > S.prevSeen).length + newRecCount();
+/* ---------- polecenia (update8.sql) ---------- */
+const recsAll = () => (S.recs || []).filter(r => S.albums.has(r.album_id));
+// polecone mnie, jeszcze nieocenione i nieodrzucone - najnowsze pierwsze
+const recsOpen = () => recsAll().filter(r => r.to_user === S.user.id && !r.dismissed && !myRating(r.album_id)).sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at));
+const newRecCount = () => recsOpen().filter(r => Date.parse(r.created_at) > S.prevSeen).length;
+const recByMe = (albumId, uid) => recsAll().find(r => r.album_id === albumId && r.from_user === S.user.id && r.to_user === uid) || null;
+/* ---------- online (update6.sql) ---------- */
+const ONLINE_MS = 10 * 60 * 1000; // strona zapisuje obecność co 5 min, więc 10 min to bezpieczny zapas
+const isOnline = id => { if(!S.user || id === S.user.id) return false; const p = S.profiles.get(id), t = p && Date.parse(p.last_active || '');
+  return !!t && Date.now() - t < ONLINE_MS; };
 /* ---------- zgodność gustu ---------- */
 function compat(u1, u2){
   const m = new Map((S.byUser.get(u1) || []).filter(r => !isHidden(r)).map(r => [r.album_id, r.score]));
@@ -1107,6 +1251,9 @@ function listenLinks(a){
     ['YouTube Music','#ff0000',`https://music.youtube.com/search?q=${q}`]]
     .map(([l, c, u]) => `<a class="lk" href="${u}" target="_blank" rel="noopener"><svg class="pl" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="${c}"/><path d="M8 6.2v7.6l6-3.8z" fill="${l === 'Spotify' ? '#000' : '#fff'}"/></svg>${l}</a>`).join('')}</div>`;
 }
+const PEN = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>';
+const BOOKMARK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.5h11a1 1 0 0 1 1 1v16l-6.5-4.2-6.5 4.2v-16a1 1 0 0 1 1-1z"/></svg>';
+const SEND = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 3L10.5 13.5"/><path d="M21 3l-6.5 18-4-7.5-7.5-4z"/></svg>';
 const HEART = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.6-4.5-9.6-9.2C.9 7.6 3.3 4 6.9 4c2.1 0 3.7 1.1 5.1 3 1.4-1.9 3-3 5.1-3 3.6 0 6 3.6 4.5 7.3-2 4.7-9.6 9.2-9.6 9.2z"/></svg>';
 
 /* ulubione i do posłuchania */
@@ -1115,6 +1262,7 @@ const favsOf = uid => S.favs.filter(f => f.user_id === uid && S.albums.has(f.alb
 const isFav = id => S.favs.some(f => f.user_id === S.user.id && f.album_id === id);
 const myListen = () => S.listen.filter(l => l.user_id === S.user.id && S.albums.has(l.album_id)).sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''));
 const inListen = id => S.listen.some(l => l.user_id === S.user.id && l.album_id === id);
+const inListenOf = (uid, id) => S.listen.some(l => l.user_id === uid && l.album_id === id);
 async function addFav(id){
   if(isFav(id)) return true;
   const pos = Math.max(0, ...myFavs().map(f => f.position)) + 1;
@@ -1338,7 +1486,7 @@ function setTheme(t){
 }
 
 /* ---------- layout ---------- */
-const NAV = [['start','Start'],['ranking','Rankingi'],['albumy','Albumy'],['odkrywaj','🎲 Odkrywaj'],['dodaj','Import'],['osoby','Osoby'],['statystyki','Statystyki']];
+const NAV = [['start','Start'],['ranking','Rankingi'],['albumy','Albumy'],['odkrywaj','Odkrywaj'],['dodaj','Import'],['osoby','Osoby'],['statystyki','Statystyki']];
 const NAV_OF = {lata:'ranking', losuj:'odkrywaj', import:'dodaj'}; // podstrony podświetlają swoją zakładkę
 const NI = {
   start:'<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>',
@@ -1411,14 +1559,14 @@ function render(){
     if(page !== 'oceny' && S.orat) S.orat.q = '';
   }
   pingActive();
-  if(page !== lastPage) S.lexp = null; // rozwinięta lista „do posłuchania” zwija się po zmianie strony
+  if(page !== lastPage){ S.lexp = null; S.recOpen = null; } // rozwinięta lista „do posłuchania” zwija się po zmianie strony
   // listy (rankingi), formularze i aktywność zostają węższe - tam szerokość tylko rozciąga puste miejsce
   app.classList.toggle('narrow', ['ranking','lata','konto','import','dodaj','aktywnosc','edytuj','porownaj'].includes(page));
   lastPage = page;
   const V = {staty:viewPersonStats, odkrywaj:viewDiscover, oceny:viewRatings, aktywnosc:viewActivity, start:viewHome, losuj:viewRandom, statystyki:viewStats, wykonawca:viewArtist, porownaj:viewCompare, ranking:viewRanking, lata:viewYears, album:viewAlbum, albumy:viewAlbums, dodaj:viewAdd, osoby:viewPeople,
              osoba:viewPerson, import:viewImport, konto:viewAccount, edytuj:viewEdit}[page] || viewHome;
   try { V(arg, arg2); } catch(e){ console.error(e); app.innerHTML = `<div class="card err">Błąd: ${esc(e.message)}</div>`; }
-  updLgrid();
+  updLgrid(); fillListening(); fillLfm();
 }
 async function safeLoad(){
   try { await loadData(); }
@@ -1577,7 +1725,7 @@ function listHtml(list, mvs){
 /* ---------- views ---------- */
 const secTabs = (cur, items) => `<div class="chips" style="margin-bottom:18px">${items.map(([k, l, h]) => `<a class="chip ${cur === k ? 'on' : ''}" href="${h}">${l}</a>`).join('')}</div>`;
 const rankTabs = cur => secTabs(cur, [['ranking','Wszech czasów','#/ranking'],['lata','Według lat','#/lata']]);
-const discTabs = cur => secTabs(cur, [['losuj','🎲 Losuj','#/odkrywaj'],['dla-ciebie','Co mi się spodoba','#/odkrywaj/dla-ciebie'],['nowosci','Nowości','#/odkrywaj/nowosci']]);
+const discTabs = cur => secTabs(cur, [['losuj','Losuj','#/odkrywaj'],['dla-ciebie','Co mi się spodoba','#/odkrywaj/dla-ciebie'],['nowosci','Nowości','#/odkrywaj/nowosci']]);
 const addTabs = cur => secTabs(cur, [['jeden','Jeden album','#/dodaj'],['dyskografia','Cała dyskografia','#/dodaj/dyskografia'],['popularne','Popularne teraz','#/dodaj/popularne'],['import','Import ocen','#/import']]);
 function blindNote(){
   if(!blindOn()) return '';
@@ -1629,15 +1777,15 @@ function viewAlbum(arg){
   const ypos = a.year ? rankList({year:a.year, min:1, type:'all', kind}).findIndex(x => x.a.id === id) : -1;
   const notRated = [...S.profiles.values()].filter(p => !rs.some(r => r.user_id === p.id)).map(p => p.display_name || p.username);
   const isW = (curWeekly() || {}).album_id === id;
-  const canDelete = a.created_by === S.user.id || me().is_admin;
   const scores = st.rs.map(r => r.score);
   app.innerHTML = `
   <div class="ahead">
     <div class="sleeve">${coverHtml(a, 'c260')}<span class="disc" style="--lbl:${hid || st.avg == null ? '#d9dbe0' : col(Math.round(st.avg))}" aria-hidden="true"></span></div>
     <div class="ainfo">
-      <div class="ttl"><h1>${esc(a.title)}</h1><button class="heart ${isFav(id) ? 'on' : ''}" id="favB" title="${isFav(id) ? 'Usuń z ulubionych' : 'Dodaj do ulubionych'}" aria-label="Ulubione" aria-pressed="${isFav(id)}">${HEART}</button></div>
+      <div class="ttl"><h1>${esc(a.title)}</h1><button class="heart ${isFav(id) ? 'on' : ''}" id="favB" title="${isFav(id) ? 'Usuń z ulubionych' : 'Dodaj do ulubionych'}" aria-label="Ulubione" aria-pressed="${isFav(id)}">${HEART}</button><a class="pen" href="#/edytuj/${id}" title="Edytuj album" aria-label="Edytuj album">${PEN}</a></div>
       <div class="artist">${artistLinks(a.artist)}</div>
       <div class="facts">${a.year ? `<a href="#/lata/${a.year}"><b>${a.year}</b></a>` : 'rok nieznany'} · ${esc(a.type || '')}<span id="aLen"></span></div>
+      ${recInHtml(a)}
       <div class="avgbox">
         <div class="avgnum" style="background:${hid ? 'var(--none)' : col(st.avg == null ? null : Math.round(st.avg))}">${hid ? '🔒' : avgN(st.avg)}</div>
         <div>
@@ -1648,14 +1796,15 @@ function viewAlbum(arg){
         </div>
       </div>
       ${listenLinks(a)}
-      <div class="btns" style="margin-bottom:10px">
-        <button id="lisB" class="${inListen(id) ? 'btn-on' : ''}">${inListen(id) ? '✓ Do posłuchania' : '+ Do posłuchania'}</button>
+      <div class="abtns">
+        <button id="lisB" class="ab ${inListen(id) ? 'on' : ''}" aria-pressed="${inListen(id)}">${BOOKMARK}<span>${inListen(id) ? 'Na liście<span class="hide-xs"> do posłuchania</span>' : 'Do posłuchania'}</span></button>
+        <button id="recB" class="ab ${S.recOpen === id ? 'open' : ''}" aria-expanded="${S.recOpen === id}">${SEND}<span>Poleć znajomemu</span></button>
       </div>
-      <div class="btns"><a href="#/edytuj/${id}"><button>Edytuj album</button></a>${canDelete ? '<button class="btn-d" id="delA">Usuń album</button>' : ''}</div>
+      ${S.recOpen === id && S.recs ? recPanelHtml(a) : ''}${recSentHtml(a)}
     </div>
   </div>
   <div class="cols">
-    <div class="card"><h2>Oceny (${all_.n})</h2>
+    <div class="card"><h2>Oceny (${all_.n})</h2><div data-listen-album="${id}"></div>
       <div class="rlist">${rs.length ? rs.map(r => { const h = isHidden(r); return `<div class="ri"><a href="#/osoba/${r.user_id}">${avatar(r.user_id)}</a>
         <div><a class="nm" href="#/osoba/${r.user_id}">${esc(pname(r.user_id))}</a>
           ${r.comment && !h ? `<div class="cm">${esc(r.comment)}</div>` : ''}
@@ -1664,9 +1813,9 @@ function viewAlbum(arg){
         ${h ? lockBadge('', id) : `<button type="button" class="rbtn" data-ru="${r.user_id}" title="Pokaż oceny piosenek: ${esc(pname(r.user_id))}">${badge(r.score)}</button>`}</div>`; }).join('') : '<div class="empty">Nikt jeszcze nie ocenił tego albumu.</div>'}</div>
       ${notRated.length ? `<p class="muted small" style="margin:12px 0 0">Jeszcze nie ocenili: ${notRated.map(esc).join(', ')}</p>` : ''}
     </div>
-    <div class="card"><h2>${mine ? 'Twoja ocena' : 'Oceń album'}</h2>
+    <div class="card rate ${mine ? 'rated' : ''}" ${mine ? `style="--mc:${col(Math.round(mine.score))}"` : ''}>${mine ? `<div class="mhead"><div><h2>Twoja ocena</h2><span class="muted small">${fmtDate(mine.updated_at || mine.created_at)}</span></div>${badge(mine.score, 'big')}</div>` : '<h2>Oceń album</h2>'}
       <form class="form" id="rf">
-        <label>Ocena (0-100, zaokrąglana do pełnej liczby)<input class="scorein" id="rs" inputmode="decimal" value="${mine ? num(mine.score) : ''}" placeholder="np. 84"></label>
+        <label>${mine ? 'Zmień ocenę' : 'Ocena (0-100, zaokrąglana do pełnej liczby)'}<input class="scorein" id="rs" inputmode="decimal" value="${mine ? num(mine.score) : ''}" placeholder="np. 84"></label>
         <label>Komentarz (opcjonalnie)<textarea id="rc" maxlength="2000" placeholder="Ulubiony utwór, krótka opinia…">${esc(mine ? mine.comment || '' : '')}</textarea></label>
         <div class="btns"><button class="btn-p" id="rsave">${mine ? 'Zapisz zmiany' : 'Zapisz ocenę'}</button>${mine ? '<button type="button" class="btn-d" id="rdel">Usuń moją ocenę</button>' : ''}</div>
         ${mine ? '<button type="button" id="shareB" style="width:100%;margin-top:4px">📤 Udostępnij grafikę z oceną</button>' : ''}
@@ -1698,6 +1847,12 @@ function viewAlbum(arg){
     if(await (was ? removeFav(id) : addFav(id))){ b.classList.toggle('on', !was); b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop');
       b.title = was ? 'Dodaj do ulubionych' : 'Usuń z ulubionych'; b.setAttribute('aria-pressed', String(!was)); toast(was ? 'Usunięto z ulubionych' : 'Dodano do ulubionych ♥'); } };
   document.getElementById('lisB').onclick = async () => { if(await (inListen(id) ? removeListen(id) : addListen(id))) render(); };
+  document.getElementById('recB').onclick = () => { if(!S.recs) return toast('Polecanie zadziała po uruchomieniu update8.sql w Supabase', true);
+    S.recOpen = S.recOpen === id ? null : id; render(); if(S.recOpen){ const p = document.getElementById('recP'); if(p) p.scrollIntoView({block:'nearest', behavior:'smooth'}); } };
+  if(document.getElementById('recP')) bindRecPanel(a);
+  app.querySelectorAll('[data-rcancel]').forEach(b => armButton(b, 'Cofnąć?', async () => { const rid = Number(b.dataset.rcancel);
+    const { error } = await sb.from('recommendations').delete().eq('id', rid); if(error) return toast(errMsg(error), true);
+    S.recs = S.recs.filter(r => Number(r.id) !== rid); toast('Cofnięto polecenie'); render(); }));
   initTracks(a).then(() => { markRaters(a); drawCalc(a); });
   const cd = document.getElementById('calcD'); cd.ontoggle = () => { S.calcOpen = cd.open; if(cd.open) drawCalc(a); };
   drawCalc(a);
@@ -1710,13 +1865,6 @@ function viewAlbum(arg){
     const { error } = await sb.from('ratings').delete().eq('album_id', id).eq('user_id', S.user.id);
     if(error) return toast(errMsg(error), true);
     removeLocalRating(id, S.user.id); toast('Usunięto ocenę'); render();
-  });
-  const da = document.getElementById('delA');
-  if(da) armButton(da, st.n ? `Usunąć razem z ${ocen(st.n)}?` : 'Na pewno usunąć?', async () => {
-    const { error } = await sb.from('albums').delete().eq('id', id);
-    if(error) return toast(errMsg(error), true);
-    S.albums.delete(id); S.ratings = S.ratings.filter(r => r.album_id !== id); reindex();
-    toast('Usunięto album'); location.hash = '#/albumy';
   });
 }
 
@@ -1991,8 +2139,17 @@ function viewChart(tabs){
 function viewEdit(arg){
   const a = S.albums.get(Number(arg));
   if(!a){ app.innerHTML = '<div class="card">Nie znaleziono albumu.</div>'; return; }
-  app.innerHTML = `<h1>Edytuj: ${esc(a.title)}</h1><p class="sub">Zmiany zobaczą wszyscy.</p>` + albumFormHtml(a, false);
+  const id = a.id, n = stats(id).n, canDelete = a.created_by === S.user.id || me().is_admin;
+  app.innerHTML = `<h1>Edytuj: ${esc(a.title)}</h1><p class="sub">Zmiany zobaczą wszyscy. <a class="link" href="#/album/${id}">← Wróć do albumu</a></p>` + albumFormHtml(a, false)
+    + (canDelete ? `<div class="card" style="margin-top:18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap"><div><h2 style="margin:0">Usuń album</h2><p class="muted small" style="margin:4px 0 0">${n ? `Razem z nim usuniesz: ${ocen(n)} i oceny piosenek.` : 'Nikt go jeszcze nie ocenił.'} Tego nie da się cofnąć.</p></div><button class="btn-d" id="delA">Usuń album</button></div>` : '');
   bindAlbumForm(a, false);
+  const da = document.getElementById('delA');
+  if(da) armButton(da, n ? `Usunąć razem z ${ocen(n)}?` : 'Na pewno usunąć?', async () => {
+    const { error } = await sb.from('albums').delete().eq('id', id);
+    if(error) return toast(errMsg(error), true);
+    S.albums.delete(id); S.ratings = S.ratings.filter(r => r.album_id !== id); reindex();
+    toast('Usunięto album'); location.hash = '#/albumy';
+  });
 }
 
 // prawa kolumna na stronie Osoby (na telefonie pod tabelą)
@@ -2002,7 +2159,7 @@ const lastSeenOf = p => { const a = Date.parse(p.last_active || '') || 0, r = (S
 function seenLabel(t){
   if(!t) return 'jeszcze nie był(a)';
   const m = Math.floor((Date.now() - t) / 60000);
-  if(m < 5) return 'online';
+  if(Date.now() - t < ONLINE_MS) return 'online';
   if(m < 60) return m + ' min temu';
   if(m < 1440) return Math.floor(m / 60) + ' h temu';
   const d = Math.floor(m / 1440); return d === 1 ? 'wczoraj' : d < 7 ? d + ' dni temu' : shortDate(t);
@@ -2012,7 +2169,7 @@ function peopleSide(rows){
   const seen = [...S.profiles.values()].filter(p => p.id !== S.user.id).map(p => ({p, ...lastSeenOf(p)})).sort((a, b) => b.t - a.t).slice(0, 8);
   return `<section class="card"><h2>Ostatnio online</h2>
       ${seen.map(x => { const l0 = seenLabel(x.t), on = x.real && l0 === 'online', lab = x.real || !x.t ? l0 : 'ocena ' + (l0 === 'online' ? 'teraz' : l0);
-        return `<a class="psr" href="#/osoba/${x.p.id}"><span class="pav">${avatar(x.p.id, 30)}${on ? '<i class="ondot"></i>' : ''}</span><span class="nm">${nm(x.p.id)}</span><span class="pseen ${on ? 'on' : ''}" title="${x.real ? 'ostatnio na stronie' : 'ostatnia ocena'}">${lab}</span></a>`; }).join('')}</section>`;
+        return `<a class="psr" href="#/osoba/${x.p.id}"><span class="pav">${avatar(x.p.id, 30)}</span><span class="nm">${nm(x.p.id)}<small class="pnow" data-listen="${esc(x.p.id)}" data-mode="mini" ${x.p.lastfm && CONFIG.LASTFM_KEY ? `data-lfm="${esc(x.p.lastfm)}"` : ''}></small></span><span class="pseen ${on ? 'on' : ''}" title="${x.real ? 'ostatnio na stronie' : 'ostatnia ocena'}">${lab}</span></a>`; }).join('')}</section>`;
 }
 function viewPeople(){
   const rows = [...S.profiles.values()].map(p => { const rs = (S.byUser.get(p.id) || []).filter(r => !isHidden(r));
@@ -2043,6 +2200,41 @@ function histHtml(R, sel, who, hid = []){
           <span class="r2">${who === 'all' ? `<span title="${esc(pname(r.user_id))}">${avatar(r.user_id, 24)}</span>` : ''}${selB.lock ? lockBadge('sm', a.id) : badge(r.score, 'sm')}</span></a>`; }).join('')}</div></div>`
     : (R.length ? '<p class="note">Kliknij pasek, żeby zobaczyć albumy z danego przedziału.</p>' : '')}`;
 }
+/* ---------- Last.fm (update8.sql + LASTFM_KEY w konfiguracji) ---------- */
+const LFM = new Map(); // nick -> {at, t} - pamięć na minutę, żeby nie pytać przy każdym przerysowaniu
+const lfmUrl = u => 'https://www.last.fm/user/' + encodeURIComponent(u);
+async function lastfmNow(user){
+  if(!CONFIG.LASTFM_KEY || !user) return null;
+  const k = user.toLowerCase(), c = LFM.get(k); if(c && Date.now() - c.at < 60000) return c.t;
+  const url = 'https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&format=json&limit=1&user=' + encodeURIComponent(user) + '&api_key=' + encodeURIComponent(CONFIG.LASTFM_KEY);
+  let d = null;
+  try { const r = await fetch(url); d = await r.json(); } catch(e){ try { d = await jsonp(url, 8000); } catch(e2){ return null; } }
+  const tr = d && d.recenttracks ? [].concat(d.recenttracks.track || [])[0] : null;
+  const t = tr ? {name:tr.name || '', artist:(tr.artist && (tr.artist['#text'] || tr.artist.name)) || '', album:(tr.album && tr.album['#text']) || '',
+    now:!!(tr['@attr'] && tr['@attr'].nowplaying), at:tr.date && tr.date.uts ? Number(tr.date.uts) * 1000 : null} : null;
+  LFM.set(k, {at:Date.now(), t}); return t;
+}
+function lfmLine(p, isMe){
+  if(!p.lastfm) return isMe && S.profiles.get(S.user.id) && 'lastfm' in S.profiles.get(S.user.id) ? '<div class="lfm small"><a class="link" href="#/konto">+ Podepnij Last.fm</a></div>' : '';
+  return `<div class="lfm"><a class="lfml" href="${lfmUrl(p.lastfm)}" target="_blank" rel="noopener" title="Profil na Last.fm">${LFM_ICON}${esc(p.lastfm)} ↗</a>${CONFIG.LASTFM_KEY ? `<span data-lfm="${esc(p.lastfm)}" data-mode="full"></span>` : ''}</div>`;
+}
+const LFM_ICON = '<svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><circle cx="12" cy="12" r="12" fill="#d51007"/><path d="M10 7.5v7.1a2.3 2.3 0 1 0 1.6 2.2V10l4.4-1.1V7z" fill="#fff"/></svg>';
+// teraz słuchany utwór; jeśli album jest w bazie - link do niego
+function lfmTrackHtml(t){
+  const a = t.album ? findAlbum(t.artist, t.album) : null;
+  const tx = `<b>${esc(t.name)}</b> <span class="muted">- ${esc(t.artist)}</span>`;
+  return a ? `<a href="#/album/${a.id}">${tx}</a>` : tx;
+}
+async function fillLfm(){
+  const els = [...document.querySelectorAll('[data-lfm]:not([data-done])')]; if(!els.length) return;
+  for(const el of els){ el.dataset.done = '1';
+    lastfmNow(el.dataset.lfm).then(t => { if(!el.isConnected || !t || !t.name) return;
+      if(el.dataset.mode === 'mini'){ if(t.now && !el.dataset.lsn) el.innerHTML = `🎧 ${esc(t.name)} - ${esc(t.artist)}`; return; }
+      if(t.now && el.closest('.phead') && el.closest('.phead').querySelector('[data-listen][data-lsn]')) return; // już widać, czego słucha (oceny piosenek)
+      el.innerHTML = t.now ? `<span class="eq" aria-hidden="true"><i></i><i></i><i></i></span>Teraz słucha: ${lfmTrackHtml(t)}`
+        : `Ostatnio: ${lfmTrackHtml(t)}${t.at ? ` <span class="muted">· ${timeAgo(new Date(t.at).toISOString())}</span>` : ''}`;
+      el.classList.add('lfmnow'); el.classList.toggle('live', t.now); }); }
+}
 function viewPerson(id){
   const p = S.profiles.get(id);
   if(!p){ app.innerHTML = '<div class="card">Nie ma takiej osoby.</div>'; return; }
@@ -2067,7 +2259,7 @@ function viewPerson(id){
   const recent = (S.byUser.get(id) || []).filter(r => S.albums.has(r.album_id)).sort((a, b) => tsOf(b) - tsOf(a)).slice(0, 24);
   const favs = favsOf(id);
   const what = S.f.kind === 'singles' ? 'singli' : 'albumów';
-  app.innerHTML = `<div class="phead">${avatar(id, 72)}<div><h1>${esc(name)}</h1>
+  app.innerHTML = `<div class="phead">${avatar(id, 72)}<div><h1>${esc(name)}</h1>${isMe ? '' : `<div class="lfm"><span data-listen="${esc(id)}"></span></div>`}${lfmLine(p, isMe)}
       ${cp ? `<div class="btns" style="margin-top:8px">Zgodność gustu z Tobą: ${pctBadge(cp)}<span class="muted small">${cp.n} ${pl(cp.n,'wspólny album','wspólne albumy','wspólnych albumów')}</span>${cp.n ? `<a href="#/porownaj/${S.user.id}/${id}"><button>Porównaj oceny</button></a>` : ''}</div>`
         : isMe ? '<div class="small" style="margin-top:6px"><a class="link" href="#/konto">Ustawienia konta</a></div>' : ''}</div>
     <div class="pstats"><a href="#/staty/${id}" title="Statystyki i wykresy"><div class="v" style="color:${avg == null ? 'var(--muted)' : colT(Math.round(avg))}">${avgN(avg)}</div><div class="l">Średnia ›</div></a>
@@ -2495,7 +2687,7 @@ async function saveTrackScore_(a, pos, inp){
     ({ error } = await sb.from('track_ratings').delete().eq('user_id', uid).eq('album_id', a.id).eq('position', pos));
     if(!error) T.ratings = T.ratings.filter(r => r !== cur);
   } else {
-    const row = {user_id:uid, album_id:a.id, position:pos, score, fav:!!(cur && cur.fav)};
+    const row = {user_id:uid, album_id:a.id, position:pos, score, fav:!!(cur && cur.fav), updated_at:new Date().toISOString()};
     let data; ({ data, error } = await sb.from('track_ratings').upsert(row, {onConflict:'user_id,album_id,position'}).select().single());
     if(!error){ const nr = {...data, position:Number(data.position), score:data.score == null ? null : Number(data.score)}; T.ratings = T.ratings.filter(r => r !== cur).concat(nr); }
   }
@@ -2736,7 +2928,8 @@ function statsYear(tabs){
   const y = T.year;
   const ranked = (kind, min, at) => [...S.albums.values()].filter(a => a.year === y && kindOk(a, kind) && !hiddenAlbum(a.id)).map(a => ({a, st:at ? statsAt(a.id, at, true) : visStats(a.id)})).filter(x => x.st.n >= min)
     .sort((p, q) => q.st.avg - p.st.avg || q.st.n - p.st.n);
-  let albums = ranked('albums', 2), minNote = 2; if(!albums.length){ albums = ranked('albums', 1); minNote = 1; }
+  // do topki liczą się albumy z min. 3 ocenami (na początku roku, gdy takich nie ma - z mniejszą liczbą)
+  let minNote = 3, albums = ranked('albums', 3); while(!albums.length && minNote > 1){ minNote--; albums = ranked('albums', minNote); }
   const singles = ranked('singles', 1), hero = albums[0];
   const mvA = rankMoves(albums.slice(0, 10), t => ranked('albums', minNote, t)), mvS = rankMoves(singles.slice(0, 5), t => ranked('singles', 1, t));
   const yR = R.filter(r => S.albums.get(r.album_id).year === y);
@@ -2764,7 +2957,7 @@ function statsYear(tabs){
     </div>
     <div class="sgrid">
       <section class="card"><h2>Top 10 albumów ${y}</h2>${albums.length ? albums.slice(0, 10).map((x, i) => statRow(i + 1, x.a, scMine(badge(x.st.avg, 'big'), x.a.id), ocen(x.st.n), moveHtml(x.a.id, i + 1, mvA))).join('')
-        + `<p class="note">${minNote === 2 ? 'Albumy z min. 2 ocenami. ' : ''}${moveNote()}</p>` : '<div class="empty">Brak danych.</div>'}</section>
+        + `<p class="note">${minNote > 1 ? `Albumy z min. ${minNote} ocenami. ` : ''}${moveNote()}</p>` : '<div class="empty">Brak danych.</div>'}</section>
       <div style="display:grid;gap:18px;align-content:start">
         <section class="card"><h2>Numer 1 każdego z was</h2>${per.length ? `<div class="p1">${per.map(x => { const a = S.albums.get(x.top.album_id);
           return `<div><div class="who">${avatar(x.p.id, 22)}${nm(x.p)}</div><a class="tile" href="#/album/${a.id}"><div class="cw">${coverHtml(a, 'cfull')}${tpBadge(a.id, x.p.id, x.top.score)}</div><div class="t">${esc(a.title)}</div><div class="a">${esc(a.artist)}</div></a></div>`; }).join('')}</div>` : '<div class="empty">Brak danych.</div>'}</section>
@@ -2799,29 +2992,94 @@ function viewArtist(name){
   document.getElementById('adisco').onclick = () => { S.disco = {q:shown, artists:null, artist:null, items:null, show:{Singiel:false, Kompilacja:false}, auto:true}; location.hash = '#/dodaj/dyskografia'; };
 }
 
+/* ----- polecenia: lista „Polecone dla Ciebie” ----- */
+// kilka osób może polecić ten sam album - jeden wiersz na album
+function recGroups(){
+  const m = new Map();
+  for(const r of recsOpen()){ const g = m.get(r.album_id) || {a:S.albums.get(r.album_id), recs:[], ts:0}; g.recs.push(r); g.ts = Math.max(g.ts, Date.parse(r.created_at) || 0); m.set(r.album_id, g); }
+  return [...m.values()].sort((x, y) => y.ts - x.ts);
+}
+function recListHtml(groups){
+  return `<div class="list recs inbox">${groups.map(g => { const a = g.a, lis = inListen(a.id), isNew = g.ts > hlSince();
+    const by = g.recs.map(r => { const fr = (S.byAlbum.get(a.id) || []).find(x => x.user_id === r.from_user), sc = fr && !isHidden(fr) ? fr.score : null;
+      return `<span class="fan">${avatar(r.from_user, 18)}${esc(pname(r.from_user))}${sc != null ? ` <b style="color:${colT(Math.round(sc))}">${num(sc)}</b>` : ''}</span>`; }).join('');
+    const notes = g.recs.filter(r => r.note).map(r => `<div class="rnote">„${esc(r.note)}”${g.recs.length > 1 ? ` <span class="muted">- ${esc(pname(r.from_user))}</span>` : ''}</div>`).join('');
+    return `<div class="row rec ${isNew ? 'new' : ''}"><a href="#/album/${a.id}">${coverHtml(a, 'c56')}</a>
+      <div class="meta"><a href="#/album/${a.id}"><b>${esc(a.title)}</b></a><span>${esc(a.artist)}${a.year ? ' · ' + a.year : ''}${a.type ? ' · ' + esc(a.type) : ''}</span>
+        <small class="why">${g.recs.length > 1 ? 'Polecają:' : 'Poleca:'}${by}<span class="muted"> · ${timeAgo(new Date(g.ts).toISOString())}</span></small>${notes}
+        <div class="btns"><a href="#/album/${a.id}"><button type="button" class="sm btn-p">Oceń</button></a><button type="button" class="sm ${lis ? 'btn-on' : ''}" data-rl="${a.id}">${lis ? '✓ Do posłuchania' : '+ Do posłuchania'}</button><button type="button" class="sm ghost" data-rx="${a.id}" title="Ukryj to polecenie">Odrzuć</button></div></div></div>`; }).join('')}</div>`;
+}
+function bindRecList(root){
+  root.querySelectorAll('[data-rl]').forEach(b => b.onclick = async () => { const id = +b.dataset.rl; b.disabled = true;
+    if(await (inListen(id) ? removeListen(id) : addListen(id))){ toast(inListen(id) ? 'Dodano do listy do posłuchania' : 'Usunięto z listy do posłuchania'); render(); } else b.disabled = false; });
+  root.querySelectorAll('[data-rx]').forEach(b => b.onclick = async () => { const id = +b.dataset.rx; b.disabled = true;
+    const ids = recsOpen().filter(r => r.album_id === id).map(r => r.id);
+    const { error } = await sb.from('recommendations').update({dismissed:true}).in('id', ids);
+    if(error){ b.disabled = false; return toast(errMsg(error), true); }
+    for(const r of S.recs) if(ids.includes(r.id)) r.dismissed = true;
+    toast('Odrzucono polecenie'); render(); });
+}
+// panel „Poleć znajomemu” na stronie albumu
+function recPanelHtml(a){
+  const people = [...S.profiles.values()].filter(p => p.id !== S.user.id).sort((x, y) => pname(x.id).localeCompare(pname(y.id), 'pl'));
+  return `<div class="recp" id="recP"><div class="recp-h"><b>Poleć „${esc(a.title)}”</b><button type="button" class="link small" id="recX">Zamknij</button></div>
+    <div class="recpeople">${people.map(p => { const done = (S.byAlbum.get(a.id) || []).some(r => r.user_id === p.id), sent = recByMe(a.id, p.id);
+      return `<button type="button" class="rpp ${sent ? 'sent' : ''}" data-rp="${esc(p.id)}" ${done || sent ? 'disabled' : ''} aria-pressed="false">${avatar(p.id, 24)}<span>${esc(pname(p.id))}</span>${done ? '<small>✓ ocenione</small>' : sent ? '<small>💌 polecone</small>' : ''}</button>`; }).join('')}</div>
+    <textarea id="recNote" maxlength="300" rows="2" placeholder="Dlaczego warto? (opcjonalnie)"></textarea>
+    <div class="btns"><button type="button" class="btn-p" id="recSend" disabled>Wyślij polecenie</button><span class="muted small" id="recCnt">Zaznacz, komu polecasz</span></div></div>`;
+}
+// komu już poleciłem ten album i co z tego wyszło
+function recSentHtml(a){
+  const mine = recsAll().filter(r => r.album_id === a.id && r.from_user === S.user.id);
+  if(!mine.length) return '';
+  return `<div class="recsent">💌 Polecono: ${mine.map(r => { const x = (S.byAlbum.get(a.id) || []).find(q => q.user_id === r.to_user);
+    const st = x ? (isHidden(x) ? 'ocenione 🔒' : `ocenione <b style="color:${colT(Math.round(x.score))}">${num(x.score)}</b>`) : r.dismissed ? 'odrzucone' : inListenOf(r.to_user, a.id) ? 'na liście do posłuchania' : 'jeszcze nie ocenione';
+    return `<span class="rs1">${avatar(r.to_user, 20)}${esc(pname(r.to_user))} <span class="muted">· ${st}</span>${x ? '' : `<button type="button" class="rsx" data-rcancel="${r.id}" title="Cofnij polecenie" aria-label="Cofnij polecenie">×</button>`}</span>`; }).join('')}</div>`;
+}
+function recInHtml(a){
+  const rs = recsAll().filter(r => r.album_id === a.id && r.to_user === S.user.id && !r.dismissed);
+  if(!rs.length) return '';
+  return `<div class="recin">${rs.map(r => `<div>${avatar(r.from_user, 22)}<span><b>${esc(pname(r.from_user))}</b> poleca Ci ten album${r.note ? `: <i>„${esc(r.note)}”</i>` : ''} <span class="muted small">· ${timeAgo(r.created_at)}</span></span></div>`).join('')}</div>`;
+}
+function bindRecPanel(a){
+  const sel = new Set(), send = document.getElementById('recSend'), cnt = document.getElementById('recCnt');
+  const upd = () => { send.disabled = !sel.size; cnt.textContent = sel.size ? `Wybrano: ${[...sel].map(pname).join(', ')}` : 'Zaznacz, komu polecasz'; };
+  document.querySelectorAll('#recP [data-rp]').forEach(b => b.onclick = () => { const id = b.dataset.rp; sel.has(id) ? sel.delete(id) : sel.add(id);
+    b.classList.toggle('on', sel.has(id)); b.setAttribute('aria-pressed', String(sel.has(id))); upd(); });
+  document.getElementById('recX').onclick = () => { S.recOpen = false; render(); };
+  send.onclick = async () => {
+    const note = document.getElementById('recNote').value.trim() || null; send.disabled = true;
+    const { data, error } = await sb.from('recommendations').insert([...sel].map(u => ({album_id:a.id, to_user:u, note}))).select();
+    if(error){ send.disabled = false; return toast(error.code === '23505' ? 'To polecenie już wysłano - odświeżam' : errMsg(error), true); }
+    S.recs.push(...data.map(x => ({...x, album_id:Number(x.album_id)})));
+    toast('💌 Polecono: ' + [...sel].map(pname).join(', ')); S.recOpen = false; render();
+  };
+}
 function feedItem(r){
   const a = S.albums.get(r.album_id), hid = isHidden(r), was = hid ? null : lastChange(r);
   return `<div class="fi ${tsOf(r) > hlSince() ? 'new' : ''}"><a href="#/osoba/${r.user_id}">${avatar(r.user_id, 34)}</a><div>
     <div class="who"><a href="#/osoba/${r.user_id}"><b>${esc(pname(r.user_id))}</b>${was != null ? ' <span class="muted" style="font-weight:500">zmienia ocenę</span>' : ''}</a><span class="wr">${was != null ? `<s class="was" title="Poprzednia ocena">${num(was)}</s><span class="ar">→</span>` : ''}${hid ? lockBadge('sm', a.id) : tpBadge(a.id, r.user_id, r.score)}</span></div>
     <a class="alb" href="#/album/${a.id}">${coverHtml(a, 'c40')}<div><b>${esc(a.title)}</b><span>${esc(a.artist)}</span></div></a>
     ${r.comment && !hid ? `<div class="cm">„${esc(r.comment)}”</div>` : ''}
-    <time>${timeAgo(r.updated_at || r.created_at)}</time></div></div>`;
+    <time>${timeAgo(r.updated_at || r.created_at)}</time>${recByMe(r.album_id, r.user_id) ? '<span class="fromrec" title="Ten album poleciłeś tej osobie">💌 Twoje polecenie</span>' : ''}</div></div>`;
 }
 function viewActivity(){
   const A = S.act || (S.act = {who:'all', limit:100});
   const people = [...S.profiles.values()].filter(p => p.id !== S.user.id);
   const all = S.ratings.filter(r => r.user_id !== S.user.id && S.albums.has(r.album_id) && (A.who === 'all' || r.user_id === A.who)).sort((p, q) => tsOf(q) - tsOf(p));
-  const list = all.slice(0, A.limit), nNew = all.filter(r => tsOf(r) > hlSince()).length;
+  const list = all.slice(0, A.limit), nNew = all.filter(r => tsOf(r) > hlSince()).length, recG = recGroups();
   const dayKey = r => { const d = new Date(r.updated_at || r.created_at); return d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate(); };
   const dayLabel = r => { const d = new Date(r.updated_at || r.created_at), t = new Date(); t.setHours(0, 0, 0, 0); const x = new Date(d); x.setHours(0, 0, 0, 0);
     const diff = Math.round((t - x) / 86400000); return diff === 0 ? 'Dzisiaj' : diff === 1 ? 'Wczoraj' : d.toLocaleDateString('pl-PL', {weekday:'long', day:'numeric', month:'long'}); };
   const groups = []; for(const r of list){ const k = dayKey(r); if(!groups.length || groups[groups.length - 1].k !== k) groups.push({k, label:dayLabel(r), items:[]}); groups[groups.length - 1].items.push(r); }
   app.innerHTML = `<h1>Aktywność znajomych</h1><p class="sub">${nNew ? `<b>${nNew}</b> ${pl(nNew,'nowa ocena','nowe oceny','nowych ocen')} od ostatniej wizyty · ` : ''}oceny znajomych od najnowszych</p>
+    ${recG.length ? `<section class="card" style="margin-bottom:16px"><h2>💌 Polecone dla Ciebie (${recG.length})</h2>${recListHtml(recG)}</section>` : ''}
     <div class="who-pick"><a href="javascript:void 0" class="all ${A.who === 'all' ? 'on' : ''}" data-w="all">Wszyscy</a>${people.map(p => `<a href="javascript:void 0" data-w="${esc(p.id)}" class="${A.who === p.id ? 'on' : ''}">${avatar(p.id, 24)}${esc(p.display_name || p.username)}</a>`).join('')}</div>
     ${groups.length ? groups.map(g => `<section class="card" style="margin-bottom:14px"><h2 style="text-transform:none">${g.label.charAt(0).toUpperCase() + g.label.slice(1)}</h2><div class="feedh">${g.items.map(feedItem).join('')}</div></section>`).join('')
       : '<div class="card empty">Brak ocen.</div>'}
     ${all.length > list.length ? `<div style="text-align:center"><button id="actMore">Pokaż więcej (${all.length - list.length})</button></div>` : ''}`;
   app.querySelectorAll('[data-w]').forEach(el => el.onclick = e => { e.preventDefault(); A.who = el.dataset.w; A.limit = 100; render(); });
+  bindRecList(app);
   const m = document.getElementById('actMore'); if(m) m.onclick = () => { A.limit += 200; const y = window.scrollY; render(); window.scrollTo(0, y); };
 }
 /* ----- grafika z oceną do udostępnienia ----- */
@@ -3211,7 +3469,7 @@ function viewHome(){
   const years = [...new Set(mineR.map(r => S.albums.get(r.album_id).year).filter(Boolean)).add(new Date().getFullYear())].sort((a, b) => b - a);
   const yearList = mineR.filter(r => S.albums.get(r.album_id).year === H.year).sort((a, b) => b.score - a.score);
   const shown = H.all ? yearList : yearList.slice(0, 10);
-  const favs = myFavs(), listen = myListen();
+  const favs = myFavs(), listen = myListen(), recG = recGroups();
   const recentMine = (S.byUser.get(uid) || []).filter(r => S.albums.has(r.album_id))
     .sort((x, y) => tsOf(y) - tsOf(x)).slice(0, 10);
   const feed = S.ratings.filter(r => r.user_id !== uid && S.albums.has(r.album_id))
@@ -3234,12 +3492,15 @@ function viewHome(){
           : '<div class="empty">Nie oceniłeś jeszcze żadnego albumu.</div>'}
       </section>
 
+      ${recG.length ? `<section class="card"><div class="shead"><h2>💌 Polecone dla Ciebie (${recG.length})</h2>${recG.length > 3 ? '<a class="link small" href="#/aktywnosc">Wszystkie →</a>' : ''}</div>${recListHtml(recG.slice(0, 3))}</section>` : ''}
+
       <section class="card">
         <div class="shead"><h2>Do posłuchania (${listen.length})</h2>${listen.length ? '<a href="#/odkrywaj" data-rlist><button>🎲 Wylosuj z listy</button></a>' : ''}</div>
         ${pickerHtml('lpick', 'Dodaj album do posłuchania - wpisz wykonawcę lub tytuł…')}
         ${listenRowHtml(uid, true)}
       </section>
 
+      <div class="only-m" data-listen-home></div>
       ${actCard('only-m', 6)}
 
       <section class="card">
@@ -3266,7 +3527,9 @@ function viewHome(){
     </div>
 
     <aside class="side">
+      <div class="only-d" data-listen-home></div>
       ${actCard('only-d', 8)}
+      ${upcomingHtml()}
       ${aotwHtml()}
     </aside>
   </div>`;
@@ -3280,6 +3543,7 @@ function viewHome(){
   app.querySelectorAll('[data-mv]').forEach(b => b.onclick = async () => { await moveFav(+b.dataset.id, +b.dataset.mv); render(); });
   app.querySelectorAll('[data-rm]').forEach(b => b.onclick = async () => { if(await removeFav(+b.dataset.rm)) render(); });
   app.querySelectorAll('[data-lrm]').forEach(b => b.onclick = async () => { if(await removeListen(+b.dataset.lrm)) render(); });
+  bindRecList(app);
   bindAotw();
 }
 
@@ -3358,7 +3622,7 @@ function viewRandom(){
         <label>Rok do<select id="rto">${yOpts(R.to)}</select></label>
         ${segHtml('rkind', R.kind, [['albums','Albumy'],['singles','Single'],['all','Wszystko']])}
       </div>
-      <div class="btns" style="margin-top:16px"><button class="btn-p dice" id="roll" ${pool.length ? '' : 'disabled'}>🎲 Losuj</button>
+      <div class="btns" style="margin-top:16px"><button class="btn-p dice" id="roll" ${pool.length ? '' : 'disabled'}>Losuj</button>
         <span class="pool">W puli: <b>${pool.length}</b> ${pl(pool.length,'pozycja','pozycje','pozycji')}${!pool.length ? ' - zmień filtry' : ''}</span></div>
     </div>
     <div id="rres"></div>`;
@@ -3371,13 +3635,15 @@ function viewRandom(){
   const box = document.getElementById('rres');
   const show = (a, final) => {
     const st = visStats(a.id), rs = [...st.rs].sort((x, y) => y.score - x.score);
-    box.innerHTML = `<div class="rnd">${coverHtml(a, 'c260')}<div>
-      <h1 style="font-size:30px;line-height:1.15">${esc(a.title)}</h1><div class="artist">${esc(a.artist)}</div>
+    // po wylosowaniu okładka i tytuł prowadzą do albumu (w trakcie „kręcenia” nie - żeby nie kliknąć przypadkiem)
+    const lk = h => final ? `<a href="#/album/${a.id}" class="rlk">${h}</a>` : h;
+    box.innerHTML = `<div class="rnd">${lk(coverHtml(a, 'c260'))}<div>
+      <h1 style="font-size:30px;line-height:1.15">${lk(esc(a.title))}</h1><div class="artist">${final ? artistLinks(a.artist) : esc(a.artist)}</div>
       <div class="facts">${a.year || 'rok nieznany'} · ${esc(a.type || '')}</div>
       ${final ? `<div class="btns">${st.n ? badge(st.avg, 'big') + `<span class="muted">średnia grupy · ${ocen(st.n)}</span>` : '<span class="muted">Nikt jeszcze tego nie ocenił - możesz być pierwszy.</span>'}</div>
       ${rs.length ? `<div class="who-rated">${rs.map(r => `<a href="#/osoba/${r.user_id}">${avatar(r.user_id, 24)}${esc(pname(r.user_id))} <b>${num(r.score)}</b></a>`).join('')}</div>` : '<div style="height:14px"></div>'}
       <div class="btns"><button id="rl" class="${inListen(a.id) ? 'btn-on' : ''}">${inListen(a.id) ? '✓ Na liście do posłuchania' : '+ Do posłuchania'}</button>
-        <a href="#/album/${a.id}"><button>Przejdź do albumu</button></a><button id="ragain">🎲 Jeszcze raz</button></div>` : ''}
+        <a href="#/album/${a.id}"><button>Przejdź do albumu</button></a><button id="ragain">Jeszcze raz</button></div>` : ''}
     </div></div>`;
     if(!final) return;
     document.getElementById('rl').onclick = async () => { if(await (inListen(a.id) ? removeListen(a.id) : addListen(a.id))) show(a, true); };
@@ -3532,12 +3798,16 @@ function viewNews(tabs){
     const cutoff = Date.now() - N.days * 864e5;
     const list = D2.items.filter(it => { if(it.ts < cutoff || (!N.singles && it.type === 'Singiel')) return false; const a = findAlbum(it.artist, it.title); return !(a && myRating(a.id)); });
     st.textContent = `Sprawdzono ${D2.artists} ${pl(D2.artists,'wykonawcę','wykonawców','wykonawców')} · ${timeAgo(new Date(D2.at).toISOString())}${D2.fail ? ` · ${D2.fail} nie odpowiedziało` : ''}`;
-    box.innerHTML = list.length ? `<div class="list news">${list.map(it => { const a = findAlbum(it.artist, it.title), i = D2.items.indexOf(it), vs = a ? visStats(a.id) : null, lis = a && inListen(a.id), soon = it.ts > Date.now();
+    // zapowiedzi osobno na górze - od najbliższej premiery; potem to, co już wyszło (od najnowszych)
+    const now = Date.now(), up = list.filter(it => it.ts > now).sort((x, y) => x.ts - y.ts), out = list.filter(it => it.ts <= now);
+    const rowsHtml = arr => `<div class="list news">${arr.map(it => { const a = findAlbum(it.artist, it.title), i = D2.items.indexOf(it), vs = a ? visStats(a.id) : null, lis = a && inListen(a.id), soon = it.ts > Date.now();
       return `<div class="row rec">${a ? `<a href="#/album/${a.id}">${coverHtml(a, 'c56')}</a>` : coverHtml({title:it.title, cover_url:it.thumb}, 'c56')}
         <div class="meta">${a ? `<a href="#/album/${a.id}"><b>${esc(it.title)}</b></a>` : `<b>${esc(it.title)}</b>`}<span>${esc(it.artist)} · ${esc(it.type)}</span>
           <small class="why"><span class="${soon ? 'soon' : ''}">${fmtDate(it.date)} - ${newsWhen(it.ts)}</span>${N.scope === 'all' ? ' · słuchają: ' + it.fans.slice(0, 4).map(u => avatar(u, 18)).join('') : ''}</small>
           <div class="btns">${a ? '' : `<button type="button" class="sm" data-na="${i}">+ Dodaj do bazy</button>`}<button type="button" class="sm ${lis ? 'btn-on' : ''}" data-nl="${i}">${lis ? '✓ Do posłuchania' : '+ Do posłuchania'}</button></div></div>
-        <div class="pred">${a ? (vs.n ? `${badge(vs.avg)}<small>${ocen(vs.n)}</small>` : '<small class="muted">w bazie</small>') : '<small class="muted">nowe</small>'}</div></div>`; }).join('')}</div>`
+        <div class="pred">${soon ? `<span class="cdown"><b>${daysTo(it.ts)}</b><small>${pl(daysTo(it.ts),'dzień','dni','dni')}</small></span>` : a ? (vs.n ? `${badge(vs.avg)}<small>${ocen(vs.n)}</small>` : '<small class="muted">w bazie</small>') : '<small class="muted">nowe</small>'}</div></div>`; }).join('')}</div>`;
+    box.innerHTML = list.length ? (up.length ? `<h2 class="nsec">📅 Zapowiedzi <span class="muted">(${up.length})</span></h2>${rowsHtml(up)}` : '')
+        + (out.length ? `${up.length ? '<h2 class="nsec">Już wyszły</h2>' : ''}${rowsHtml(out)}` : '')
       : `<div class="card empty">Brak nowych płyt w tym okresie${N.singles ? '' : ' (single są ukryte)'}.</div>`;
     box.querySelectorAll('[data-na]').forEach(b => b.onclick = async () => { b.disabled = true; const a = await addFromDz(D2.items[+b.dataset.na]); if(a){ toast('Dodano „' + a.title + '”'); draw(); } else b.disabled = false; });
     box.querySelectorAll('[data-nl]').forEach(b => b.onclick = async () => { b.disabled = true; const it = D2.items[+b.dataset.nl];
@@ -3559,6 +3829,22 @@ function viewNews(tabs){
   document.getElementById('nref').onclick = run;
   if(N.busy) st.textContent = 'Sprawdzam…';
   draw();
+  // bez zapisanych wyników - sprawdź od razu, bez klikania
+  if(!D && !N.busy && newsArtists(N.scope).length) run();
+}
+const daysTo = ts => { const d0 = new Date(); d0.setHours(0, 0, 0, 0); return Math.max(0, Math.round((new Date(ts).setHours(0, 0, 0, 0) - d0) / 864e5)); };
+// karta na stronie głównej: najbliższe premiery z ostatniego sprawdzenia nowości (nic nie pobiera sama)
+function upcomingHtml(){
+  if(!S.user) return '';
+  let c = null; for(const sc of ['me','all']){ try { const x = JSON.parse(localStorage.getItem('oceny_news_' + S.user.id + '_' + sc) || 'null'); if(x && (!c || x.at > c.at)) c = x; } catch(e){} }
+  if(!c || Date.now() - c.at > 14 * 864e5) return '';
+  const now = Date.now(), list = c.items.filter(it => it.type !== 'Singiel' && it.ts > now - 3 * 864e5 && it.ts < now + 60 * 864e5)
+    .filter(it => { const a = findAlbum(it.artist, it.title); return !(a && myRating(a.id)); }).sort((x, y) => x.ts - y.ts).slice(0, 5);
+  if(!list.length) return '';
+  return `<section class="card upc"><div class="shead"><h2>📅 Premiery</h2><a class="link small" href="#/odkrywaj/nowosci">Wszystkie →</a></div>
+    ${list.map(it => { const a = findAlbum(it.artist, it.title), href = a ? '#/album/' + a.id : '#/odkrywaj/nowosci', soon = it.ts > now;
+      return `<a class="arch" href="${href}">${a ? coverHtml(a, 'c40') : coverHtml({title:it.title, cover_url:it.thumb}, 'c40')}<div><span><b>${esc(it.title)}</b></span><span class="muted">${esc(it.artist)}</span></div>
+        <span class="upd ${soon ? 'soon' : ''}">${soon ? (daysTo(it.ts) === 0 ? 'dziś' : daysTo(it.ts) === 1 ? 'jutro' : 'za ' + daysTo(it.ts) + ' dni') : 'nowość'}</span></a>`; }).join('')}</section>`;
 }
 
 /* ----- import ----- */
@@ -3804,6 +4090,10 @@ function viewAccount(){
     <div class="btns" style="gap:18px"><span id="avp">${avatar(S.user.id, 96)}</span>
       <div class="form"><label>Wgraj zdjęcie<input type="file" id="avf" accept="image/*"></label>
       ${safeUrl(p.avatar_url) ? '<div><button class="btn-d" id="avdel">Usuń avatar</button></div>' : ''}<div id="avm"></div></div></div></div>
+  <div class="card" style="margin-bottom:18px"><h2>Last.fm</h2>
+    <form class="form" id="lff"><label>Nazwa użytkownika na Last.fm<input id="lfu" maxlength="80" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="np. kuba_123" value="${esc(p.lastfm || '')}"></label>
+      <div class="btns"><button class="btn-p">Zapisz</button>${p.lastfm ? '<button type="button" id="lfdel">Odepnij</button>' : ''}</div><div id="lfm_"></div></form>
+    <p class="note">Na Twoim profilu pojawi się link do Last.fm${CONFIG.LASTFM_KEY ? ' i to, czego właśnie słuchasz (albo ostatni utwór)' : ''}. Wpisz samą nazwę - tę z adresu last.fm/user/<b>nazwa</b>.</p></div>
   <div class="cols" style="margin-top:0">
     <div class="card"><h2>Nazwa widoczna dla innych</h2>
       <form class="form" id="nf"><input id="nn" maxlength="40" required value="${esc(p.display_name || '')}">
@@ -3815,6 +4105,14 @@ function viewAccount(){
   </div>
   <div class="card" style="margin-top:18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap"><div><h2 style="margin:0">Wylogowanie</h2><p class="muted small" style="margin:4px 0 0">Na tym urządzeniu trzeba będzie zalogować się ponownie.</p></div><button class="btn-d" id="acclogout">Wyloguj</button></div>`;
   document.getElementById('acclogout').onclick = logout;
+  const saveLfm = async v => { const m = document.getElementById('lfm_');
+    if(v && !/^[A-Za-z][A-Za-z0-9_-]{1,14}$/.test(v)){ m.className = 'err'; m.textContent = 'Nazwa na Last.fm ma 2-15 znaków: litery, cyfry, _ i -, na początku litera.'; return; }
+    const { error } = await sb.from('profiles').update({lastfm:v || null}).eq('id', S.user.id);
+    if(error){ m.className = 'err'; m.textContent = /lastfm/.test(error.message || '') ? 'Najpierw uruchom update8.sql w Supabase.' : errMsg(error); return; }
+    const pr = S.profiles.get(S.user.id); if(pr) pr.lastfm = v || null; LFM.clear();
+    toast(v ? 'Podpięto Last.fm: ' + v : 'Odpięto Last.fm'); render(); };
+  document.getElementById('lff').onsubmit = e => { e.preventDefault(); saveLfm(document.getElementById('lfu').value.trim().replace(/^.*last\.fm\/(?:[a-z]{2}\/)?user\//i, '').replace(/\/.*$/, '')); };
+  const lfd = document.getElementById('lfdel'); if(lfd) lfd.onclick = () => saveLfm(null);
   document.getElementById('nf').onsubmit = async e => {
     e.preventDefault(); const v = document.getElementById('nn').value.trim(), m = document.getElementById('nm'); if(!v) return;
     const { error } = await sb.from('profiles').update({display_name:v}).eq('id', S.user.id);
