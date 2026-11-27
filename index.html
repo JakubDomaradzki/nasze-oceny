@@ -604,7 +604,7 @@ tr.cl:hover td{background:var(--soft)}
 .lsnt{min-width:0;display:flex;flex-direction:column;gap:1px}
 .lsnt>b,.lsnt>span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .lsnt>span{color:var(--muted);font-size:13.5px}
-.lsnt small{display:flex;align-items:center;gap:5px;font-size:12.5px;color:var(--muted);margin-top:3px}
+.lsnt small{display:flex;flex-wrap:wrap;align-items:center;gap:5px;font-size:12.5px;color:var(--muted);margin-top:3px}
 .lsnt small b{color:var(--text);font-weight:600}
 .lsnalb a{display:inline-flex;align-items:center;gap:6px;color:var(--text)}
 .pstats{margin-left:auto;display:flex;gap:30px;text-align:right}
@@ -938,7 +938,7 @@ async function refreshListening(){
   const { data, error } = await sb.from('track_ratings').select('user_id,album_id,position,updated_at').gt('updated_at', new Date(Date.now() - LISTEN_MS).toISOString());
   if(error || !data) return;
   const m = new Map();
-  for(const r of data){ if(r.user_id === S.user.id) continue; const t = Date.parse(r.updated_at) || 0, o = m.get(r.user_id);
+  for(const r of data){ const t = Date.parse(r.updated_at) || 0, o = m.get(r.user_id);
     if(!o || t > o.at) m.set(r.user_id, {album_id:Number(r.album_id), at:t}); }
   for(const [u, o] of m) o.n = data.filter(r => r.user_id === u && Number(r.album_id) === o.album_id).length;
   S.listening = m; fillListening(true);
@@ -951,17 +951,17 @@ function fillListening(again){
     const a = S.albums.get(o.album_id); el.dataset.lsn = '1';
     if(el.dataset.mode === 'mini'){ el.textContent = '🎧 ' + a.title + ' - ' + a.artist; return; }
     el.classList.add('lfmnow', 'live');
-    el.innerHTML = `<span class="eq" aria-hidden="true"><i></i><i></i><i></i></span>Teraz słucha: <a href="#/album/${a.id}"><b>${esc(a.title)}</b> <span class="muted">- ${esc(a.artist)}</span></a> <span class="muted" style="font-weight:500">· ${o.n} ${pl(o.n,'piosenka oceniona','piosenki ocenione','piosenek ocenionych')}</span>`; });
+    el.innerHTML = `<span class="eq" aria-hidden="true"><i></i><i></i><i></i></span>${el.dataset.listen === S.user.id ? 'Teraz słuchasz' : 'Teraz słucha'}: <a href="#/album/${a.id}"><b>${esc(a.title)}</b> <span class="muted">- ${esc(a.artist)}</span></a>`; });
   // karta na stronie głównej (nad aktywnością) - tylko gdy ktoś czegoś słucha
   const now = [...S.listening.keys()].map(u => ({u, o:listenOf(u)})).filter(x => x.o).sort((x, y) => y.o.at - x.o.at);
   document.querySelectorAll('[data-listen-home]').forEach(el => {
     el.innerHTML = now.length ? `<section class="card lsnhome"><div class="shead"><h2><span class="eq" aria-hidden="true"><i></i><i></i><i></i></span>Teraz słuchają</h2></div>
-      ${now.map(({u, o}) => { const a = S.albums.get(o.album_id);
+      ${[...now.reduce((m, x) => { const g = m.get(x.o.album_id) || []; g.push(x); return m.set(x.o.album_id, g); }, new Map()).values()].map(g => { const a = S.albums.get(g[0].o.album_id), at = g[0].o.at;
         return `<a class="lsnrow" href="#/album/${a.id}">${coverHtml(a, 'c48')}<span class="lsnt"><b>${esc(a.title)}</b><span>${esc(a.artist)}</span>
-          <small>${avatar(u, 20)}<b>${esc(pname(u))}</b> · ${o.n} ${pl(o.n,'piosenka','piosenki','piosenek')} · ${Date.now() - o.at < 60000 ? 'przed chwilą' : Math.floor((Date.now() - o.at) / 60000) + ' min temu'}</small></span></a>`; }).join('')}</section>` : ''; });
+          <small>${g.map(({u}) => `${avatar(u, 20)}<b>${u === S.user.id ? 'Ty' : esc(pname(u))}</b>`).join('')} · ${Date.now() - at < 60000 ? 'przed chwilą' : Math.floor((Date.now() - at) / 60000) + ' min temu'}</small></span></a>`; }).join('')}</section>` : ''; });
   document.querySelectorAll('[data-listen-album]').forEach(el => { const id = +el.dataset.listenAlbum;
     const who = [...S.listening.keys()].filter(u => { const o = listenOf(u); return o && o.album_id === id; });
-    el.innerHTML = who.length ? `<div class="lsnalb"><span class="eq" aria-hidden="true"><i></i><i></i><i></i></span>${who.map(u => `<a href="#/osoba/${u}">${avatar(u, 22)}<b>${esc(pname(u))}</b></a>`).join('')}<span>${who.length > 1 ? 'słuchają' : 'słucha'} teraz tego albumu</span></div>` : ''; });
+    el.innerHTML = who.length ? `<div class="lsnalb"><span class="eq" aria-hidden="true"><i></i><i></i><i></i></span>${who.map(u => `<a href="#/osoba/${u}">${avatar(u, 22)}<b>${u === S.user.id ? 'Ty' : esc(pname(u))}</b></a>`).join('')}<span>${who.includes(S.user.id) ? (who.length > 1 ? 'słuchacie' : 'słuchasz') : who.length > 1 ? 'słuchają' : 'słucha'} teraz tego albumu</span></div>` : ''; });
 }
 async function refreshPresence(){
   if(!S.user || document.hidden) return;
@@ -1219,7 +1219,7 @@ const newRecCount = () => recsOpen().filter(r => Date.parse(r.created_at) > S.pr
 const recByMe = (albumId, uid) => recsAll().find(r => r.album_id === albumId && r.from_user === S.user.id && r.to_user === uid) || null;
 /* ---------- online (update6.sql) ---------- */
 const ONLINE_MS = 10 * 60 * 1000; // strona zapisuje obecność co 5 min, więc 10 min to bezpieczny zapas
-const isOnline = id => { if(!S.user || id === S.user.id) return false; const p = S.profiles.get(id), t = p && Date.parse(p.last_active || '');
+const isOnline = id => { if(!S.user) return false; const p = S.profiles.get(id), t = p && Date.parse(p.last_active || '');
   return !!t && Date.now() - t < ONLINE_MS; };
 /* ---------- zgodność gustu ---------- */
 function compat(u1, u2){
@@ -2259,7 +2259,7 @@ function viewPerson(id){
   const recent = (S.byUser.get(id) || []).filter(r => S.albums.has(r.album_id)).sort((a, b) => tsOf(b) - tsOf(a)).slice(0, 24);
   const favs = favsOf(id);
   const what = S.f.kind === 'singles' ? 'singli' : 'albumów';
-  app.innerHTML = `<div class="phead">${avatar(id, 72)}<div><h1>${esc(name)}</h1>${isMe ? '' : `<div class="lfm"><span data-listen="${esc(id)}"></span></div>`}${lfmLine(p, isMe)}
+  app.innerHTML = `<div class="phead">${avatar(id, 72)}<div><h1>${esc(name)}</h1><div class="lfm"><span data-listen="${esc(id)}"></span></div>${lfmLine(p, isMe)}
       ${cp ? `<div class="btns" style="margin-top:8px">Zgodność gustu z Tobą: ${pctBadge(cp)}<span class="muted small">${cp.n} ${pl(cp.n,'wspólny album','wspólne albumy','wspólnych albumów')}</span>${cp.n ? `<a href="#/porownaj/${S.user.id}/${id}"><button>Porównaj oceny</button></a>` : ''}</div>`
         : isMe ? '<div class="small" style="margin-top:6px"><a class="link" href="#/konto">Ustawienia konta</a></div>' : ''}</div>
     <div class="pstats"><a href="#/staty/${id}" title="Statystyki i wykresy"><div class="v" style="color:${avg == null ? 'var(--muted)' : colT(Math.round(avg))}">${avgN(avg)}</div><div class="l">Średnia ›</div></a>
@@ -2689,7 +2689,8 @@ async function saveTrackScore_(a, pos, inp){
   } else {
     const row = {user_id:uid, album_id:a.id, position:pos, score, fav:!!(cur && cur.fav), updated_at:new Date().toISOString()};
     let data; ({ data, error } = await sb.from('track_ratings').upsert(row, {onConflict:'user_id,album_id,position'}).select().single());
-    if(!error){ const nr = {...data, position:Number(data.position), score:data.score == null ? null : Number(data.score)}; T.ratings = T.ratings.filter(r => r !== cur).concat(nr); }
+    if(!error){ const nr = {...data, position:Number(data.position), score:data.score == null ? null : Number(data.score)}; T.ratings = T.ratings.filter(r => r !== cur).concat(nr);
+      const lo = S.listening.get(uid); S.listening.set(uid, {album_id:a.id, at:Date.now(), n:lo && lo.album_id === a.id ? lo.n + 1 : 1}); fillListening(true); }
   }
   if(error) return toast(errMsg(error), true);
   if(score != null) inp.value = num(score);
