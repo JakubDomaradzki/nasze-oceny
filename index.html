@@ -584,6 +584,10 @@ main.feedw{max-width:780px}
 /* profil */
 .phead{display:flex;align-items:center;gap:18px;margin-bottom:22px;flex-wrap:wrap}
 .phead h1{margin:0}
+.pname{display:flex;align-items:center;gap:6px}
+.pname .gear{margin-top:0}
+.pname .gear svg{width:22px;height:22px}
+.lfml b{font-weight:700;color:var(--text)}
 .lfm{display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px;margin-top:6px;font-size:13.5px}
 .lfml{display:inline-flex;align-items:center;gap:6px;font-weight:600;color:var(--muted)}
 .lfml:hover{color:var(--text)}
@@ -1262,6 +1266,7 @@ function listenLinks(a){
     ['YouTube Music','#ff0000',`https://music.youtube.com/search?q=${q}`]]
     .map(([l, c, u]) => `<a class="lk" href="${u}" target="_blank" rel="noopener"><svg class="pl" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="${c}"/><path d="M8 6.2v7.6l6-3.8z" fill="${l === 'Spotify' ? '#000' : '#fff'}"/></svg>${l}</a>`).join('')}</div>`;
 }
+const GEAR = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>';
 const PEN = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>';
 const BOOKMARK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.5h11a1 1 0 0 1 1 1v16l-6.5-4.2-6.5 4.2v-16a1 1 0 0 1 1-1z"/></svg>';
 const SEND = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 3L10.5 13.5"/><path d="M21 3l-6.5 18-4-7.5-7.5-4z"/></svg>';
@@ -2228,7 +2233,7 @@ async function lastfmNow(user){
 }
 function lfmLine(p, isMe){
   if(!p.lastfm) return isMe && S.profiles.get(S.user.id) && 'lastfm' in S.profiles.get(S.user.id) ? '<div class="lfm small"><a class="link" href="#/konto">+ Podepnij Last.fm</a></div>' : '';
-  return `<div class="lfm"><a class="lfml" href="${lfmUrl(p.lastfm)}" target="_blank" rel="noopener" title="Profil na Last.fm">${LFM_ICON}${esc(p.lastfm)} ↗</a>${CONFIG.LASTFM_KEY ? `<span data-lfm="${esc(p.lastfm)}" data-mode="full"></span>` : ''}</div>`;
+  return `<div class="lfm"><a class="lfml" href="${lfmUrl(p.lastfm)}" target="_blank" rel="noopener" title="Profil na Last.fm">${LFM_ICON}Last.fm: <b>${esc(p.lastfm)}</b> ↗</a>${CONFIG.LASTFM_KEY ? `<span data-lfm="${esc(p.lastfm)}" data-mode="full"></span>` : ''}</div>`;
 }
 const LFM_ICON = '<svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><circle cx="12" cy="12" r="12" fill="#d51007"/><path d="M10 7.5v7.1a2.3 2.3 0 1 0 1.6 2.2V10l4.4-1.1V7z" fill="#fff"/></svg>';
 // teraz słuchany utwór; jeśli album jest w bazie - link do niego
@@ -2271,9 +2276,9 @@ function viewPerson(id){
   const recent = (S.byUser.get(id) || []).filter(r => S.albums.has(r.album_id)).sort((a, b) => tsOf(b) - tsOf(a)).slice(0, 24);
   const favs = favsOf(id);
   const what = S.f.kind === 'singles' ? 'singli' : 'albumów';
-  app.innerHTML = `<div class="phead">${avatar(id, 72)}<div><h1>${esc(name)}</h1><div class="lfm"><span data-listen="${esc(id)}"></span></div>${lfmLine(p, isMe)}
+  app.innerHTML = `<div class="phead">${avatar(id, 72)}<div><div class="pname"><h1>${esc(name)}</h1>${isMe ? `<a class="pen gear" href="#/konto" title="Ustawienia konta" aria-label="Ustawienia konta">${GEAR}</a>` : ''}</div><div class="lfm"><span data-listen="${esc(id)}"></span></div>${lfmLine(p, isMe)}
       ${cp ? `<div class="btns" style="margin-top:8px">Zgodność gustu z Tobą: ${pctBadge(cp)}<span class="muted small">${cp.n} ${pl(cp.n,'wspólny album','wspólne albumy','wspólnych albumów')}</span>${cp.n ? `<a href="#/porownaj/${S.user.id}/${id}"><button>Porównaj oceny</button></a>` : ''}</div>`
-        : isMe ? '<div class="small" style="margin-top:6px"><a class="link" href="#/konto">Ustawienia konta</a></div>' : ''}</div>
+        : ''}</div>
     <div class="pstats"><a href="#/staty/${id}" title="Statystyki i wykresy"><div class="v" style="color:${avg == null ? 'var(--muted)' : colT(Math.round(avg))}">${avgN(avg)}</div><div class="l">Średnia ›</div></a>
       <a href="#/oceny/${id}" title="Wszystkie oceny"><div class="v">${allK.length}</div><div class="l">${S.f.kind === 'singles' ? pl(allK.length,'Ocena singla','Oceny singli','Ocen singli') : pl(allK.length,'Ocena','Oceny','Ocen')} ›</div></a></div></div>
 
