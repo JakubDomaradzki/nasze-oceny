@@ -754,21 +754,25 @@ a.ps-row[href]:hover{background:var(--soft)}
 .psr .pv{min-width:22px;text-align:right;font-variant-numeric:tabular-nums;font-size:14px}
 .pside .pp{display:inline-flex;align-items:center;justify-content:center;min-width:42px;height:28px;padding:0 10px;border-radius:999px;font-weight:800;font-size:15px;color:var(--ct);background:color-mix(in srgb,var(--c) 18%,transparent)}
 @media (max-width:900px){.pgrid{grid-template-columns:1fr}}
-.tile.rtile{gap:10px;padding:10px;border-radius:14px;background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow)}
-.card .tile.rtile{background:var(--raise);box-shadow:none}
+.tile.rtile{gap:0}
+.rtile .rcv{display:block;line-height:0}
+.rtile .rcv .cover{display:block;border-radius:10px 10px 0 0}
+.rtile .rbar{display:block;height:4px;border-radius:0 0 4px 4px;background:var(--line);overflow:hidden}
+.rtile .rbar i{display:block;height:100%}
+.rtile .rrow{display:flex;align-items:center;gap:5px;margin:8px 0 5px;min-width:0}
+.rtile .rrow .rpill{height:26px;min-width:38px;padding:0 10px;font-size:14.5px}
+.rtile .was3{font-size:12px;font-weight:600;color:var(--muted)}
 .rtile .t{font-size:14px}
 .rtile .rti .a{font-size:13.5px}
 .rtile .mt{font-size:12.5px;color:var(--muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.rtile .rbot{display:flex;align-items:center;gap:8px;margin-top:auto;padding-top:9px;border-top:1px solid var(--line)}
-.rtile .dt2{font-size:12px;line-height:1.25;color:var(--muted);min-width:0;display:flex;flex-direction:column;margin-left:auto;text-align:right;align-items:flex-end}
-.rtile .was2{font-size:11.5px}
+.rtile .dt2{font-size:11.5px;color:var(--muted);margin-left:auto;white-space:nowrap}
 .rpill{display:inline-flex;align-items:center;justify-content:center;min-width:40px;height:28px;padding:0 10px;border-radius:999px;font-weight:800;font-size:15px;font-variant-numeric:tabular-nums;cursor:pointer;flex:none;transition:filter .15s,box-shadow .15s}
 .rpill:hover{filter:brightness(1.12);box-shadow:0 0 0 1.5px currentColor}
 .rpill.lock{cursor:default;background:var(--soft);color:var(--muted);font-size:13px}
 .rpill.lock:hover{filter:none;box-shadow:none}
 .rtile:hover .t{text-decoration:underline}
 #ogrid .grid{gap:18px}
-.hx{grid-auto-columns:148px}
+.hx{grid-auto-columns:140px;gap:16px}
 .tile .cw .tpb{position:absolute;right:0;bottom:0;line-height:0;cursor:pointer;border-radius:10px 0 8px 0}
 .tile .cw .tpb .score{position:static;box-shadow:0 1px 4px rgba(0,0,0,.3)}
 .tile .cw .tpb:hover .score{filter:brightness(1.1);box-shadow:0 0 0 2px #fff,0 1px 4px rgba(0,0,0,.3)}
@@ -842,7 +846,7 @@ a.ps-row[href]:hover{background:var(--soft)}
 .cchart{margin:6px 0 10px}
 .cchart text{fill:var(--muted);font-size:10px}
 .trsum{margin-top:14px;padding:14px;border-radius:12px;background:var(--soft);border:1px solid var(--line)}
-.trlen{display:flex;justify-content:space-between;align-items:center;padding:10px 6px 2px;font-size:13.5px;color:var(--muted)}
+.trlen{display:flex;justify-content:flex-start;align-items:center;padding:10px 6px 2px;font-size:13.5px;color:var(--muted)}
 .trlen b{color:var(--text);font-variant-numeric:tabular-nums}
 .trsum .sr{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;padding:5px 0;font-size:14px}
 .trsum .sr .btns{flex-wrap:nowrap;align-items:center;gap:10px;margin:0}
@@ -2581,7 +2585,7 @@ function drawTracks(a){
         <button type="button" class="star ${o.myFav ? 'on' : ''}" data-fav="${t.position}" title="${o.myFav ? 'Twój ulubiony utwór' : 'Oznacz jako ulubiony'}" aria-pressed="${o.myFav}">★</button>
         <input class="tin ${tinCls(o.mine)}" data-pos="${t.position}" inputmode="decimal" enterkeyhint="next" value="${o.mine == null ? '' : num(o.mine)}" placeholder="-" aria-label="Twoja ocena: ${esc(t.title)}">
       </div>`; }).join('')}
-    ${(L => L ? `<div class="trlen"><span>${L.n} ${pl(L.n,'utwór','utwory','utworów')}</span><b>${L.partial ? 'ok. ' : ''}${L.txt}</b></div>` : '')(albumLen(T))}
+    ${(L => L ? `<div class="trlen"><span>${L.n} ${pl(L.n,'utwór','utwory','utworów')} · <b>${L.partial ? 'ok. ' : ''}${L.txt}</b></span></div>` : '')(albumLen(T))}
     <div id="trkSum">${trackSumHtml(a)}</div>
     ${T.src ? `<p class="note">Tracklista pobrana z: ${T.src}. Błąd? Kliknij „Edytuj tracklistę”.</p>` : ''}`;
   document.getElementById('trEdit').onclick = () => { T.edit = true; drawTracks(a); };
@@ -3286,9 +3290,10 @@ function rTile(a, r, was){
   const ch = was && !hd ? scoreChain(a.id, r.user_id) : null;
   const pill = hd ? `<span class="rpill lock" title="Ukryte${hideWhy(a.id)}">🔒</span>`
     : `<span class="rpill" data-tp="${a.id}" data-tu="${esc(r.user_id)}" role="button" tabindex="0" title="Pokaż oceny piosenek" style="color:${ct};background:color-mix(in srgb,${c} 18%,transparent)">${num(r.score)}</span>`;
-  return `<a class="tile rtile" href="#/album/${a.id}">${coverHtml(a, 'cfull')}
-    <div class="rti"><div class="t">${esc(a.title)}</div><div class="a">${esc(a.artist)}</div>${a.year || a.type ? `<div class="mt">${[a.year, a.type].filter(Boolean).map(esc).join(' · ')}</div>` : ''}</div>
-    <div class="rbot">${pill}<span class="dt2">${cardDate(r.updated_at || r.created_at)}${ch ? `<span class="was2">było ${num(ch.seq[ch.seq.length - 2])}</span>` : ''}</span></div></a>`;
+  // okładka z paskiem oceny pod spodem (wypełniony do wartości), potem pastylka + czas, na końcu opis
+  return `<a class="tile rtile" href="#/album/${a.id}"><span class="rcv">${coverHtml(a, 'cfull')}<span class="rbar" aria-hidden="true">${hd ? '' : `<i style="width:${Math.max(0, Math.min(100, r.score))}%;background:${c}"></i>`}</span></span>
+    <div class="rrow">${pill}${ch ? `<s class="was3" title="Poprzednia ocena">${num(ch.seq[ch.seq.length - 2])}</s>` : ''}<span class="dt2">${cardDate(r.updated_at || r.created_at)}</span></div>
+    <div class="rti"><div class="t">${esc(a.title)}</div><div class="a">${esc(a.artist)}</div>${a.year || a.type ? `<div class="mt">${[a.year, a.type].filter(Boolean).map(esc).join(' · ')}</div>` : ''}</div></a>`;
 }
 // ocena na okładce: klik pokazuje oceny piosenek tej osoby (zamiast przechodzić do albumu)
 const tpBadge = (aid, uid, score) => `<span class="tpb" data-tp="${aid}" data-tu="${esc(uid)}" title="Pokaż oceny piosenek" role="button" tabindex="0">${badge(score, 'sm')}</span>`;
