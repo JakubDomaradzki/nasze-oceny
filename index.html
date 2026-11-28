@@ -3760,7 +3760,7 @@ function openWrapTeaser(){
 }
 /* ---------- WRAPPED (podgląd - na razie tylko dla admina) ---------- */
 const wrapPreview = () => !!me().is_admin;
-const APP_VERSION = '28.11 · v70'; // podbijane przy każdej zmianie - widać w Ustawieniach konta, czy telefon ma nową wersję
+const APP_VERSION = '28.11 · v71'; // podbijane przy każdej zmianie - widać w Ustawieniach konta, czy telefon ma nową wersję
 const MONTHS_FULL = ['styczeń','luty','marzec','kwiecień','maj','czerwiec','lipiec','sierpień','wrzesień','październik','listopad','grudzień'];
 // data premiery: z bazy (update9.sql), a jak jej nie ma - raz z Deezera i zapis do bazy (albo do pamięci przeglądarki)
 function relCache(){ try { return JSON.parse(localStorage.getItem('oceny_rel') || '{}'); } catch(e){ return {}; } }
@@ -4019,7 +4019,10 @@ function pdBegin(){
     PD.ghost.style.transform = `translate3d(${PD.x - 32}px,${PD.y - 44}px,0) rotate(-5deg)`;
     const tr = document.querySelector('.ptray'), mob = matchMedia('(max-width:720px)').matches;
     const bottomEdge = mob && tr ? tr.getBoundingClientRect().top : innerHeight; let dy = 0;
-    if(PD.y < 90) dy = -Math.ceil((90 - PD.y) / 7); else if(PD.y > bottomEdge - 60 && (!mob || PD.y < bottomEdge + 40)) dy = Math.ceil((PD.y - bottomEdge + 60) / 7);
+    // w dół przewijamy dopiero, gdy palec był już nad kalendarzem i wraca do jego dolnej krawędzi
+    // (przy wyciąganiu okładki z listy na dole kalendarz ma stać w miejscu)
+    if(PD.y < bottomEdge - 90) PD.left = true;
+    if(PD.y < 90) dy = -Math.ceil((90 - PD.y) / 8); else if(PD.left && PD.y > bottomEdge - 50 && PD.y < bottomEdge + 10) dy = Math.ceil((PD.y - bottomEdge + 50) / 8);
     if(dy) scrollBy(0, dy);
     const tg = pdTarget(PD.x, PD.y);
     if(tg !== lastTg){ if(lastTg) lastTg.classList.remove('dz'); if(tg) tg.classList.add('dz'); lastTg = tg; }
