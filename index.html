@@ -261,6 +261,13 @@ h2{font-size:17px;letter-spacing:-.2px;color:var(--text);margin:0 0 12px;font-we
 .ainfo h1{font-size:40px;line-height:1.05;letter-spacing:-1.2px}
 .artist{font-size:19px;font-weight:600;margin:0 0 6px}
 .facts{color:var(--muted);font-size:14px;margin-bottom:18px}
+.gchip{display:inline-flex;align-items:center;margin-left:8px;padding:2px 10px;border-radius:999px;font-size:12.5px;font-weight:650;background:var(--soft);color:var(--text);border:1px solid var(--line);vertical-align:1px;line-height:1.5}
+button.gchip{cursor:pointer;font-family:inherit;height:auto;min-height:0}button.gchip:hover{border-color:var(--accent)}
+.gchip.add{border-style:dashed;color:var(--muted);background:none}.gplus{color:var(--muted);font-weight:600}
+img.flag{width:1.15em;height:.86em;object-fit:cover;border-radius:2px;vertical-align:-.06em;margin-right:.35em;box-shadow:0 0 0 1px rgba(0,0,0,.12)}
+.gpanel{display:grid;gap:10px;background:var(--soft);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:-6px 0 18px;max-width:460px}
+.gpanel label{display:grid;gap:4px;font-size:13px;font-weight:600;color:var(--muted)}.gpanel .btns{align-items:center}
+.gsug{display:flex;flex-wrap:wrap;gap:6px}.gsug .chip{font-size:12.5px;padding:4px 10px}
 .avgbox{display:flex;align-items:center;gap:18px;padding:16px 18px;border-radius:14px;background:var(--soft);border:1px solid var(--line);margin-bottom:16px}
 .avgnum{flex:none;white-space:nowrap;font-size:60px;font-weight:800;letter-spacing:-2px;line-height:1;color:#fff;border-radius:12px;padding:12px 16px;min-width:120px;text-align:center;font-variant-numeric:tabular-nums}
 .avglbl{font-size:14px;color:var(--muted);font-weight:600}
@@ -454,12 +461,12 @@ html.pdragging,html.pdragging *{user-select:none!important;-webkit-user-select:n
   .pwr.dz{background:var(--accent-soft);border-color:var(--accent)}
   .pwl{display:flex;flex-direction:column;align-items:center;line-height:1.1}.pwl span{font-size:11px;color:var(--muted)}.pwl b{font-size:18px}
   .pwc{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.pwc em{color:var(--muted);font-style:normal}
-  .prow{position:relative;display:block;line-height:0;-webkit-touch-callout:none;user-select:none;-webkit-user-select:none}.prow .cover{border-radius:8px}
-  .prow .psc{top:auto;bottom:-4px;right:-4px;font-size:10px;padding:3px 5px}.prow.done .cover{filter:saturate(.5) brightness(.85)}
+  .pwi{position:relative;display:block;line-height:0;-webkit-touch-callout:none;user-select:none;-webkit-user-select:none}.pwi .cover{border-radius:8px}
+  .pwi .psc{top:auto;bottom:-4px;right:-4px;font-size:10px;padding:3px 5px}.pwi.done .cover{filter:saturate(.5) brightness(.85)}
   .pmg{gap:3px}.pmw{gap:3px}.pmonth{padding:6px}
   .pmc{min-height:62px;padding:3px;border-radius:8px}.pmc>span{font-size:11px}
   .pmini .cover.c40{width:22px;height:22px;border-radius:4px}
-  .ptk,.pmini,.prow,.pcard,.pslr{touch-action:pan-x pan-y;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+  .ptk,.pmini,.pwi,.pcard,.pslr{touch-action:pan-x pan-y;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
   [data-drag] img{-webkit-user-drag:none;pointer-events:none}
 }
 body:has(.ptray) #nowb{display:none}
@@ -1110,7 +1117,7 @@ const S = {
   st:{who:'all', kind:'albums', year:new Date().getFullYear()},
   f:{min:2, type:'all', kind:'albums'}, af:{q:'', f:'all', sort:'added', limit:120, kind:'albums'},
   home:{year:new Date().getFullYear(), all:false, edit:false},
-  rand:{src:'unrated', from:'', to:'', kind:'albums', min:75, last:null},
+  rand:{src:'unrated', from:'', to:'', kind:'albums', min:75, genre:'', last:null},
 };
 
 /* ---------- helpers ---------- */
@@ -1247,6 +1254,8 @@ async function loadData(){
     fetchAll('weekly_album').catch(e => { console.warn(e); S.noWeekly = true; return []; })]);
   const [h, rc] = await Promise.all([fetchAll('rating_history').catch(e => { console.warn('rating_history', e); return null; }),
     fetchAll('recommendations').catch(e => { console.warn('recommendations', e); return null; })]);
+  const am = await sb.from('artist_meta').select('name,country');
+  S.artMeta = am.error ? null : new Map(am.data.filter(x => x.country).map(x => [x.name, x.country])); // null = brak update11.sql
   const pl_ = await sb.from('listen_plan').select('album_id,day,created_at').eq('user_id', S.user.id);
   S.plan = pl_.error ? null : pl_.data.map(x => ({...x, user_id:S.user.id, album_id:Number(x.album_id)})); // null = brak update10.sql
   S.recs = rc ? rc.map(x => ({...x, album_id:Number(x.album_id)})) : null; // null = nie ma jeszcze tabeli (update8.sql)
@@ -1262,6 +1271,7 @@ async function loadData(){
   S.profiles = new Map(p.map(x => [x.id, x]));
   S.albums = new Map(a.map(x => [Number(x.id), {...x, id:Number(x.id)}]));
   S.hasRel = a.length > 0 && 'release_date' in a[0]; // update9.sql uruchomiony
+  S.hasGenre = a.length > 0 && 'genre' in a[0]; // update11.sql uruchomiony
   S.ratings = r.map(x => ({...x, album_id:Number(x.album_id), score:Number(x.score)}));
   reindex(); S.loadedAt = Date.now(); S.allTr = null;
   // tracklisty: zostaw tylko album otwarty na ekranie (jego oceny piosenek odświeżą się osobno)
@@ -1467,9 +1477,29 @@ const sd = a => { if(a.length < 2) return 0; const m = a.reduce((s, x) => s + x,
 const artistParts = a => String(a || '').split(/\s*(?:,|&| x | feat\.? | ft\.? | with )\s*/i).map(x => x.trim()).filter(Boolean);
 const artistAlbums = name => { const k = simp(name); return [...S.albums.values()].filter(a => simp(a.artist) === k || artistParts(a.artist).some(p => simp(p) === k)); };
 const artistHref = name => '#/wykonawca/' + encodeURIComponent(name);
-function artistLinks(artist){
-  const parts = artistParts(artist);
-  if(parts.length < 2) return `<a class="alink" href="${artistHref(artist)}">${esc(artist)}</a>`;
+/* ----- gatunek i kraj wykonawcy (update11.sql) ----- */
+const COUNTRIES = [['PL','Polska'],['US','USA'],['GB','Wielka Brytania'],['CA','Kanada'],['AU','Australia'],['IE','Irlandia'],['NZ','Nowa Zelandia'],
+  ['DE','Niemcy'],['FR','Francja'],['IT','Włochy'],['ES','Hiszpania'],['PT','Portugalia'],['NL','Holandia'],['BE','Belgia'],['CH','Szwajcaria'],['AT','Austria'],
+  ['SE','Szwecja'],['NO','Norwegia'],['DK','Dania'],['FI','Finlandia'],['IS','Islandia'],['CZ','Czechy'],['SK','Słowacja'],['UA','Ukraina'],['LT','Litwa'],
+  ['LV','Łotwa'],['EE','Estonia'],['BY','Białoruś'],['RU','Rosja'],['HU','Węgry'],['RO','Rumunia'],['BG','Bułgaria'],['HR','Chorwacja'],['RS','Serbia'],
+  ['SI','Słowenia'],['GR','Grecja'],['TR','Turcja'],['IL','Izrael'],['JP','Japonia'],['KR','Korea Płd.'],['CN','Chiny'],['TW','Tajwan'],['IN','Indie'],
+  ['PH','Filipiny'],['ID','Indonezja'],['TH','Tajlandia'],['BR','Brazylia'],['AR','Argentyna'],['MX','Meksyk'],['CO','Kolumbia'],['CL','Chile'],['PR','Portoryko'],
+  ['JM','Jamajka'],['CU','Kuba'],['NG','Nigeria'],['GH','Ghana'],['ZA','RPA'],['KE','Kenia'],['EG','Egipt'],['MA','Maroko']];
+const COUNTRY_N = Object.fromEntries(COUNTRIES);
+const GENRES = ['Hip-hop','Rap','Trap','Pop','Hyperpop','Rock','Indie','Alternatywa','Indie pop','Indie rock','R&B','Soul','Elektronika','House','Techno','Dance','Ambient',
+  'Metal','Punk','Folk','Singer-songwriter','Jazz','Country','Reggae','Afrobeats','K-pop','Latin','Klasyczna','Eksperymentalna','Shoegaze','Dream pop','Art pop'];
+const DZ_GENRE = {'Rap/Hip Hop':'Hip-hop','Alternative':'Alternatywa','Electro':'Elektronika','Dance':'Dance','Pop':'Pop','Rock':'Rock','R&B':'R&B','Soul & Funk':'Soul',
+  'Jazz':'Jazz','Metal':'Metal','Reggae':'Reggae','Folk':'Folk','Country':'Country','Classical':'Klasyczna','Latin Music':'Latin','Indie Rock':'Indie rock','Indie Pop':'Indie pop','Asian Music':'K-pop','African Music':'Afrobeats'};
+const artKey = n => simp(n);
+const countryOf = n => (S.artMeta && S.artMeta.get(artKey(n))) || null;
+const flagEmoji = c => c ? String.fromCodePoint(...[...c].map(ch => 0x1F1E6 + ch.charCodeAt(0) - 65)) : '';
+// obrazek zamiast emoji - flagi-emoji nie działają na Windowsie
+const flagHtml = c => c ? `<img class="flag" src="https://flagcdn.com/${c.toLowerCase()}.svg" alt="${flagEmoji(c)}" title="${esc(COUNTRY_N[c] || c)}" loading="lazy">` : '';
+const genreChip = a => S.hasGenre && a.genre ? `<span class="gchip">${esc(a.genre)}</span>` : '';
+function artistLinks(artist, flags){
+  const parts = artistParts(artist), fl = n => flags ? flagHtml(countryOf(n)) : '';
+  if(parts.length < 2) return `${fl(artist) || fl(parts[0] || artist)}<a class="alink" href="${artistHref(artist)}">${esc(artist)}</a>`;
+  if(flags) return parts.map(p => `${fl(p)}<a class="alink" href="${artistHref(p)}">${esc(p)}</a>`).join(', ');
   let html = esc(artist);
   for(const p of [...parts].sort((x, y) => y.length - x.length)) html = html.replace(esc(p), `\u0000${parts.indexOf(p)}\u0000`);
   return html.replace(/\u0000(\d+)\u0000/g, (_, i) => `<a class="alink" href="${artistHref(parts[+i])}">${esc(parts[+i])}</a>`);
@@ -2008,6 +2038,64 @@ function relDateHtml(a){
   return d ? `<a href="#/lata/${a.year}" title="Data premiery"><b>${esc(d)}</b></a>` : `<a href="#/lata/${a.year}"><b>${a.year}</b></a>`;
 }
 S.relTried = new Set();
+function gmetaBtn(a){
+  const noC = S.artMeta && artistParts(a.artist).some(p => !countryOf(p)), g = S.hasGenre && a.genre;
+  return `<button type="button" class="gchip gbtn ${g ? '' : 'add'}" id="gB" title="Gatunek i kraj wykonawcy" aria-expanded="${S.gOpen === a.id}">${g ? esc(a.genre) : '+ gatunek'}${noC ? '<span class="gplus"> · + kraj</span>' : ''}</button>`;
+}
+// podpowiedzi: gatunek z Deezera, kraj z MusicBrainz (tylko podpowiadają - zapisuje się po kliknięciu)
+const hintCache = {};
+async function dzGenreHint(a){
+  const k = 'g' + a.id; if(k in hintCache) return hintCache[k];
+  let g = null;
+  try { const d = await dzGet('https://api.deezer.com/search/album?limit=8&output=jsonp&q=' + encodeURIComponent(a.artist + ' ' + a.title));
+    const L = (d && d.data) || [], kt = simp(cleanT(a.title)), hit = L.find(x => simp(cleanT(x.title)) === kt) || L[0];
+    if(hit){ const det = await dzGet('https://api.deezer.com/album/' + hit.id + '?output=jsonp'); const n = det && det.genres && det.genres.data && det.genres.data[0] && det.genres.data[0].name;
+      if(n) g = DZ_GENRE[n] || n; } } catch(e){}
+  return hintCache[k] = g;
+}
+async function mbCountryHint(name){
+  const k = 'c' + artKey(name); if(k in hintCache) return hintCache[k];
+  let c = null;
+  try { const wait = mbNext - Date.now(); mbNext = Math.max(Date.now(), mbNext) + 1100; if(wait > 0) await sleep(wait);
+    const r = await fetch('https://musicbrainz.org/ws/2/artist/?fmt=json&limit=3&query=' + encodeURIComponent('artist:"' + name + '"'), {headers:{Accept:'application/json'}});
+    const j = await r.json(), hit = (j.artists || []).find(x => simp(x.name) === artKey(name) && (x.country || (x.area && x.area['iso-3166-1-codes'])));
+    if(hit) c = hit.country || hit.area['iso-3166-1-codes'][0]; } catch(e){}
+  return hintCache[k] = (c && COUNTRY_N[c] ? c : c && /^[A-Z]{2}$/.test(c) ? c : null);
+}
+function drawGenrePanel(a){
+  const box = document.getElementById('gPanel'); if(!box) return;
+  const parts = artistParts(a.artist).slice(0, 4);
+  const used = [...new Set([...S.albums.values()].map(x => x.genre).filter(Boolean))];
+  const opts = [...new Set([...used, ...GENRES])];
+  const cOpts = cur => `<option value="">- nie wiem -</option>` + [...COUNTRIES].sort((x, y) => x[1].localeCompare(y[1], 'pl')).map(([c, n]) => `<option value="${c}" ${c === cur ? 'selected' : ''}>${flagEmoji(c)} ${n}</option>`).join('');
+  box.innerHTML = `<div class="gpanel">
+    ${S.hasGenre ? `<label>Gatunek<input id="gIn" list="gList" maxlength="40" value="${esc(a.genre || '')}" placeholder="np. Hip-hop" autocomplete="off"></label><datalist id="gList">${opts.map(g => `<option value="${esc(g)}">`).join('')}</datalist>
+      <div class="gsug" id="gSug">${(used.length ? used : GENRES).slice(0, 10).map(g => `<button type="button" class="chip" data-g="${esc(g)}">${esc(g)}</button>`).join('')}</div>` : ''}
+    ${S.artMeta ? parts.map((p, i) => `<label>Kraj: ${esc(p)}<select data-ci="${i}">${cOpts(countryOf(p))}</select></label>`).join('') : ''}
+    <div class="btns"><button type="button" class="btn-p sm" id="gSave">Zapisz</button><button type="button" class="sm" id="gX">Anuluj</button><span class="muted small" id="gHint"></span></div></div>`;
+  const gIn = document.getElementById('gIn');
+  box.querySelectorAll('[data-g]').forEach(b => b.onclick = () => { gIn.value = b.dataset.g; });
+  document.getElementById('gX').onclick = () => { S.gOpen = null; render(); };
+  // podpowiedzi w tle
+  const hint = document.getElementById('gHint');
+  if(gIn && !a.genre){ hint.textContent = 'Szukam podpowiedzi…';
+    dzGenreHint(a).then(g => { if(!g || !gIn.isConnected) return; if(!gIn.value) gIn.value = g;
+      const sug = document.getElementById('gSug'); if(sug && !sug.querySelector(`[data-g="${CSS.escape(g)}"]`)){ sug.insertAdjacentHTML('afterbegin', `<button type="button" class="chip on" data-g="${esc(g)}">${esc(g)}</button>`); sug.firstChild.onclick = () => { gIn.value = g; }; }
+      hint.textContent = 'Podpowiedź z Deezera - popraw, jeśli nie pasuje'; }); }
+  if(S.artMeta) parts.forEach(async (p, i) => { if(countryOf(p)) return; const c = await mbCountryHint(p); const sel = box.querySelector(`[data-ci="${i}"]`);
+    if(c && sel && sel.isConnected && !sel.value){ if(!COUNTRY_N[c]) sel.insertAdjacentHTML('beforeend', `<option value="${c}">${flagEmoji(c)} ${c}</option>`); sel.value = c; hint.textContent = 'Podpowiedzi z Deezera i MusicBrainz - sprawdź i zapisz'; } });
+  document.getElementById('gSave').onclick = async () => {
+    const btn = document.getElementById('gSave'); btn.disabled = true; let err = null;
+    if(gIn){ const g = gIn.value.trim().replace(/\s+/g, ' ').slice(0, 40) || null;
+      if(g !== (a.genre || null)){ const { error } = await sb.from('albums').update({genre:g}).eq('id', a.id); if(error) err = error; else a.genre = g; } }
+    if(S.artMeta){ const rows = [];
+      box.querySelectorAll('[data-ci]').forEach(sel => { const p = parts[+sel.dataset.ci], c = sel.value || null; if(c !== countryOf(p)) rows.push({name:artKey(p), country:c, updated_by:S.user.id, updated_at:new Date().toISOString()}); });
+      if(rows.length){ const { error } = await sb.from('artist_meta').upsert(rows, {onConflict:'name'}); if(error) err = error;
+        else rows.forEach(r => r.country ? S.artMeta.set(r.name, r.country) : S.artMeta.delete(r.name)); } }
+    if(err){ btn.disabled = false; return toast(errMsg(err), true); }
+    toast('Zapisano'); S.gOpen = null; render();
+  };
+}
 function viewAlbum(arg){
   const id = Number(arg), a = S.albums.get(id);
   if(!a){ app.innerHTML = `<div class="card">Nie znaleziono albumu. <a class="link" href="#/albumy">Wróć do albumów</a></div>`; return; }
@@ -2024,8 +2112,9 @@ function viewAlbum(arg){
     <div class="sleeve">${coverHtml(a, 'c260')}<span class="disc" style="--lbl:${hid || st.avg == null ? '#d9dbe0' : col(Math.round(st.avg))}" aria-hidden="true"></span></div>
     <div class="ainfo">
       <div class="ttl"><h1>${esc(a.title)}</h1><button class="heart ${isFav(id) ? 'on' : ''}" id="favB" title="${isFav(id) ? 'Usuń z ulubionych' : 'Dodaj do ulubionych'}" aria-label="Ulubione" aria-pressed="${isFav(id)}">${HEART}</button><a class="pen" href="#/edytuj/${id}" title="Edytuj album" aria-label="Edytuj album">${PEN}</a></div>
-      <div class="artist">${artistLinks(a.artist)}</div>
-      <div class="facts"><span id="aDate">${relDateHtml(a)}</span> · ${esc(a.type || '')}<span id="aLen"></span></div>
+      <div class="artist">${artistLinks(a.artist, true)}</div>
+      <div class="facts"><span id="aDate">${relDateHtml(a)}</span> · ${esc(a.type || '')}<span id="aLen"></span>${S.hasGenre || S.artMeta ? gmetaBtn(a) : ''}</div>
+      ${S.gOpen === id ? `<div id="gPanel"></div>` : ''}
       ${recInHtml(a)}
       <div class="avgbox">
         <div class="avgnum" style="background:${hid ? 'var(--none)' : col(st.avg == null ? null : Math.round(st.avg))}">${hid ? '🔒' : avgN(st.avg)}</div>
@@ -2103,6 +2192,8 @@ function viewAlbum(arg){
     S.recs = S.recs.filter(r => Number(r.id) !== rid); toast('Cofnięto polecenie'); render(); }));
   initTracks(a).then(() => { markRaters(a); drawCalc(a);
     if(S.goTrk === id){ S.goTrk = null; const t = document.getElementById('trk'); if(t) t.scrollIntoView({block:'start', behavior:'smooth'}); } });
+  const gB = document.getElementById('gB'); if(gB) gB.onclick = () => { S.gOpen = S.gOpen === id ? null : id; render(); };
+  if(S.gOpen === id) drawGenrePanel(a);
   // brak daty premiery - sprawdź raz w Deezerze i zapisz (dla wszystkich)
   if(S.hasRel && a.year && !relDate(a) && !S.relTried.has(id)){ S.relTried.add(id);
     ensureRelDates([a]).then(() => { const el = document.getElementById('aDate'); if(el && relDate(a)) el.innerHTML = relDateHtml(a); }); }
@@ -2180,6 +2271,7 @@ function albumFormHtml(a, isNew){
         <label>Typ<select id="fty">${TYPES.map(t => `<option ${t === (a.type || 'LP') ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
       </div>
       ${S.hasRel ? `<label>Data premiery (opcjonalnie)<input id="fd" type="date" value="${esc(a.release_date || '')}"></label>` : ''}
+      ${S.hasGenre ? `<label>Gatunek (opcjonalnie)<input id="fg" list="fgList" maxlength="40" value="${esc(a.genre || '')}" placeholder="np. Hip-hop" autocomplete="off"></label><datalist id="fgList">${[...new Set([...[...S.albums.values()].map(x => x.genre).filter(Boolean), ...GENRES])].map(g => `<option value="${esc(g)}">`).join('')}</datalist>` : ''}
       <label>Okładka - link do obrazka (https://…)<input id="fc" value="${esc(a.cover_url || '')}" placeholder="wklej link albo wgraj plik poniżej"></label>
       <div class="preview"><span id="fcp">${coverHtml(a, 'c64')}</span>
         <label style="flex:1">albo wgraj plik z komputera / telefonu<input type="file" id="ff" accept="image/*"></label></div>
@@ -2241,6 +2333,7 @@ function bindAlbumForm(a, isNew){
     const dup = findAlbum(artist, title);
     if(dup && (isNew || dup.id !== a.id)) return $('ferr').innerHTML = `Taki album już jest: <a class="link" href="#/album/${dup.id}">przejdź do niego</a>`;
     const row = {artist, title, year, type:$('fty').value, cover_url:cover || null, mbid:$('fmb').value || null};
+    if($('fg')) row.genre = $('fg').value.trim().replace(/\s+/g, ' ').slice(0, 40) || null;
     if($('fd')){ const d = $('fd').value || null;
       if(d && year && +d.slice(0, 4) !== year) return $('ferr').textContent = 'Data premiery nie zgadza się z rokiem.';
       row.release_date = d; if(d && !year) row.year = +d.slice(0, 4); }
@@ -3742,7 +3835,7 @@ document.addEventListener('click', e => {
   if(x){ e.preventDefault(); S.lexp = S.lexp || new Set(); const u = x.dataset.lx; S.lexp.has(u) ? S.lexp.delete(u) : S.lexp.add(u);
     const g = document.querySelector(`.lgrid[data-lg="${CSS.escape(u)}"]`); if(g){ g.classList.toggle('col', !S.lexp.has(u)); x.textContent = S.lexp.has(u) ? 'Zwiń ▴' : `Pokaż wszystkie (${g.children.length}) ▾`; updLgrid(); } return; }
   // „Wylosuj” przy liście do posłuchania - losowanie od razu z tej listy
-  if(e.target.closest && e.target.closest('[data-rlist]')){ S.rand.src = 'listen'; S.rand.from = ''; S.rand.to = ''; S.rand.kind = 'all'; }
+  if(e.target.closest && e.target.closest('[data-rlist]')){ S.rand.src = 'listen'; S.rand.from = ''; S.rand.to = ''; S.rand.genre = ''; S.rand.kind = 'all'; }
 }, true);
 
 /* ----- strona główna ----- */
@@ -3774,7 +3867,7 @@ function openWrapTeaser(){
 }
 /* ---------- WRAPPED (podgląd - na razie tylko dla admina) ---------- */
 const wrapPreview = () => !!me().is_admin;
-const APP_VERSION = '28.11 · v73'; // podbijane przy każdej zmianie - widać w Ustawieniach konta, czy telefon ma nową wersję
+const APP_VERSION = '28.11 · v75'; // podbijane przy każdej zmianie - widać w Ustawieniach konta, czy telefon ma nową wersję
 const MONTHS_FULL = ['styczeń','luty','marzec','kwiecień','maj','czerwiec','lipiec','sierpień','wrzesień','październik','listopad','grudzień'];
 // data premiery: z bazy (update9.sql), a jak jej nie ma - raz z Deezera i zapis do bazy (albo do pamięci przeglądarki)
 function relCache(){ try { return JSON.parse(localStorage.getItem('oceny_rel') || '{}'); } catch(e){ return {}; } }
@@ -3962,7 +4055,7 @@ function planItem(p, size){
   const a = S.albums.get(p.album_id), r = myRating(a.id), hid = r && isHidden(r);
   const sc = r ? `<i class="psc" style="background:${col(Math.round(r.score))}">${hid ? '🔒' : num(r.score)}</i>` : '';
   if(size === 'mini') return `<span class="pmini ${r ? 'done' : ''}" data-drag="${a.id}" title="${esc(a.title + ' - ' + a.artist)}">${coverHtml(a, 'c40')}</span>`;
-  if(size === 'row') return `<span class="prow ${r ? 'done' : ''}" data-drag="${a.id}">${coverHtml(a, 'c48')}${sc}</span>`;
+  if(size === 'row') return `<span class="pwi ${r ? 'done' : ''}" data-drag="${a.id}">${coverHtml(a, 'c48')}${sc}</span>`;
   return `<div class="pcard ${r ? 'done' : ''}" data-drag="${a.id}"><span class="pcv">${coverHtml(a, 'cfull')}${sc}</span><b>${esc(a.title)}</b><span>${esc(a.artist)}</span>
     <button type="button" class="pdel" data-unplan="${a.id}" aria-label="Usuń z planu" title="Usuń z planu">×</button></div>`;
 }
@@ -4236,6 +4329,7 @@ function randomPool(){
     if(!kindOk(a, R.kind)) return false;
     if(from != null && !(a.year && a.year >= from)) return false;
     if(to != null && !(a.year && a.year <= to)) return false;
+    if(R.genre && simp(a.genre || '') !== simp(R.genre)) return false;
     if(R.src === 'unrated') return !myRating(a.id);
     if(R.src === 'listen') return inListen(a.id);
     if(R.src === 'rec'){
@@ -4250,6 +4344,11 @@ function viewRandom(){
   const R = S.rand;
   const years = [...new Set([...S.albums.values()].map(a => a.year).filter(Boolean))].sort((a, b) => b - a);
   const yOpts = cur => `<option value="">dowolny</option>` + years.map(y => `<option ${String(y) === String(cur) ? 'selected' : ''}>${y}</option>`).join('');
+  // gatunki z bazy (z liczbą albumów) - tylko te, które ktoś już uzupełnił
+  const gCnt = new Map(); if(S.hasGenre) for(const a of S.albums.values()) if(a.genre && kindOk(a, R.kind)){ const k = simp(a.genre); const g = gCnt.get(k) || {n:0, name:a.genre}; g.n++; gCnt.set(k, g); }
+  if(R.genre && !gCnt.has(simp(R.genre))) gCnt.set(simp(R.genre), {n:0, name:R.genre});
+  const gOpts = gCnt.size ? `<option value="">dowolny</option>` + [...gCnt.values()].sort((x, y) => y.n - x.n || x.name.localeCompare(y.name, 'pl'))
+    .map(g => `<option value="${esc(g.name)}" ${simp(g.name) === simp(R.genre) ? 'selected' : ''}>${esc(g.name)} (${g.n})</option>`).join('') : '';
   const pool = randomPool();
   app.innerHTML = `<h1>Odkrywaj</h1><p class="sub">Nie wiesz, czego posłuchać? Wylosuj coś z naszej bazy.</p>${discTabs('losuj')}
     <div class="card">
@@ -4258,6 +4357,7 @@ function viewRandom(){
         ${R.src === 'rec' ? `<label>Średnia znajomych od<select id="rmin">${[60,65,70,75,80,85,90].map(v => `<option ${R.min === v ? 'selected' : ''}>${v}</option>`).join('')}</select></label>` : ''}
         <label>Rok od<select id="rfrom">${yOpts(R.from)}</select></label>
         <label>Rok do<select id="rto">${yOpts(R.to)}</select></label>
+        ${gOpts ? `<label>Gatunek<select id="rgen">${gOpts}</select></label>` : ''}
         ${segHtml('rkind', R.kind, [['albums','Albumy'],['singles','Single'],['all','Wszystko']])}
       </div>
       <div class="btns" style="margin-top:16px"><button class="btn-p dice" id="roll" ${pool.length ? '' : 'disabled'}>Losuj</button>
@@ -4269,6 +4369,7 @@ function viewRandom(){
   const rm = document.getElementById('rmin'); if(rm) rm.onchange = e => set('min', +e.target.value);
   document.getElementById('rfrom').onchange = e => set('from', e.target.value);
   document.getElementById('rto').onchange = e => set('to', e.target.value);
+  const rg = document.getElementById('rgen'); if(rg) rg.onchange = e => set('genre', e.target.value);
   bindSeg('rkind', v => set('kind', v));
   const box = document.getElementById('rres');
   const show = (a, final) => {
@@ -4276,8 +4377,8 @@ function viewRandom(){
     // po wylosowaniu okładka i tytuł prowadzą do albumu (w trakcie „kręcenia” nie - żeby nie kliknąć przypadkiem)
     const lk = h => final ? `<a href="#/album/${a.id}" class="rlk">${h}</a>` : h;
     box.innerHTML = `<div class="rnd">${lk(coverHtml(a, 'c260'))}<div>
-      <h1 style="font-size:30px;line-height:1.15">${lk(esc(a.title))}</h1><div class="artist">${final ? artistLinks(a.artist) : esc(a.artist)}</div>
-      <div class="facts">${a.year || 'rok nieznany'} · ${esc(a.type || '')}</div>
+      <h1 style="font-size:30px;line-height:1.15">${lk(esc(a.title))}</h1><div class="artist">${final ? artistLinks(a.artist, true) : esc(a.artist)}</div>
+      <div class="facts">${a.year || 'rok nieznany'} · ${esc(a.type || '')}${genreChip(a)}</div>
       ${final ? `<div class="btns">${st.n ? badge(st.avg, 'big') + `<span class="muted">średnia grupy · ${ocen(st.n)}</span>` : '<span class="muted">Nikt jeszcze tego nie ocenił - możesz być pierwszy.</span>'}</div>
       ${rs.length ? `<div class="who-rated">${rs.map(r => `<a href="#/osoba/${r.user_id}">${avatar(r.user_id, 24)}${esc(pname(r.user_id))} <b>${num(r.score)}</b></a>`).join('')}</div>` : '<div style="height:14px"></div>'}
       <div class="btns"><button id="rl" class="${inListen(a.id) ? 'btn-on' : ''}">${inListen(a.id) ? '✓ Na liście do posłuchania' : '+ Do posłuchania'}</button>
