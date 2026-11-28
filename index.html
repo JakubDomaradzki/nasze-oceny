@@ -415,7 +415,12 @@ main.planw{max-width:1400px}
 .pslr .meta{min-width:0;display:flex;flex-direction:column}.pslr .meta b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pslr .meta span{font-size:13px;color:var(--muted)}
 .psc2{font-family:"JetBrains Mono",ui-monospace,monospace;font-weight:800;font-size:13px;color:#fff;border-radius:999px;padding:3px 9px}
 .pdel2{width:30px;height:30px;padding:0;border-radius:50%;font-size:17px;line-height:1;color:var(--muted)}
-.ptodaycard .psc2{margin-left:auto}
+.ptodaycard .psc2,.ptodayin .psc2{margin-left:auto}
+.ptodayin{background:var(--soft);border-radius:14px;padding:8px 10px 6px;margin:0 0 12px;border-left:3px solid var(--accent)}
+.pti-h{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:2px}
+.pti-h b{display:inline-flex;align-items:center;gap:6px;font-size:14px}.pti-h b svg{width:15px;height:15px;fill:none;stroke:var(--accent);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.ptodayin .arch{padding:6px 2px}
+.pdragging .pday.past,.pdragging .pmc.past,.pdragging .pwr.past{opacity:.35;filter:grayscale(.6)}
 /* przeciąganie */
 .pghost{position:fixed;left:0;top:0;z-index:90;pointer-events:none;will-change:transform;transform:translate3d(-200px,-200px,0);border-radius:12px;overflow:hidden;line-height:0;box-shadow:0 18px 40px rgba(0,0,0,.45),0 0 0 2px var(--accent)}
 .dragging{opacity:.35}
@@ -426,8 +431,16 @@ html.pdragging,html.pdragging *{user-select:none!important;-webkit-user-select:n
   .plgrid{display:block}
   main.planw{padding-bottom:calc(300px + env(safe-area-inset-bottom))!important}
   .ptray{position:fixed;left:0;right:0;top:auto;bottom:calc(62px + env(safe-area-inset-bottom));z-index:31;max-height:none;border-radius:20px 20px 0 0;border-width:1px 0 0;padding:6px 0 8px;gap:6px;box-shadow:0 -14px 34px rgba(0,0,0,.28)}
-  .pgrab{display:block;width:44px;height:16px;margin:0 auto -2px;padding:0;border:0;background:none;position:relative}
-  .pgrab::before{content:"";position:absolute;left:4px;right:4px;top:5px;height:5px;border-radius:3px;background:var(--line)}
+  .pgrab{display:block;width:100%;height:22px;margin:-6px 0 -4px;padding:0;border:0;background:none;position:relative;border-radius:0}
+  .pgrab::before{content:"";position:absolute;left:calc(50% - 20px);width:40px;top:8px;height:5px;border-radius:3px;background:var(--muted);opacity:.5}
+  .ptoggle{cursor:pointer;display:inline-flex;align-items:center;gap:6px;padding:6px 0}.pchev{font-size:12px;color:var(--muted)}
+  .ptray.min{padding-bottom:4px}
+  main.planw:has(.ptray.min){padding-bottom:calc(150px + env(safe-area-inset-bottom))!important}
+  .pwr{cursor:pointer}.pwr.open{grid-template-rows:auto auto}
+  .pwchev{margin-left:auto;color:var(--muted);font-size:13px;padding:0 4px}
+  .pwx{grid-column:1/-1;display:grid;gap:6px;padding-top:4px;border-top:1px solid var(--line);margin-top:2px}
+  .pwx .pslr{grid-template-columns:40px minmax(0,1fr) auto auto;padding:4px}
+  .pwx a.meta{color:inherit;text-decoration:none}
   .pth{padding:0 14px;flex-wrap:nowrap}.pth input{flex:0 1 150px;margin-left:auto}
   .pts{flex-direction:row;overflow-x:auto;overflow-y:hidden;gap:10px;padding:2px 14px 2px;margin:0;scrollbar-width:none;-webkit-overflow-scrolling:touch}
   .pts::-webkit-scrollbar{display:none}
@@ -2027,7 +2040,7 @@ function viewAlbum(arg){
       <div class="abtns">
         <button id="lisB" class="ab ${inListen(id) ? 'on' : ''}" aria-pressed="${inListen(id)}">${BOOKMARK}<span>${inListen(id) ? 'Na liście<span class="hide-xs"> do posłuchania</span>' : 'Do posłuchania'}</span></button>
         <button id="recB" class="ab ${S.recOpen === id ? 'open' : ''}" aria-expanded="${S.recOpen === id}">${SEND}<span>Poleć znajomemu</span></button>
-        <span class="abwrap"><button id="planB" type="button" class="ab ${planOf(id) ? 'on' : ''}" tabindex="-1">${CAL}<span>${planOf(id) ? 'W planie: ' + pDayLabel(planOf(id).day) : 'Zaplanuj'}</span></button><input type="date" id="planD" aria-label="Zaplanuj odsłuch na dzień" value="${planOf(id) ? planOf(id).day : ''}"></span>
+        <span class="abwrap"><button id="planB" type="button" class="ab ${planOf(id) ? 'on' : ''}" tabindex="-1">${CAL}<span>${planOf(id) ? 'W planie: ' + pDayLabel(planOf(id).day) : 'Zaplanuj'}</span></button><input type="date" id="planD" aria-label="Zaplanuj odsłuch na dzień" min="${todayS()}" value="${planOf(id) ? planOf(id).day : ''}"></span>
       </div>
       ${S.recOpen === id && S.recs ? recPanelHtml(a) : ''}${recSentHtml(a)}
     </div>
@@ -2083,6 +2096,7 @@ function viewAlbum(arg){
   pd.onclick = () => { try { pd.showPicker(); } catch(e){} };
   pd.onchange = async () => { if(!S.plan){ toast('Plan zadziała po uruchomieniu update10.sql w Supabase', true); return; }
     const v = pd.value; if(!v){ if(planOf(id) && await unPlan(id)){ toast('Usunięto z planu'); render(); } return; }
+    if(v < todayS()){ toast('Ten dzień już minął - wybierz dziś albo później', true); pd.value = planOf(id) ? planOf(id).day : ''; return; }
     if(await setPlan(id, v)){ toast(`Zaplanowano na ${pDayLabel(v)}`); render(); } };
   app.querySelectorAll('[data-rcancel]').forEach(b => armButton(b, 'Cofnąć?', async () => { const rid = Number(b.dataset.rcancel);
     const { error } = await sb.from('recommendations').delete().eq('id', rid); if(error) return toast(errMsg(error), true);
@@ -3760,7 +3774,7 @@ function openWrapTeaser(){
 }
 /* ---------- WRAPPED (podgląd - na razie tylko dla admina) ---------- */
 const wrapPreview = () => !!me().is_admin;
-const APP_VERSION = '28.11 · v71'; // podbijane przy każdej zmianie - widać w Ustawieniach konta, czy telefon ma nową wersję
+const APP_VERSION = '28.11 · v73'; // podbijane przy każdej zmianie - widać w Ustawieniach konta, czy telefon ma nową wersję
 const MONTHS_FULL = ['styczeń','luty','marzec','kwiecień','maj','czerwiec','lipiec','sierpień','wrzesień','październik','listopad','grudzień'];
 // data premiery: z bazy (update9.sql), a jak jej nie ma - raz z Deezera i zapis do bazy (albo do pamięci przeglądarki)
 function relCache(){ try { return JSON.parse(localStorage.getItem('oceny_rel') || '{}'); } catch(e){ return {}; } }
@@ -3953,7 +3967,8 @@ function planItem(p, size){
     <button type="button" class="pdel" data-unplan="${a.id}" aria-label="Usuń z planu" title="Usuń z planu">×</button></div>`;
 }
 function viewPlan(){
-  if(!S.planV) S.planV = {mode:matchMedia('(max-width:720px)').matches ? 'week' : 'week', at:todayS(), sel:todayS(), q:''};
+  if(!S.planV){ let tm = false; try { tm = !!localStorage.getItem('oceny_traymin'); } catch(e){}
+    S.planV = {mode:'week', at:todayS(), sel:todayS(), q:'', trayMin:tm, open:null}; }
   const V = S.planV, mob = matchMedia('(max-width:720px)').matches, t = todayS();
   if(!S.plan){ app.innerHTML = `<h1>Plan słuchania</h1><div class="card">Żeby planować albumy w kalendarzu, uruchom <b>update10.sql</b> w Supabase.</div>`; return; }
   const ws = pWeek(V.at);
@@ -3961,8 +3976,11 @@ function viewPlan(){
   if(V.mode === 'week'){
     const days = [...Array(7)].map((_, i) => addDays(ws, i)), d0 = dOf(days[0]), d6 = dOf(days[6]);
     title = d0.getMonth() === d6.getMonth() ? `${d0.getDate()} – ${d6.getDate()} ${MON_GEN[d6.getMonth()]}` : `${d0.getDate()} ${MON_GEN[d0.getMonth()].slice(0, 3)} – ${d6.getDate()} ${MON_GEN[d6.getMonth()].slice(0, 3)}`;
-    body = mob ? `<div class="pweek-m">${days.map((s, i) => `<div class="pwr ${s === t ? 'today' : ''} ${s < t ? 'past' : ''}" data-day="${s}"><div class="pwl"><span>${WD[i]}</span><b>${dOf(s).getDate()}</b></div>
-          <div class="pwc">${planOn(s).map(p => planItem(p, 'row')).join('') || '<em>-</em>'}</div></div>`).join('')}</div>`
+    body = mob ? `<div class="pweek-m">${days.map((s, i) => { const L = planOn(s), op = V.open === s && L.length;
+        return `<div class="pwr ${s === t ? 'today' : ''} ${s < t ? 'past' : ''} ${op ? 'open' : ''}" data-day="${s}" data-open="${s}"><div class="pwl"><span>${WD[i]}</span><b>${dOf(s).getDate()}</b></div>
+          <div class="pwc">${L.map(p => planItem(p, 'row')).join('') || '<em>-</em>'}${L.length ? `<span class="pwchev" aria-hidden="true">${op ? '▴' : '▾'}</span>` : ''}</div>
+          ${op ? `<div class="pwx">${L.map(p => { const a = S.albums.get(p.album_id), r = myRating(a.id);
+            return `<div class="pslr"><a href="#/album/${a.id}">${coverHtml(a, 'c40')}</a><a class="meta" href="#/album/${a.id}"><b>${esc(a.title)}</b><span>${esc(a.artist)}</span></a>${r ? `<span class="psc2" style="background:${col(Math.round(r.score))}">${isHidden(r) ? '🔒' : num(r.score)}</span>` : '<span></span>'}<button type="button" class="pdel2" data-unplan="${a.id}" aria-label="Usuń z planu">×</button></div>`; }).join('')}</div>` : ''}</div>`; }).join('')}</div>`
       : `<div class="pweek">${days.map((s, i) => `<div class="pday ${s === t ? 'today' : ''} ${s < t ? 'past' : ''}" data-day="${s}"><div class="pdh"><span>${WD[i]}</span><b>${dOf(s).getDate()}</b>${s === t ? '<em>dziś</em>' : ''}</div>
           ${planOn(s).map(p => planItem(p, 'card')).join('')}<div class="pdrop">Upuść tutaj</div></div>`).join('')}</div>`;
   } else {
@@ -3981,8 +3999,8 @@ function viewPlan(){
   }
   const pool = myListen().filter(l => !planOf(l.album_id)).map(l => S.albums.get(l.album_id));
   const q = simp(V.q || ''), list = q ? pool.filter(a => simp(a.title + ' ' + a.artist).includes(q)) : pool;
-  const tray = `<div class="ptray ${V.trayMin ? 'min' : ''}" data-tray="1"><button type="button" class="pgrab" aria-label="Zwiń / rozwiń listę"></button>
-    <div class="pth"><b>Do posłuchania</b><span>${pool.length}</span><input type="search" id="pq" placeholder="Szukaj…" value="${esc(V.q || '')}" autocomplete="off"></div>
+  const tray = `<div class="ptray ${V.trayMin ? 'min' : ''}" data-tray="1"><button type="button" class="pgrab" aria-label="${V.trayMin ? 'Rozwiń' : 'Zwiń'} listę do posłuchania" aria-expanded="${!V.trayMin}"></button>
+    <div class="pth"><b class="ptoggle">Do posłuchania <span class="pchev">${V.trayMin ? '▴' : '▾'}</span></b><span>${pool.length}</span><input type="search" id="pq" placeholder="Szukaj…" value="${esc(V.q || '')}" autocomplete="off"></div>
     <div class="pts">${list.map(a => `<div class="ptk" data-drag="${a.id}" data-from="tray">${coverHtml(a, mob ? 'c76' : 'c40')}<span class="pt2"><b>${esc(a.title)}</b><span>${esc(a.artist)}</span></span>${mob ? '' : '<span class="pgr">⠿</span>'}</div>`).join('')
       || `<p class="muted small" style="margin:6px 2px">${pool.length ? 'Nic nie pasuje.' : 'Wszystko z listy jest już w planie. Dodaj albumy do posłuchania - pojawią się tutaj.'}</p>`}</div>
     <p class="ptip">${mob ? 'Przytrzymaj okładkę i przeciągnij na dzień' : 'Przeciągnij album na dzień · z kalendarza z powrotem tutaj, żeby usunąć z planu'}</p></div>`;
@@ -3997,7 +4015,14 @@ function viewPlan(){
   app.querySelectorAll('[data-pick]').forEach(c => c.addEventListener('click', e => { if(e.target.closest('[data-drag]') && !mob) return; V.sel = c.dataset.pick; render(); }));
   app.querySelectorAll('[data-unplan]').forEach(b => b.onclick = async e => { e.stopPropagation(); if(await unPlan(+b.dataset.unplan)){ toast('Usunięto z planu'); render(); } });
   const pq = document.getElementById('pq'); if(pq) pq.oninput = () => { V.q = pq.value; const pos = pq.selectionStart; render(); const n = document.getElementById('pq'); if(n){ n.focus(); n.setSelectionRange(pos, pos); } };
-  const g = app.querySelector('.pgrab'); if(g) g.onclick = () => { V.trayMin = !V.trayMin; render(); };
+  const tog = () => { V.trayMin = !V.trayMin; try { localStorage.setItem('oceny_traymin', V.trayMin ? '1' : ''); } catch(e){} render(); };
+  app.querySelectorAll('.pgrab,.ptoggle').forEach(b => b.onclick = tog);
+  // dzień w tygodniu (telefon): dotknięcie rozwija listę albumów z tego dnia
+  app.querySelectorAll('[data-open]').forEach(r => r.addEventListener('click', e => { if(e.target.closest('[data-drag],a,button')) return;
+    V.open = V.open === r.dataset.open ? null : r.dataset.open; render(); }));
+  // dotknięcie okładki (bez przeciągania) = wejście w album; w miesiącu na telefonie dotknięcie wybiera dzień
+  app.querySelectorAll('[data-drag]').forEach(el => el.addEventListener('click', e => { if(e.target.closest('button')) return;
+    if(mob && el.classList.contains('pmini')) return; e.preventDefault(); e.stopPropagation(); location.hash = '#/album/' + el.dataset.drag; }));
   bindPlanDrag();
   if(mob && V.mode === 'week' && !V.scrolled){ V.scrolled = true; const td = app.querySelector('.pwr.today'); if(td) td.scrollIntoView({block:'center'}); }
 }
@@ -4007,7 +4032,9 @@ let PD = null;
 function pdClean(){ if(!PD) return; clearTimeout(PD.timer); cancelAnimationFrame(PD.raf); if(PD.ghost) PD.ghost.remove(); if(PD.el) PD.el.classList.remove('dragging');
   document.querySelectorAll('.pghost').forEach(g => g.remove());
   document.querySelectorAll('.dz').forEach(x => x.classList.remove('dz')); document.documentElement.classList.remove('pdragging'); PD = null; }
-function pdTarget(x, y){ const el = document.elementFromPoint(x, y); return el && (el.closest('[data-day]') || el.closest('[data-tray]')); }
+function pdTarget(x, y){ const el = document.elementFromPoint(x, y); if(!el) return null;
+  const d = el.closest('[data-day]'); if(d) return d.dataset.day < todayS() ? null : d; // na dni, które minęły, nie da się upuścić
+  return el.closest('[data-tray]'); }
 function pdBegin(){
   if(!PD || PD.on) return; const a = S.albums.get(PD.id); if(!a) return pdClean();
   PD.on = true; PD.el.classList.add('dragging'); document.documentElement.classList.add('pdragging');
@@ -4062,10 +4089,13 @@ function bindPlanDrag(){
   app.querySelectorAll('[data-drag] img').forEach(im => { im.draggable = false; });
 }
 // karta „Dziś w planie” na stronie głównej
-function planTodayHtml(){
+function planTodayHtml(inner){
   if(!S.plan) return '';
   const L = planOn(todayS()); if(!L.length) return '';
-  return `<section class="card ptodaycard"><div class="shead"><h2>Dziś w planie</h2><a class="link small" href="#/plan">Kalendarz →</a></div>
+  if(inner) return `<div class="ptodayin only-m"><div class="pti-h"><b>${CAL}Dziś w planie</b><a class="link small" href="#/plan">Kalendarz →</a></div>
+    ${L.map(p => { const a = S.albums.get(p.album_id), r = myRating(a.id);
+      return `<a class="arch" href="#/album/${a.id}">${coverHtml(a, 'c40')}<div><span><b>${esc(a.title)}</b></span><span class="muted">${esc(a.artist)}</span></div>${r ? `<span class="psc2" style="background:${col(Math.round(r.score))}">${isHidden(r) ? '🔒' : num(r.score)}</span>` : ''}</a>`; }).join('')}</div>`;
+  return `<section class="card ptodaycard only-d"><div class="shead"><h2>Dziś w planie</h2><a class="link small" href="#/plan">Kalendarz →</a></div>
     ${L.map(p => { const a = S.albums.get(p.album_id), r = myRating(a.id);
       return `<a class="arch" href="#/album/${a.id}">${coverHtml(a, 'c40')}<div><span><b>${esc(a.title)}</b></span><span class="muted">${esc(a.artist)}</span></div>${r ? `<span class="psc2" style="background:${col(Math.round(r.score))}">${isHidden(r) ? '🔒' : num(r.score)}</span>` : ''}</a>`; }).join('')}</section>`;
 }
@@ -4102,6 +4132,7 @@ function viewHome(){
 
       <section class="card">
         <div class="shead"><h2>Do posłuchania (${listen.length})</h2><div class="btns" style="gap:8px;flex-wrap:nowrap"><a href="#/plan" class="calb" title="Plan słuchania" aria-label="Plan słuchania">${CAL}</a>${listen.length ? '<a href="#/odkrywaj" data-rlist><button>Wylosuj z listy</button></a>' : ''}</div></div>
+        ${planTodayHtml(true)}
         ${pickerHtml('lpick', 'Dodaj album do posłuchania - wpisz wykonawcę lub tytuł…')}
         ${listenRowHtml(uid, true)}
       </section>
