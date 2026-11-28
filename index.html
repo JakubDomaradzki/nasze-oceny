@@ -371,7 +371,7 @@ tr.cl:hover td{background:var(--soft)}
 #nowb .nowb-t{display:flex;flex-direction:column;min-width:0;line-height:1.25}
 #nowb small{display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;color:var(--nowacc)}
 #nowb b{color:var(--nowfg);font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#nowb .nowb-t>span{font-size:12px;color:var(--nowmut);white-space:nowrap}
+#nowb .nowb-t>span{font-size:12px;color:var(--nowmut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #nowb .eq{height:10px}#nowb .eq i{width:2.5px;background:var(--nowacc)}
 #nowb .nowb-x{flex:none;align-self:flex-start;width:26px;height:26px;padding:0;border:0;border-radius:50%;background:none;color:var(--nowmut);font-size:18px;line-height:1}
 #nowb .nowb-x:hover{background:var(--nowhv);color:var(--nowfg)}
@@ -1060,7 +1060,7 @@ async function refreshListening(){
   for(const r of data){ const t = Date.parse(r.updated_at) || 0, o = m.get(r.user_id);
     if(!o || t > o.at) m.set(r.user_id, {album_id:Number(r.album_id), at:t}); }
   for(const [u, o] of m) o.n = data.filter(r => r.user_id === u && Number(r.album_id) === o.album_id).length;
-  S.listening = m; fillListening(true);
+  S.listening = m; fillListening(true); pickMyNow(); drawNowBubble();
 }
 // kto oceni cały album, przestaje „słuchać” (ocena albumu nowsza niż ostatnia oceniona piosenka)
 const ratedAfter = (uid, o) => (S.freshRated || []).some(r => r.user_id === uid && r.album_id === o.album_id && r.t >= o.at)
@@ -3578,16 +3578,18 @@ const nowLocKey = () => 'oceny_now_' + S.user.id;
 function nowLocal(){ try { const o = JSON.parse(localStorage.getItem(nowLocKey()) || 'null'); return o && Date.now() - o.at < NOW_DAYS * 864e5 ? o : null; } catch(e){ return null; } }
 async function refreshMyNow(tries = 0){
   if(!S.user) return;
-  const since = new Date(Date.now() - NOW_DAYS * 864e5).toISOString();
-  const { data, error } = await sb.from('track_ratings').select('album_id,updated_at,score').eq('user_id', S.user.id).gt('updated_at', since).order('updated_at', {ascending:false}).limit(1000);
-  if(error || !data){ if(tries < 3) setTimeout(() => refreshMyNow(tries + 1), 3000 * (tries + 1)); return; } // np. token odświeża się po powrocie do karty
-  const m = new Map();
-  for(const t of data){ if(t.score == null) continue; const id = Number(t.album_id), at = Date.parse(t.updated_at) || 0, o = m.get(id) || {album_id:id, at:0, n:0}; o.n++; o.at = Math.max(o.at, at); m.set(id, o); }
+    // bez filtra daty po stronie bazy - ostatnie 400 ocen piosenek, a 7 dni liczymy tutaj
+  const { data, error } = await sb.from('track_ratings').select('album_id,updated_at,score').eq('user_id', S.user.id).order('updated_at', {ascending:false}).limit(400);
+  if(error || !data){ console.warn('refreshMyNow', error); if(tries < 3) setTimeout(() => refreshMyNow(tries + 1), 3000 * (tries + 1)); return; } // np. token odświeża się po powrocie do karty
+  const m = new Map(), lim = Date.now() - NOW_DAYS * 864e5;
+  for(const t of data){ if(t.score == null) continue; const tt = Date.parse(t.updated_at); if(tt && tt < lim) continue; const id = Number(t.album_id), at = Date.parse(t.updated_at) || 0, o = m.get(id) || {album_id:id, at:0, n:0}; o.n++; o.at = Math.max(o.at, at); m.set(id, o); }
   const loc = nowLocal(); if(loc && loc.n > 0 && (!m.has(loc.album_id) || m.get(loc.album_id).at < loc.at - 60000)) m.set(loc.album_id, {...loc, n:Math.max(loc.n, (m.get(loc.album_id) || {n:0}).n)});
   S.myNowAll = m; pickMyNow(); drawNowBubble();
 }
 function pickMyNow(){
   if(!S.myNowAll && S.user){ const loc = nowLocal(); S.myNowAll = new Map(loc ? [[loc.album_id, loc]] : []); }
+  const me_ = S.user && S.listening && S.listening.get(S.user.id); // drugie źródło: „teraz słucha” z ostatnich 20 min
+  if(me_ && !S.myNowAll.has(me_.album_id)) S.myNowAll.set(me_.album_id, {album_id:me_.album_id, at:me_.at, n:me_.n || 1});
   const hid = nowHidden();
   S.myNow = [...(S.myNowAll || new Map()).values()].filter(o => o.n > 0 && S.albums.has(o.album_id) && !myRating(o.album_id) && !(hid[o.album_id] >= o.at))
     .sort((a, b) => b.at - a.at)[0] || null;
@@ -3608,7 +3610,7 @@ function drawNowBubble(){
   if(!el){ el = document.createElement('div'); el.id = 'nowb'; document.body.appendChild(el); }
   if(el.dataset.id === String(a.id) && el.dataset.n === String(o.n)) return;
   el.dataset.id = a.id; el.dataset.n = o.n;
-  el.innerHTML = `<a href="#/album/${a.id}" class="nowb-in" title="Wróć do tracklisty">${coverHtml(a, 'c44')}<span class="nowb-t"><small><span class="eq" aria-hidden="true"><i></i><i></i><i></i></span>Słuchasz teraz</small><b>${esc(a.title)}</b><span>${o.n} ${pl(o.n,'piosenka oceniona','piosenki ocenione','piosenek ocenionych')}</span></span></a>
+  el.innerHTML = `<a href="#/album/${a.id}" class="nowb-in" title="Wróć do tracklisty">${coverHtml(a, 'c44')}<span class="nowb-t"><small><span class="eq" aria-hidden="true"><i></i><i></i><i></i></span>Słuchasz teraz</small><b>${esc(a.title)}</b><span>${esc(a.artist)}</span></span></a>
     <button type="button" class="nowb-x" aria-label="Ukryj" title="Ukryj (wróci, gdy ocenisz kolejną piosenkę)">×</button>`;
   el.querySelector('.nowb-in').onclick = () => { S.goTrk = a.id; };
   el.querySelector('.nowb-x').onclick = () => { const h = nowHidden(); h[a.id] = o.at; try { localStorage.setItem(nowHidKey(), JSON.stringify(h)); } catch(e){} pickMyNow(); drawNowBubble(); };
@@ -3658,6 +3660,7 @@ function openWrapTeaser(){
 }
 /* ---------- WRAPPED (podgląd - na razie tylko dla admina) ---------- */
 const wrapPreview = () => !!me().is_admin;
+const APP_VERSION = '28.11 · 09:20'; // podbijane przy każdej zmianie - widać w Ustawieniach konta, czy telefon ma nową wersję
 const MONTHS_FULL = ['styczeń','luty','marzec','kwiecień','maj','czerwiec','lipiec','sierpień','wrzesień','październik','listopad','grudzień'];
 // data premiery: z bazy (update9.sql), a jak jej nie ma - raz z Deezera i zapis do bazy (albo do pamięci przeglądarki)
 function relCache(){ try { return JSON.parse(localStorage.getItem('oceny_rel') || '{}'); } catch(e){ return {}; } }
@@ -4452,7 +4455,8 @@ function viewAccount(){
       <label>Powtórz hasło<input type="password" id="p2" minlength="6" autocomplete="new-password" required></label>
       <div class="btns"><button class="btn-p">Zmień hasło</button></div><div id="pm"></div></form></div>
   </div>
-  <div class="card" style="margin-top:18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap"><div><h2 style="margin:0">Wylogowanie</h2><p class="muted small" style="margin:4px 0 0">Na tym urządzeniu trzeba będzie zalogować się ponownie.</p></div><button class="btn-d" id="acclogout">Wyloguj</button></div>`;
+  <div class="card" style="margin-top:18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap"><div><h2 style="margin:0">Wylogowanie</h2><p class="muted small" style="margin:4px 0 0">Na tym urządzeniu trzeba będzie zalogować się ponownie.</p></div><button class="btn-d" id="acclogout">Wyloguj</button></div>
+  <p class="muted small" style="text-align:center;margin-top:14px">Wersja strony: ${APP_VERSION}</p>`;
   document.getElementById('acclogout').onclick = logout;
   const saveLfm = async v => { const m = document.getElementById('lfm_');
     if(v && !/^[A-Za-z][A-Za-z0-9_-]{1,14}$/.test(v)){ m.className = 'err'; m.textContent = 'Nazwa na Last.fm ma 2-15 znaków: litery, cyfry, _ i -, na początku litera.'; return; }
