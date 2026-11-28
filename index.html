@@ -267,7 +267,9 @@ button.gchip{cursor:pointer;font-family:inherit;height:auto;min-height:0}button.
 img.flag{width:1.15em;height:.86em;object-fit:cover;border-radius:2px;vertical-align:-.06em;margin-right:.35em;box-shadow:0 0 0 1px rgba(0,0,0,.12)}
 .gpanel{display:grid;gap:10px;background:var(--soft);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:-6px 0 18px;max-width:460px}
 .gpanel label{display:grid;gap:4px;font-size:13px;font-weight:600;color:var(--muted)}.gpanel .btns{align-items:center}
-.gsug{display:flex;flex-wrap:wrap;gap:6px}.gsug .chip{font-size:12.5px;padding:4px 10px}
+.gsug{display:flex;flex-wrap:wrap;gap:6px}.gsep{margin:0 5px;color:var(--muted)}.gnote{font-weight:500}
+.gsug .chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.afbar{height:8px;border-radius:99px;background:var(--soft);overflow:hidden;margin:4px 0 8px}.afbar i{display:block;height:100%;background:var(--accent);border-radius:99px;transition:width .3s}.gsug .chip{font-size:12.5px;padding:4px 10px}
 .avgbox{display:flex;align-items:center;gap:18px;padding:16px 18px;border-radius:14px;background:var(--soft);border:1px solid var(--line);margin-bottom:16px}
 .avgnum{flex:none;white-space:nowrap;font-size:60px;font-weight:800;letter-spacing:-2px;line-height:1;color:#fff;border-radius:12px;padding:12px 16px;min-width:120px;text-align:center;font-variant-numeric:tabular-nums}
 .avglbl{font-size:14px;color:var(--muted);font-weight:600}
@@ -1495,7 +1497,17 @@ const countryOf = n => (S.artMeta && S.artMeta.get(artKey(n))) || null;
 const flagEmoji = c => c ? String.fromCodePoint(...[...c].map(ch => 0x1F1E6 + ch.charCodeAt(0) - 65)) : '';
 // obrazek zamiast emoji - flagi-emoji nie działają na Windowsie
 const flagHtml = c => c ? `<img class="flag" src="https://flagcdn.com/${c.toLowerCase()}.svg" alt="${flagEmoji(c)}" title="${esc(COUNTRY_N[c] || c)}" loading="lazy">` : '';
-const genreChip = a => S.hasGenre && a.genre ? `<span class="gchip">${esc(a.genre)}</span>` : '';
+// kilka gatunków w jednym polu, oddzielone przecinkami: "Alt-pop, Rap" (max 3, razem do 40 znaków)
+const genresOf = v => String((v && v.genre !== undefined ? v.genre : v) || '').split(',').map(x => x.trim()).filter(Boolean);
+function genreNorm(v){
+  const out = [], seen = new Set();
+  for(const g of String(v || '').split(/\s*[,;]\s*/)){ const t = g.trim().replace(/\s+/g, ' '); if(!t || seen.has(simp(t))) continue; seen.add(simp(t)); out.push(t); }
+  let r = out.slice(0, 3).join(', '); while(r.length > 40 && r.includes(', ')) r = r.slice(0, r.lastIndexOf(', '));
+  return r.slice(0, 40) || null;
+}
+const usedGenres = () => { const m = new Map(); for(const a of S.albums.values()) for(const g of genresOf(a.genre)){ const k = simp(g), x = m.get(k) || {name:g, n:0}; x.n++; m.set(k, x); }
+  return [...m.values()].sort((x, y) => y.n - x.n || x.name.localeCompare(y.name, 'pl')); };
+const genreChip = a => S.hasGenre && a.genre ? genresOf(a.genre).map(g => `<span class="gchip">${esc(g)}</span>`).join('') : '';
 function artistLinks(artist, flags){
   const parts = artistParts(artist), fl = n => flags ? flagHtml(countryOf(n)) : '';
   if(parts.length < 2) return `${fl(artist) || fl(parts[0] || artist)}<a class="alink" href="${artistHref(artist)}">${esc(artist)}</a>`;
@@ -1832,7 +1844,7 @@ function render(){
   updLgrid(); fillListening(); fillLfm(); if(S.user){ pickMyNow(); drawNowBubble(); }
 }
 async function safeLoad(){
-  try { await loadData(); }
+  try { await loadData(); setTimeout(() => autoFillMeta(false), 4000); }
   catch(e){ console.error(e); toast('Nie udało się pobrać danych: ' + errMsg(e), true); }
 }
 
@@ -2040,7 +2052,7 @@ function relDateHtml(a){
 S.relTried = new Set();
 function gmetaBtn(a){
   const noC = S.artMeta && artistParts(a.artist).some(p => !countryOf(p)), g = S.hasGenre && a.genre;
-  return `<button type="button" class="gchip gbtn ${g ? '' : 'add'}" id="gB" title="Gatunek i kraj wykonawcy" aria-expanded="${S.gOpen === a.id}">${g ? esc(a.genre) : '+ gatunek'}${noC ? '<span class="gplus"> · + kraj</span>' : ''}</button>`;
+  return `<button type="button" class="gchip gbtn ${g ? '' : 'add'}" id="gB" title="Gatunek i kraj wykonawcy" aria-expanded="${S.gOpen === a.id}">${g ? genresOf(a.genre).map(esc).join('<span class="gsep">·</span>') : '+ gatunek'}${noC ? '<span class="gplus"> · + kraj</span>' : ''}</button>`;
 }
 // podpowiedzi: gatunek z Deezera, kraj z MusicBrainz (tylko podpowiadają - zapisuje się po kliknięciu)
 const hintCache = {};
@@ -2048,9 +2060,11 @@ async function dzGenreHint(a){
   const k = 'g' + a.id; if(k in hintCache) return hintCache[k];
   let g = null;
   try { const d = await dzGet('https://api.deezer.com/search/album?limit=8&output=jsonp&q=' + encodeURIComponent(a.artist + ' ' + a.title));
-    const L = (d && d.data) || [], kt = simp(cleanT(a.title)), hit = L.find(x => simp(cleanT(x.title)) === kt) || L[0];
-    if(hit){ const det = await dzGet('https://api.deezer.com/album/' + hit.id + '?output=jsonp'); const n = det && det.genres && det.genres.data && det.genres.data[0] && det.genres.data[0].name;
-      if(n) g = DZ_GENRE[n] || n; } } catch(e){}
+    const L = (d && d.data) || [], kt = simp(cleanT(a.title)), ka = simp(artistParts(a.artist)[0] || a.artist);
+    // tylko pewne trafienie: zgodny tytuł i wykonawca - inaczej lepiej nic nie wpisać
+    const hit = L.find(x => simp(cleanT(x.title)) === kt && x.artist && (simp(x.artist.name).includes(ka) || ka.includes(simp(x.artist.name))));
+    if(hit){ const det = await dzGet('https://api.deezer.com/album/' + hit.id + '?output=jsonp'); const L2 = ((det && det.genres && det.genres.data) || []).map(x => DZ_GENRE[x.name] || x.name).filter(Boolean);
+      g = genreNorm(L2.slice(0, 2).join(', ')); } } catch(e){}
   return hintCache[k] = g;
 }
 async function mbCountryHint(name){
@@ -2062,31 +2076,104 @@ async function mbCountryHint(name){
     if(hit) c = hit.country || hit.area['iso-3166-1-codes'][0]; } catch(e){}
   return hintCache[k] = (c && COUNTRY_N[c] ? c : c && /^[A-Z]{2}$/.test(c) ? c : null);
 }
+/* ----- automatyczne uzupełnianie: gatunek z Deezera, kraj z MusicBrainz -----
+   Działa w tle po wejściu na stronę (po kawałku na raz), a z Ustawień konta - wszystko naraz.
+   Zapisuje tylko puste pola; nietrafione próby pamięta 7 dni, żeby nie pytać w kółko. */
+const AF = {run:false, all:false, done:0, total:0, g:0, c:0};
+const afTried = (() => { let m = {}; try { m = JSON.parse(localStorage.getItem('oceny_aftried') || '{}'); } catch(e){}
+  const now = Date.now(); for(const k in m) if(now - m[k] > 7 * 864e5) delete m[k]; return m; })();
+const afMark = k => { afTried[k] = Date.now(); try { localStorage.setItem('oceny_aftried', JSON.stringify(afTried)); } catch(e){} };
+function afTodo(){
+  const albums = S.hasGenre ? [...S.albums.values()].filter(a => !a.genre && !afTried['g' + a.id]) : [];
+  const seen = new Set(), arts = [];
+  if(S.artMeta) for(const a of S.albums.values()) for(const p of artistParts(a.artist)){ const k = artKey(p);
+    if(!k || seen.has(k)) continue; seen.add(k); if(!countryOf(p) && !afTried['c' + k]) arts.push(p); }
+  return {albums, arts};
+}
+// gdy Deezer nic nie zna - weź najczęstszy gatunek innych albumów tego samego wykonawcy
+function artistGenre(a){
+  const k = artKey(a.artist), cnt = {};
+  for(const x of S.albums.values()) if(x !== a && x.genre && artKey(x.artist) === k) cnt[x.genre] = (cnt[x.genre] || 0) + 1;
+  const best = Object.entries(cnt).sort((x, y) => y[1] - x[1])[0]; return best ? best[0] : null;
+}
+async function afGenre(a){
+  const g = (await dzGenreHint(a)) || artistGenre(a);
+  if(g && !a.genre){ const { error } = await sb.from('albums').update({genre:g}).eq('id', a.id); if(!error){ a.genre = g; AF.g++; return true; } }
+  else afMark('g' + a.id);
+  return false;
+}
+async function afCountry(name){
+  const c = await mbCountryHint(name), k = artKey(name);
+  if(c && !countryOf(name)){ const { error } = await sb.from('artist_meta').upsert({name:k, country:c, updated_by:S.user.id, updated_at:new Date().toISOString()}, {onConflict:'name'});
+    if(!error){ S.artMeta.set(k, c); AF.c++; return true; } }
+  else afMark('c' + k);
+  return false;
+}
+async function autoFillMeta(all){
+  if(!S.user || (!S.hasGenre && !S.artMeta)) return;
+  if(AF.run){ if(all && !AF.all){ AF.all = true; } return; }
+  let {albums, arts} = afTodo();
+  if(!all){ albums = albums.slice(0, 40); arts = arts.slice(0, 25); } // w tle po trochu
+  if(!albums.length && !arts.length) return;
+  Object.assign(AF, {run:true, all, done:0, total:albums.length + arts.length, g:0, c:0}); afDraw();
+  let dirty = false, lastR = Date.now();
+  const tick = ch => { AF.done++; if(ch) dirty = true; afDraw();
+    if(dirty && Date.now() - lastR > 8000 && !document.querySelector('input:focus,textarea:focus,select:focus')){ lastR = Date.now(); dirty = false; if(!/^#\/(konto|plan)/.test(location.hash)) render(); } };
+  const gq = albums.slice();
+  const gWorker = async () => { while(gq.length){ const a = gq.shift(); try { tick(await afGenre(a)); } catch(e){ tick(false); } } };
+  const cWorker = async () => { for(const p of arts){ try { tick(await afCountry(p)); } catch(e){ tick(false); } } };
+  await Promise.all([gWorker(), gWorker(), cWorker()]);
+  AF.run = false; afDraw();
+  if(AF.g || AF.c){ if(!/^#\/konto/.test(location.hash)) render(); if(all) toast(`Uzupełniono: ${AF.g} gatunków, ${AF.c} krajów`); }
+  if(AF.all && !all){ AF.all = false; autoFillMeta(true); } // ktoś kliknął "wszystko" w trakcie pracy w tle
+}
+function afDraw(){
+  const el = document.getElementById('afBox'); if(!el) return;
+  const t = afTodo(), left = t.albums.length + t.arts.length;
+  const noG = S.hasGenre ? [...S.albums.values()].filter(a => !a.genre).length : 0;
+  const noC = S.artMeta ? new Set([...S.albums.values()].flatMap(a => artistParts(a.artist)).filter(p => !countryOf(p)).map(artKey)).size : 0;
+  el.innerHTML = AF.run
+    ? `<div class="afbar"><i style="width:${AF.total ? Math.round(AF.done / AF.total * 100) : 0}%"></i></div><p class="small">Szukam… ${AF.done} / ${AF.total} · znaleziono ${AF.g} gatunków i ${AF.c} krajów</p>`
+    : `<p class="small muted">Bez gatunku: <b>${noG}</b> albumów · bez kraju: <b>${noC}</b> wykonawców${left < noG + noC ? ` (${noG + noC - left} bez wyniku w ostatnich 7 dniach)` : ''}.</p>
+       <div class="btns"><button type="button" class="btn-p" id="afGo" ${left ? '' : 'disabled'}>Uzupełnij automatycznie</button>${left < noG + noC ? '<button type="button" id="afRe">Spróbuj ponownie nietrafione</button>' : ''}</div>`;
+  const go = document.getElementById('afGo'); if(go) go.onclick = () => autoFillMeta(true);
+  const re = document.getElementById('afRe'); if(re) re.onclick = () => { for(const k in afTried) delete afTried[k]; try { localStorage.removeItem('oceny_aftried'); } catch(e){} autoFillMeta(true); };
+}
 function drawGenrePanel(a){
   const box = document.getElementById('gPanel'); if(!box) return;
   const parts = artistParts(a.artist).slice(0, 4);
-  const used = [...new Set([...S.albums.values()].map(x => x.genre).filter(Boolean))];
+  const used = usedGenres().map(x => x.name);
   const opts = [...new Set([...used, ...GENRES])];
+  const sugL = [...new Set([...used.slice(0, 12), ...GENRES])].slice(0, 16);
   const cOpts = cur => `<option value="">- nie wiem -</option>` + [...COUNTRIES].sort((x, y) => x[1].localeCompare(y[1], 'pl')).map(([c, n]) => `<option value="${c}" ${c === cur ? 'selected' : ''}>${flagEmoji(c)} ${n}</option>`).join('');
   box.innerHTML = `<div class="gpanel">
-    ${S.hasGenre ? `<label>Gatunek<input id="gIn" list="gList" maxlength="40" value="${esc(a.genre || '')}" placeholder="np. Hip-hop" autocomplete="off"></label><datalist id="gList">${opts.map(g => `<option value="${esc(g)}">`).join('')}</datalist>
-      <div class="gsug" id="gSug">${(used.length ? used : GENRES).slice(0, 10).map(g => `<button type="button" class="chip" data-g="${esc(g)}">${esc(g)}</button>`).join('')}</div>` : ''}
+    ${S.hasGenre ? `<label>Gatunek <span class="gnote">- możesz wybrać do 3, np. Alt-pop, Rap</span><input id="gIn" maxlength="40" value="${esc(a.genre || '')}" placeholder="np. Alt-pop, Rap" autocomplete="off"></label>
+      <div class="gsug" id="gSug">${sugL.map(g => `<button type="button" class="chip" data-g="${esc(g)}">${esc(g)}</button>`).join('')}</div>` : ''}
     ${S.artMeta ? parts.map((p, i) => `<label>Kraj: ${esc(p)}<select data-ci="${i}">${cOpts(countryOf(p))}</select></label>`).join('') : ''}
     <div class="btns"><button type="button" class="btn-p sm" id="gSave">Zapisz</button><button type="button" class="sm" id="gX">Anuluj</button><span class="muted small" id="gHint"></span></div></div>`;
   const gIn = document.getElementById('gIn');
-  box.querySelectorAll('[data-g]').forEach(b => b.onclick = () => { gIn.value = b.dataset.g; });
+  // dotknięcie gatunku dodaje go / usuwa z listy
+  const syncChips = () => { if(!gIn) return; const cur = new Set(genresOf(gIn.value).map(simp)); box.querySelectorAll('[data-g]').forEach(b => b.classList.toggle('on', cur.has(simp(b.dataset.g)))); };
+  const togG = g => { const L = genresOf(gIn.value), i = L.findIndex(x => simp(x) === simp(g));
+    if(i >= 0) L.splice(i, 1); else { if(L.length >= 3) return toast('Maksymalnie 3 gatunki', true); L.push(g); }
+    const v = L.join(', '); if(v.length > 40) return toast('Za długo - maks. 40 znaków razem', true); gIn.value = v; syncChips(); };
+  box.querySelectorAll('[data-g]').forEach(b => b.onclick = () => togG(b.dataset.g));
+  if(gIn){ gIn.oninput = syncChips; syncChips(); }
   document.getElementById('gX').onclick = () => { S.gOpen = null; render(); };
   // podpowiedzi w tle
   const hint = document.getElementById('gHint');
   if(gIn && !a.genre){ hint.textContent = 'Szukam podpowiedzi…';
     dzGenreHint(a).then(g => { if(!g || !gIn.isConnected) return; if(!gIn.value) gIn.value = g;
-      const sug = document.getElementById('gSug'); if(sug && !sug.querySelector(`[data-g="${CSS.escape(g)}"]`)){ sug.insertAdjacentHTML('afterbegin', `<button type="button" class="chip on" data-g="${esc(g)}">${esc(g)}</button>`); sug.firstChild.onclick = () => { gIn.value = g; }; }
+      const sug = document.getElementById('gSug');
+      if(sug) genresOf(g).reverse().forEach(x => { if(sug.querySelector(`[data-g="${CSS.escape(x)}"]`)) return;
+        sug.insertAdjacentHTML('afterbegin', `<button type="button" class="chip" data-g="${esc(x)}">${esc(x)}</button>`); sug.firstChild.onclick = () => togG(x); });
+      syncChips();
       hint.textContent = 'Podpowiedź z Deezera - popraw, jeśli nie pasuje'; }); }
   if(S.artMeta) parts.forEach(async (p, i) => { if(countryOf(p)) return; const c = await mbCountryHint(p); const sel = box.querySelector(`[data-ci="${i}"]`);
     if(c && sel && sel.isConnected && !sel.value){ if(!COUNTRY_N[c]) sel.insertAdjacentHTML('beforeend', `<option value="${c}">${flagEmoji(c)} ${c}</option>`); sel.value = c; hint.textContent = 'Podpowiedzi z Deezera i MusicBrainz - sprawdź i zapisz'; } });
   document.getElementById('gSave').onclick = async () => {
     const btn = document.getElementById('gSave'); btn.disabled = true; let err = null;
-    if(gIn){ const g = gIn.value.trim().replace(/\s+/g, ' ').slice(0, 40) || null;
+    if(gIn){ const g = genreNorm(gIn.value);
       if(g !== (a.genre || null)){ const { error } = await sb.from('albums').update({genre:g}).eq('id', a.id); if(error) err = error; else a.genre = g; } }
     if(S.artMeta){ const rows = [];
       box.querySelectorAll('[data-ci]').forEach(sel => { const p = parts[+sel.dataset.ci], c = sel.value || null; if(c !== countryOf(p)) rows.push({name:artKey(p), country:c, updated_by:S.user.id, updated_at:new Date().toISOString()}); });
@@ -2194,6 +2281,11 @@ function viewAlbum(arg){
     if(S.goTrk === id){ S.goTrk = null; const t = document.getElementById('trk'); if(t) t.scrollIntoView({block:'start', behavior:'smooth'}); } });
   const gB = document.getElementById('gB'); if(gB) gB.onclick = () => { S.gOpen = S.gOpen === id ? null : id; render(); };
   if(S.gOpen === id) drawGenrePanel(a);
+  else if(!S.afPage) S.afPage = new Set();
+  if(S.gOpen !== id && !S.afPage.has(id)){ S.afPage.add(id); const jobs = [];
+    if(S.hasGenre && !a.genre && !afTried['g' + id]) jobs.push(afGenre(a));
+    if(S.artMeta) artistParts(a.artist).forEach(p => { if(!countryOf(p) && !afTried['c' + artKey(p)]) jobs.push(afCountry(p)); });
+    if(jobs.length) Promise.all(jobs).then(r => { if(r.some(Boolean) && location.hash === '#/album/' + id && !document.querySelector('input:focus,textarea:focus')) render(); }); }
   // brak daty premiery - sprawdź raz w Deezerze i zapisz (dla wszystkich)
   if(S.hasRel && a.year && !relDate(a) && !S.relTried.has(id)){ S.relTried.add(id);
     ensureRelDates([a]).then(() => { const el = document.getElementById('aDate'); if(el && relDate(a)) el.innerHTML = relDateHtml(a); }); }
@@ -2271,7 +2363,7 @@ function albumFormHtml(a, isNew){
         <label>Typ<select id="fty">${TYPES.map(t => `<option ${t === (a.type || 'LP') ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
       </div>
       ${S.hasRel ? `<label>Data premiery (opcjonalnie)<input id="fd" type="date" value="${esc(a.release_date || '')}"></label>` : ''}
-      ${S.hasGenre ? `<label>Gatunek (opcjonalnie)<input id="fg" list="fgList" maxlength="40" value="${esc(a.genre || '')}" placeholder="np. Hip-hop" autocomplete="off"></label><datalist id="fgList">${[...new Set([...[...S.albums.values()].map(x => x.genre).filter(Boolean), ...GENRES])].map(g => `<option value="${esc(g)}">`).join('')}</datalist>` : ''}
+      ${S.hasGenre ? `<label>Gatunek (opcjonalnie, kilka oddziel przecinkiem)<input id="fg" maxlength="40" value="${esc(a.genre || '')}" placeholder="np. Alt-pop, Rap" autocomplete="off"></label>` : ''}
       <label>Okładka - link do obrazka (https://…)<input id="fc" value="${esc(a.cover_url || '')}" placeholder="wklej link albo wgraj plik poniżej"></label>
       <div class="preview"><span id="fcp">${coverHtml(a, 'c64')}</span>
         <label style="flex:1">albo wgraj plik z komputera / telefonu<input type="file" id="ff" accept="image/*"></label></div>
@@ -2333,7 +2425,7 @@ function bindAlbumForm(a, isNew){
     const dup = findAlbum(artist, title);
     if(dup && (isNew || dup.id !== a.id)) return $('ferr').innerHTML = `Taki album już jest: <a class="link" href="#/album/${dup.id}">przejdź do niego</a>`;
     const row = {artist, title, year, type:$('fty').value, cover_url:cover || null, mbid:$('fmb').value || null};
-    if($('fg')) row.genre = $('fg').value.trim().replace(/\s+/g, ' ').slice(0, 40) || null;
+    if($('fg')) row.genre = genreNorm($('fg').value);
     if($('fd')){ const d = $('fd').value || null;
       if(d && year && +d.slice(0, 4) !== year) return $('ferr').textContent = 'Data premiery nie zgadza się z rokiem.';
       row.release_date = d; if(d && !year) row.year = +d.slice(0, 4); }
@@ -3867,7 +3959,7 @@ function openWrapTeaser(){
 }
 /* ---------- WRAPPED (podgląd - na razie tylko dla admina) ---------- */
 const wrapPreview = () => !!me().is_admin;
-const APP_VERSION = '28.11 · v75'; // podbijane przy każdej zmianie - widać w Ustawieniach konta, czy telefon ma nową wersję
+const APP_VERSION = '28.11 · v77'; // podbijane przy każdej zmianie - widać w Ustawieniach konta, czy telefon ma nową wersję
 const MONTHS_FULL = ['styczeń','luty','marzec','kwiecień','maj','czerwiec','lipiec','sierpień','wrzesień','październik','listopad','grudzień'];
 // data premiery: z bazy (update9.sql), a jak jej nie ma - raz z Deezera i zapis do bazy (albo do pamięci przeglądarki)
 function relCache(){ try { return JSON.parse(localStorage.getItem('oceny_rel') || '{}'); } catch(e){ return {}; } }
@@ -4329,7 +4421,7 @@ function randomPool(){
     if(!kindOk(a, R.kind)) return false;
     if(from != null && !(a.year && a.year >= from)) return false;
     if(to != null && !(a.year && a.year <= to)) return false;
-    if(R.genre && simp(a.genre || '') !== simp(R.genre)) return false;
+    if(R.genre && !genresOf(a.genre).some(g => simp(g) === simp(R.genre))) return false;
     if(R.src === 'unrated') return !myRating(a.id);
     if(R.src === 'listen') return inListen(a.id);
     if(R.src === 'rec'){
@@ -4345,7 +4437,7 @@ function viewRandom(){
   const years = [...new Set([...S.albums.values()].map(a => a.year).filter(Boolean))].sort((a, b) => b - a);
   const yOpts = cur => `<option value="">dowolny</option>` + years.map(y => `<option ${String(y) === String(cur) ? 'selected' : ''}>${y}</option>`).join('');
   // gatunki z bazy (z liczbą albumów) - tylko te, które ktoś już uzupełnił
-  const gCnt = new Map(); if(S.hasGenre) for(const a of S.albums.values()) if(a.genre && kindOk(a, R.kind)){ const k = simp(a.genre); const g = gCnt.get(k) || {n:0, name:a.genre}; g.n++; gCnt.set(k, g); }
+  const gCnt = new Map(); if(S.hasGenre) for(const a of S.albums.values()) if(a.genre && kindOk(a, R.kind)) for(const x of genresOf(a.genre)){ const k = simp(x); const g = gCnt.get(k) || {n:0, name:x}; g.n++; gCnt.set(k, g); }
   if(R.genre && !gCnt.has(simp(R.genre))) gCnt.set(simp(R.genre), {n:0, name:R.genre});
   const gOpts = gCnt.size ? `<option value="">dowolny</option>` + [...gCnt.values()].sort((x, y) => y.n - x.n || x.name.localeCompare(y.name, 'pl'))
     .map(g => `<option value="${esc(g.name)}" ${simp(g.name) === simp(R.genre) ? 'selected' : ''}>${esc(g.name)} (${g.n})</option>`).join('') : '';
@@ -4833,6 +4925,9 @@ function viewAccount(){
     <form class="form" id="lff"><label>Nazwa użytkownika na Last.fm<input id="lfu" maxlength="80" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="np. kuba_123" value="${esc(p.lastfm || '')}"></label>
       <div class="btns"><button class="btn-p">Zapisz</button>${p.lastfm ? '<button type="button" id="lfdel">Odepnij</button>' : ''}</div><div id="lfm_"></div></form>
     <p class="note">Na Twoim profilu pojawi się link do Last.fm${CONFIG.LASTFM_KEY ? ' i to, czego właśnie słuchasz (albo ostatni utwór)' : ''}. Wpisz samą nazwę - tę z adresu last.fm/user/<b>nazwa</b>.</p></div>
+  ${S.hasGenre || S.artMeta ? `<div class="card" style="margin-bottom:18px"><h2>Gatunki i kraje</h2>
+    <p class="note" style="margin-top:0">Gatunek bierze się z Deezera, kraj wykonawcy z MusicBrainz. Uzupełniane są tylko puste pola - to, co ktoś wpisał ręcznie, zostaje. Strona robi to też sama po trochu w tle; tutaj możesz puścić wszystko naraz (kraje idą wolniej, ok. 1 wykonawca na sekundę).</p>
+    <div id="afBox"></div></div>` : ''}
   <div class="cols" style="margin-top:0">
     <div class="card"><h2>Nazwa widoczna dla innych</h2>
       <form class="form" id="nf"><input id="nn" maxlength="40" required value="${esc(p.display_name || '')}">
@@ -4844,7 +4939,7 @@ function viewAccount(){
   </div>
   <div class="card" style="margin-top:18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap"><div><h2 style="margin:0">Wylogowanie</h2><p class="muted small" style="margin:4px 0 0">Na tym urządzeniu trzeba będzie zalogować się ponownie.</p></div><button class="btn-d" id="acclogout">Wyloguj</button></div>
   <p class="muted small" style="text-align:center;margin-top:14px">Wersja strony: ${APP_VERSION}</p>`;
-  document.getElementById('acclogout').onclick = logout;
+  document.getElementById('acclogout').onclick = logout; afDraw();
   const saveLfm = async v => { const m = document.getElementById('lfm_');
     if(v && !/^[A-Za-z][A-Za-z0-9_-]{1,14}$/.test(v)){ m.className = 'err'; m.textContent = 'Nazwa na Last.fm ma 2-15 znaków: litery, cyfry, _ i -, na początku litera.'; return; }
     const { error } = await sb.from('profiles').update({lastfm:v || null}).eq('id', S.user.id);
