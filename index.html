@@ -2067,14 +2067,48 @@ async function dzGenreHint(a){
       g = genreNorm(L2.slice(0, 2).join(', ')); } } catch(e){}
   return hintCache[k] = g;
 }
+// MusicBrainz: max ~1 zapytanie na sekundę
+async function mbJson(url){
+  const wait = mbNext - Date.now(); mbNext = Math.max(Date.now(), mbNext) + 1100; if(wait > 0) await sleep(wait);
+  const r = await fetch(url, {headers:{Accept:'application/json'}}); if(r.status === 503){ mbNext += 2000; throw new Error('mb 503'); } return r.json();
+}
+// obszar (miasto/region) -> kod kraju; wyniki zapamiętane, bo wielu wykonawców ma np. "Warszawa"
+const areaCC = (() => { try { return JSON.parse(localStorage.getItem('oceny_areacc') || '{}'); } catch(e){ return {}; } })();
+const areaCode = ar => { if(!ar) return null; const c1 = ar['iso-3166-1-codes'], c2 = ar['iso-3166-2-codes'];
+  return (c1 && c1[0]) || (c2 && c2[0] && c2[0].slice(0, 2)) || null; };
+async function resolveArea(ar, depth = 0){
+  const c0 = areaCode(ar); if(c0) return c0; if(!ar || !ar.id || depth > 4) return null;
+  if(ar.id in areaCC) return areaCC[ar.id];
+  let c = null;
+  try { const j = await mbJson(`https://musicbrainz.org/ws/2/area/${ar.id}?inc=area-rels&fmt=json`); c = areaCode(j);
+    if(!c){ const par = (j.relations || []).find(r => r.type === 'part of' && r.direction === 'backward' && r.area); if(par) c = await resolveArea(par.area, depth + 1); }
+    areaCC[ar.id] = c; try { localStorage.setItem('oceny_areacc', JSON.stringify(areaCC)); } catch(e){}
+  } catch(e){}
+  return c;
+}
+// polskie litery w nazwie albo w tytułach jego albumów = prawie na pewno polski wykonawca
+const PL_CH = /[ąćęłńśźżĄĆĘŁŃŚŹŻ]/;
+const polishSignal = name => { const k = artKey(name); if(PL_CH.test(name)) return true;
+  for(const a of S.albums.values()) if(artistParts(a.artist).some(p => artKey(p) === k) && PL_CH.test(a.title)) return true; return false; };
 async function mbCountryHint(name){
   const k = 'c' + artKey(name); if(k in hintCache) return hintCache[k];
-  let c = null;
-  try { const wait = mbNext - Date.now(); mbNext = Math.max(Date.now(), mbNext) + 1100; if(wait > 0) await sleep(wait);
-    const r = await fetch('https://musicbrainz.org/ws/2/artist/?fmt=json&limit=3&query=' + encodeURIComponent('artist:"' + name + '"'), {headers:{Accept:'application/json'}});
-    const j = await r.json(), hit = (j.artists || []).find(x => simp(x.name) === artKey(name) && (x.country || (x.area && x.area['iso-3166-1-codes'])));
-    if(hit) c = hit.country || hit.area['iso-3166-1-codes'][0]; } catch(e){}
-  return hintCache[k] = (c && COUNTRY_N[c] ? c : c && /^[A-Z]{2}$/.test(c) ? c : null);
+  let c = null; const pl = polishSignal(name);
+  try {
+    // szuka po nazwie i po aliasach (np. inna pisownia), bierze tylko dokładne trafienia
+    const j = await mbJson('https://musicbrainz.org/ws/2/artist/?fmt=json&limit=8&query=' + encodeURIComponent('artist:"' + name + '" OR alias:"' + name + '"'));
+    const key = artKey(name);
+    const hits = (j.artists || []).filter(x => (x.score || 0) >= 70 && (simp(x.name) === key || (x.aliases || []).some(al => simp(al.name) === key)));
+    const cands = [];
+    for(const x of hits.slice(0, 3)){
+      let cc = x.country || areaCode(x.area) || areaCode(x['begin-area']);
+      if(!cc && (x.area || x['begin-area'])) cc = await resolveArea(x.area || x['begin-area']);
+      if(cc) cands.push(cc);
+      if(cc && !pl) break; // pierwszy pewny wynik wystarczy
+    }
+    c = pl && cands.includes('PL') ? 'PL' : cands[0] || null;
+  } catch(e){ if(!pl) return undefined; } // błąd sieci / limit - nie zapamiętuj jako "nie znaleziono"
+  if(!c && pl) c = 'PL';
+  return hintCache[k] = (c && /^[A-Z]{2}$/.test(c) ? c : null);
 }
 /* ----- automatyczne uzupełnianie: gatunek z Deezera, kraj z MusicBrainz -----
    Działa w tle po wejściu na stronę (po kawałku na raz), a z Ustawień konta - wszystko naraz.
@@ -2104,6 +2138,7 @@ async function afGenre(a){
 }
 async function afCountry(name){
   const c = await mbCountryHint(name), k = artKey(name);
+  if(c === undefined){ await sleep(3000); return false; } // MusicBrainz chwilowo odmówił - spróbujemy przy następnym razie
   if(c && !countryOf(name)){ const { error } = await sb.from('artist_meta').upsert({name:k, country:c, updated_by:S.user.id, updated_at:new Date().toISOString()}, {onConflict:'name'});
     if(!error){ S.artMeta.set(k, c); AF.c++; return true; } }
   else afMark('c' + k);
@@ -3959,7 +3994,7 @@ function openWrapTeaser(){
 }
 /* ---------- WRAPPED (podgląd - na razie tylko dla admina) ---------- */
 const wrapPreview = () => !!me().is_admin;
-const APP_VERSION = '28.11 · v77'; // podbijane przy każdej zmianie - widać w Ustawieniach konta, czy telefon ma nową wersję
+const APP_VERSION = '28.11 · v78'; // podbijane przy każdej zmianie - widać w Ustawieniach konta, czy telefon ma nową wersję
 const MONTHS_FULL = ['styczeń','luty','marzec','kwiecień','maj','czerwiec','lipiec','sierpień','wrzesień','październik','listopad','grudzień'];
 // data premiery: z bazy (update9.sql), a jak jej nie ma - raz z Deezera i zapis do bazy (albo do pamięci przeglądarki)
 function relCache(){ try { return JSON.parse(localStorage.getItem('oceny_rel') || '{}'); } catch(e){ return {}; } }
