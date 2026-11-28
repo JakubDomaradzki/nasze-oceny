@@ -417,7 +417,7 @@ main.planw{max-width:1400px}
 .pdel2{width:30px;height:30px;padding:0;border-radius:50%;font-size:17px;line-height:1;color:var(--muted)}
 .ptodaycard .psc2{margin-left:auto}
 /* przeciąganie */
-.pghost{position:fixed;left:0;top:0;z-index:90;pointer-events:none;border-radius:12px;overflow:hidden;line-height:0;box-shadow:0 18px 40px rgba(0,0,0,.45),0 0 0 2px var(--accent)}
+.pghost{position:fixed;left:0;top:0;z-index:90;pointer-events:none;will-change:transform;transform:translate3d(-200px,-200px,0);border-radius:12px;overflow:hidden;line-height:0;box-shadow:0 18px 40px rgba(0,0,0,.45),0 0 0 2px var(--accent)}
 .dragging{opacity:.35}
 html.pdragging,html.pdragging *{user-select:none!important;-webkit-user-select:none!important;cursor:grabbing!important}
 /* telefon */
@@ -446,7 +446,8 @@ html.pdragging,html.pdragging *{user-select:none!important;-webkit-user-select:n
   .pmg{gap:3px}.pmw{gap:3px}.pmonth{padding:6px}
   .pmc{min-height:62px;padding:3px;border-radius:8px}.pmc>span{font-size:11px}
   .pmini .cover.c40{width:22px;height:22px;border-radius:4px}
-  .ptk,.pmini,.prow,.pcard,.pslr{touch-action:pan-x pan-y}
+  .ptk,.pmini,.prow,.pcard,.pslr{touch-action:pan-x pan-y;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+  [data-drag] img{-webkit-user-drag:none;pointer-events:none}
 }
 body:has(.ptray) #nowb{display:none}
 /* dymek „Słuchasz teraz” */
@@ -3759,7 +3760,7 @@ function openWrapTeaser(){
 }
 /* ---------- WRAPPED (podgląd - na razie tylko dla admina) ---------- */
 const wrapPreview = () => !!me().is_admin;
-const APP_VERSION = '28.11 · 10:30'; // podbijane przy każdej zmianie - widać w Ustawieniach konta, czy telefon ma nową wersję
+const APP_VERSION = '28.11 · v70'; // podbijane przy każdej zmianie - widać w Ustawieniach konta, czy telefon ma nową wersję
 const MONTHS_FULL = ['styczeń','luty','marzec','kwiecień','maj','czerwiec','lipiec','sierpień','wrzesień','październik','listopad','grudzień'];
 // data premiery: z bazy (update9.sql), a jak jej nie ma - raz z Deezera i zapis do bazy (albo do pamięci przeglądarki)
 function relCache(){ try { return JSON.parse(localStorage.getItem('oceny_rel') || '{}'); } catch(e){ return {}; } }
@@ -4000,48 +4001,62 @@ function viewPlan(){
   bindPlanDrag();
   if(mob && V.mode === 'week' && !V.scrolled){ V.scrolled = true; const td = app.querySelector('.pwr.today'); if(td) td.scrollIntoView({block:'center'}); }
 }
-/* przeciąganie: myszka od razu, palec po przytrzymaniu (żeby normalne przewijanie dalej działało) */
-function bindPlanDrag(){
-  let st = null;
-  const clean = () => { if(!st) return; clearTimeout(st.timer); if(st.ghost) st.ghost.remove(); if(st.el) st.el.classList.remove('dragging');
-    document.querySelectorAll('.dz').forEach(x => x.classList.remove('dz')); document.documentElement.classList.remove('pdragging'); st = null; };
-  const target = (x, y) => { const el = document.elementFromPoint(x, y); return el && (el.closest('[data-day]') || el.closest('[data-tray]')); };
-  const begin = () => { const a = S.albums.get(st.id); st.on = true; st.el.classList.add('dragging'); document.documentElement.classList.add('pdragging');
-    st.ghost = document.createElement('div'); st.ghost.className = 'pghost'; st.ghost.innerHTML = coverHtml(a, 'c64'); document.body.appendChild(st.ghost); move(st.x, st.y);
-    if(navigator.vibrate) try { navigator.vibrate(12); } catch(e){}
-    // przewijanie strony, gdy palec/myszka stoi przy krawędzi (albo nad listą na dole na telefonie)
-    const tick = () => { if(!st || !st.on) return; const tr = document.querySelector('.ptray'), mob = matchMedia('(max-width:720px)').matches;
-      const bottomEdge = mob && tr ? tr.getBoundingClientRect().top : innerHeight; let dy = 0;
-      if(st.y < 90) dy = -Math.ceil((90 - st.y) / 6); else if(st.y > bottomEdge - 60 && (!mob || st.y < bottomEdge + 40)) dy = Math.ceil((st.y - bottomEdge + 60) / 6);
-      if(dy){ scrollBy(0, dy); move(st.x, st.y); } requestAnimationFrame(tick); };
-    requestAnimationFrame(tick); };
-  const move = (x, y) => { st.x = x; st.y = y; if(!st.on) return; st.ghost.style.transform = `translate(${x - 32}px,${y - 40}px) rotate(-5deg)`;
-    const tg = target(x, y); document.querySelectorAll('.dz').forEach(z => { if(z !== tg) z.classList.remove('dz'); }); if(tg) tg.classList.add('dz');
-    const ts = document.querySelector('.pts'); if(ts && st.from === 'tray' && tg && tg.matches('[data-tray]')){ const r = ts.getBoundingClientRect(); if(x < r.left + 30) ts.scrollLeft -= 10; else if(x > r.right - 30) ts.scrollLeft += 10; } };
-  const drop = async () => { const tg = target(st.x, st.y), id = st.id, from = st.from; clean();
-    if(!tg) return;
-    if(tg.matches('[data-tray]')){ if(from !== 'tray' && await unPlan(id)){ toast('Usunięto z planu'); render(); } return; }
-    const day = tg.dataset.day, cur = planOf(id); if(cur && cur.day === day) return;
-    if(await setPlan(id, day)){ toast(`Zaplanowano na ${pDayLabel(day)}`); if(S.planV.mode === 'month') S.planV.sel = day; render(); } };
-  app.querySelectorAll('[data-drag]').forEach(el => {
-    el.addEventListener('dragstart', e => e.preventDefault());
-    el.addEventListener('mousedown', e => { if(e.button || e.target.closest('button,input')) return; e.preventDefault();
-      st = {id:+el.dataset.drag, from:el.dataset.from || 'cal', el, x:e.clientX, y:e.clientY, sx:e.clientX, sy:e.clientY, on:false, mouse:true}; });
-    el.addEventListener('touchstart', e => { if(e.target.closest('button,input')) return; const t0 = e.touches[0];
-      st = {id:+el.dataset.drag, from:el.dataset.from || 'cal', el, x:t0.clientX, y:t0.clientY, sx:t0.clientX, sy:t0.clientY, on:false};
-      st.timer = setTimeout(() => { if(st && !st.on) begin(); }, 380); }, {passive:true});
-  });
-  // jeden zestaw nasłuchów na dokument na stronę
+/* przeciąganie: myszka od razu, palec po przytrzymaniu (żeby normalne przewijanie dalej działało)
+   stan trzymamy w jednym miejscu (PD) - strona przerysowuje się po każdym upuszczeniu, a nasłuchy na dokumencie są tylko jedne */
+let PD = null;
+function pdClean(){ if(!PD) return; clearTimeout(PD.timer); cancelAnimationFrame(PD.raf); if(PD.ghost) PD.ghost.remove(); if(PD.el) PD.el.classList.remove('dragging');
+  document.querySelectorAll('.pghost').forEach(g => g.remove());
+  document.querySelectorAll('.dz').forEach(x => x.classList.remove('dz')); document.documentElement.classList.remove('pdragging'); PD = null; }
+function pdTarget(x, y){ const el = document.elementFromPoint(x, y); return el && (el.closest('[data-day]') || el.closest('[data-tray]')); }
+function pdBegin(){
+  if(!PD || PD.on) return; const a = S.albums.get(PD.id); if(!a) return pdClean();
+  PD.on = true; PD.el.classList.add('dragging'); document.documentElement.classList.add('pdragging');
+  PD.ghost = document.createElement('div'); PD.ghost.className = 'pghost'; PD.ghost.innerHTML = coverHtml(a, 'c64'); document.body.appendChild(PD.ghost);
+  if(navigator.vibrate) try { navigator.vibrate(12); } catch(e){}
+  // jedna pętla na klatkę: przesuwa okładkę, podświetla dzień i przewija przy krawędzi - płynniej niż przy każdym ruchu palca
+  let lastTg = null;
+  const tick = () => { if(!PD || !PD.on) return;
+    PD.ghost.style.transform = `translate3d(${PD.x - 32}px,${PD.y - 44}px,0) rotate(-5deg)`;
+    const tr = document.querySelector('.ptray'), mob = matchMedia('(max-width:720px)').matches;
+    const bottomEdge = mob && tr ? tr.getBoundingClientRect().top : innerHeight; let dy = 0;
+    if(PD.y < 90) dy = -Math.ceil((90 - PD.y) / 7); else if(PD.y > bottomEdge - 60 && (!mob || PD.y < bottomEdge + 40)) dy = Math.ceil((PD.y - bottomEdge + 60) / 7);
+    if(dy) scrollBy(0, dy);
+    const tg = pdTarget(PD.x, PD.y);
+    if(tg !== lastTg){ if(lastTg) lastTg.classList.remove('dz'); if(tg) tg.classList.add('dz'); lastTg = tg; }
+    PD.raf = requestAnimationFrame(tick); };
+  PD.raf = requestAnimationFrame(tick);
+}
+async function pdDrop(){
+  const tg = pdTarget(PD.x, PD.y), id = PD.id, from = PD.from; pdClean();
+  if(!tg) return;
+  if(tg.matches('[data-tray]')){ if(from !== 'tray' && await unPlan(id)){ toast('Usunięto z planu'); render(); } return; }
+  const day = tg.dataset.day, cur = planOf(id); if(cur && cur.day === day) return;
+  if(await setPlan(id, day)){ toast(`Zaplanowano na ${pDayLabel(day)}`); if(S.planV.mode === 'month') S.planV.sel = day; render(); }
+}
+function pdSuppressClick(){ const k = e => { e.stopPropagation(); e.preventDefault(); }; document.addEventListener('click', k, true); setTimeout(() => document.removeEventListener('click', k, true), 80); }
+function pdInit(){
   if(window.__planDnD) return; window.__planDnD = true;
-  document.addEventListener('mousemove', e => { if(!st || !st.mouse) return; if(!st.on && Math.hypot(e.clientX - st.sx, e.clientY - st.sy) > 5) begin(); move(e.clientX, e.clientY); });
-  document.addEventListener('mouseup', e => { if(!st || !st.mouse) return; if(st.on){ st.x = e.clientX; st.y = e.clientY; drop(); suppressClick(); } else clean(); });
-  document.addEventListener('touchmove', e => { if(!st || st.mouse) return; const t0 = e.touches[0];
-    if(!st.on){ if(Math.hypot(t0.clientX - st.sx, t0.clientY - st.sy) > 10) clean(); return; } // ruch przed przytrzymaniem = zwykłe przewijanie
-    e.preventDefault(); move(t0.clientX, t0.clientY); }, {passive:false});
-  document.addEventListener('touchend', () => { if(!st || st.mouse) return; if(st.on){ drop(); suppressClick(); } else clean(); });
-  document.addEventListener('touchcancel', () => clean());
-  document.addEventListener('contextmenu', e => { if(st && st.on) e.preventDefault(); });
-  function suppressClick(){ const k = e => { e.stopPropagation(); e.preventDefault(); }; document.addEventListener('click', k, true); setTimeout(() => document.removeEventListener('click', k, true), 60); }
+  // początek przeciągania łapiemy na dokumencie - działa też dla elementów dorysowanych po przerysowaniu strony
+  document.addEventListener('mousedown', e => { const el = e.target.closest && e.target.closest('[data-drag]'); if(!el || e.button || e.target.closest('button,input')) return;
+    e.preventDefault(); pdClean(); PD = {id:+el.dataset.drag, from:el.dataset.from || 'cal', el, x:e.clientX, y:e.clientY, sx:e.clientX, sy:e.clientY, on:false, mouse:true}; });
+  document.addEventListener('mousemove', e => { if(!PD || !PD.mouse) return; PD.x = e.clientX; PD.y = e.clientY;
+    if(!PD.on && Math.hypot(PD.x - PD.sx, PD.y - PD.sy) > 4) pdBegin(); });
+  document.addEventListener('mouseup', e => { if(!PD || !PD.mouse) return; if(PD.on){ PD.x = e.clientX; PD.y = e.clientY; pdSuppressClick(); pdDrop(); } else pdClean(); });
+  document.addEventListener('touchstart', e => { const el = e.target.closest && e.target.closest('[data-drag]'); if(!el || e.target.closest('button,input') || e.touches.length > 1) return;
+    const t0 = e.touches[0]; pdClean();
+    PD = {id:+el.dataset.drag, from:el.dataset.from || 'cal', el, x:t0.clientX, y:t0.clientY, sx:t0.clientX, sy:t0.clientY, on:false};
+    PD.timer = setTimeout(pdBegin, 320); }, {passive:true});
+  document.addEventListener('touchmove', e => { if(!PD || PD.mouse) return; const t0 = e.touches[0];
+    if(!PD.on){ if(Math.hypot(t0.clientX - PD.sx, t0.clientY - PD.sy) > 10) pdClean(); return; } // ruch przed przytrzymaniem = zwykłe przewijanie
+    e.preventDefault(); PD.x = t0.clientX; PD.y = t0.clientY; }, {passive:false});
+  document.addEventListener('touchend', () => { if(!PD || PD.mouse) return; if(PD.on){ pdSuppressClick(); pdDrop(); } else pdClean(); });
+  document.addEventListener('touchcancel', () => pdClean());
+  document.addEventListener('contextmenu', e => { if(PD) e.preventDefault(); });
+  window.addEventListener('blur', () => pdClean());
+}
+function bindPlanDrag(){
+  pdInit();
+  app.querySelectorAll('[data-drag] img').forEach(im => { im.draggable = false; });
 }
 // karta „Dziś w planie” na stronie głównej
 function planTodayHtml(){
