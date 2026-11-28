@@ -268,7 +268,22 @@ img.flag{width:1.15em;height:.86em;object-fit:cover;border-radius:2px;vertical-a
 .gpanel{display:grid;gap:10px;background:var(--soft);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:-6px 0 18px;max-width:460px}
 .gpanel label{display:grid;gap:4px;font-size:13px;font-weight:600;color:var(--muted)}.gpanel .btns{align-items:center}
 .gsug{display:flex;flex-wrap:wrap;gap:6px}.gsep{margin:0 5px;color:var(--muted)}.gnote{font-weight:500}
+.ysw{display:flex;align-items:center;gap:8px;margin:4px 0 16px;flex-wrap:wrap}
+.yarr{display:inline-flex;align-items:center;gap:6px;height:42px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--text);text-decoration:none;font-size:20px;font-weight:600}
+.yarr span{font-size:14px;color:var(--muted);font-weight:600}.yarr:hover{border-color:var(--accent)}.yarr.off{opacity:.35;pointer-events:none}
+.ysel{position:relative;display:inline-flex;align-items:center;gap:6px;height:42px;padding:0 16px;border-radius:12px;background:var(--text);color:var(--bg);cursor:pointer}
+.ysel b{font-size:18px;font-variant-numeric:tabular-nums}.ysel i{font-style:normal;font-size:12px;opacity:.7}
+.ysel select{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer;font-size:16px}
+.yall{margin-left:auto;font-size:14px;font-weight:600;color:var(--accent);text-decoration:none}
+@media (max-width:420px){.yarr span{display:none}.yall{margin-left:0}}
+.gmore{display:grid;gap:10px}.ggrp{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.ggrp>span{flex-basis:100%;font-size:12px;font-weight:700;color:var(--muted)}
+.ggrp .chip{font-size:12.5px;padding:4px 10px}.ggrp .chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
 .gsug .chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.linkbtn{background:none;border:0;padding:8px 0 0;color:var(--accent);font-weight:650;cursor:pointer;font:inherit;font-weight:650}
+.afmiss h3{font-size:14px;margin:16px 0 8px}.aflist{display:grid;gap:6px;max-height:420px;overflow:auto;padding-right:4px}
+.afrow{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:10px;background:var(--soft);color:inherit;text-decoration:none}
+.afrow>a{display:grid;flex:1;min-width:0;color:inherit;text-decoration:none}.afrow b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.afrow select{width:auto;max-width:48%;padding:6px 8px;font-size:13px}.afalb>span:nth-child(2){display:grid;flex:1;min-width:0}.afalb .gchip{margin-left:auto;flex:none}
 .afbar{height:8px;border-radius:99px;background:var(--soft);overflow:hidden;margin:4px 0 8px}.afbar i{display:block;height:100%;background:var(--accent);border-radius:99px;transition:width .3s}.gsug .chip{font-size:12.5px;padding:4px 10px}
 .avgbox{display:flex;align-items:center;gap:18px;padding:16px 18px;border-radius:14px;background:var(--soft);border:1px solid var(--line);margin-bottom:16px}
 .avgnum{flex:none;white-space:nowrap;font-size:60px;font-weight:800;letter-spacing:-2px;line-height:1;color:#fff;border-radius:12px;padding:12px 16px;min-width:120px;text-align:center;font-variant-numeric:tabular-nums}
@@ -1488,10 +1503,20 @@ const COUNTRIES = [['PL','Polska'],['US','USA'],['GB','Wielka Brytania'],['CA','
   ['PH','Filipiny'],['ID','Indonezja'],['TH','Tajlandia'],['BR','Brazylia'],['AR','Argentyna'],['MX','Meksyk'],['CO','Kolumbia'],['CL','Chile'],['PR','Portoryko'],
   ['JM','Jamajka'],['CU','Kuba'],['NG','Nigeria'],['GH','Ghana'],['ZA','RPA'],['KE','Kenia'],['EG','Egipt'],['MA','Maroko']];
 const COUNTRY_N = Object.fromEntries(COUNTRIES);
-const GENRES = ['Hip-hop','Rap','Trap','Pop','Hyperpop','Rock','Indie','Alternatywa','Indie pop','Indie rock','R&B','Soul','Elektronika','House','Techno','Dance','Ambient',
-  'Metal','Punk','Folk','Singer-songwriter','Jazz','Country','Reggae','Afrobeats','K-pop','Latin','Klasyczna','Eksperymentalna','Shoegaze','Dream pop','Art pop'];
+// pogrupowane - w okienku gatunku "Więcej gatunków" pokazuje je w tych grupach
+const GENRE_GROUPS = [
+  ['Hip-hop', ['Hip-hop','Rap','Trap','Drill','Boom bap','Cloud rap','Emo rap','Jazz rap','Conscious rap','Phonk','Grime','Rage']],
+  ['Pop', ['Pop','Alt-pop','Art pop','Indie pop','Dream pop','Synth-pop','Electropop','Hyperpop','Bedroom pop','Dance-pop','K-pop','J-pop','Pop rap','Disco']],
+  ['Rock i gitary', ['Rock','Indie','Indie rock','Alternatywa','Alt-rock','Post-punk','Punk','Pop-punk','Emo','Grunge','Shoegaze','Post-rock','Math rock','Garage rock','Psychedelia','Metal','Hardcore']],
+  ['R&B i soul', ['R&B','Alt-R&B','Neo-soul','Soul','Funk','Gospel']],
+  ['Elektronika', ['Elektronika','House','Techno','Dance','UK garage','Drum and bass','Dubstep','Ambient','IDM','Trip-hop','Breakbeat','Synthwave','Downtempo']],
+  ['Inne', ['Singer-songwriter','Folk','Indie folk','Country','Americana','Jazz','Blues','Reggae','Dancehall','Afrobeats','Latin','Reggaeton','Klasyczna','Soundtrack','Eksperymentalna','Noise','Poezja śpiewana','Disco polo']]];
+const GENRES = GENRE_GROUPS.flatMap(g => g[1]);
 const DZ_GENRE = {'Rap/Hip Hop':'Hip-hop','Alternative':'Alternatywa','Electro':'Elektronika','Dance':'Dance','Pop':'Pop','Rock':'Rock','R&B':'R&B','Soul & Funk':'Soul',
-  'Jazz':'Jazz','Metal':'Metal','Reggae':'Reggae','Folk':'Folk','Country':'Country','Classical':'Klasyczna','Latin Music':'Latin','Indie Rock':'Indie rock','Indie Pop':'Indie pop','Asian Music':'K-pop','African Music':'Afrobeats'};
+  'Jazz':'Jazz','Metal':'Metal','Reggae':'Reggae','Folk':'Folk','Country':'Country','Classical':'Klasyczna','Latin Music':'Latin','Indie Rock':'Indie rock','Indie Pop':'Indie pop','Asian Music':'K-pop','African Music':'Afrobeats',
+  'Films/Games':'Soundtrack','Singer & Songwriter':'Singer-songwriter','Techno/House':'House','Dubstep':'Dubstep','Electro Pop/Electro Dance':'Electropop','Indie Pop/Folk':'Indie folk',
+  'Blues':'Blues','Dancehall/Ragga':'Dancehall','Reggaeton':'Reggaeton','Disco':'Disco','Trance':'Elektronika','Chill Out/Trip-Hop/Lounge':'Trip-hop','Dirty South':'Hip-hop',
+  'East Coast':'Hip-hop','West Coast':'Hip-hop','Contemporary R&B':'R&B','Hard Rock':'Rock','Kids':'Dla dzieci','Brazilian Music':'Latin','Chanson':'Singer-songwriter','Pop internationale':'Pop'};
 const artKey = n => simp(n);
 const countryOf = n => (S.artMeta && S.artMeta.get(artKey(n))) || null;
 const flagEmoji = c => c ? String.fromCodePoint(...[...c].map(ch => 0x1F1E6 + ch.charCodeAt(0) - 65)) : '';
@@ -2036,10 +2061,16 @@ function viewYears(arg){
   }
   const list = rankList({year:y}), mvs = rankMoves(list, t => rankList({year:y, at:t}));
   app.innerHTML = `<h1>Najlepsze ${S.f.kind === 'singles' ? 'single' : 'albumy'} ${y}</h1><p class="sub">${list.length} ${S.f.kind === 'singles' ? pl(list.length,'oceniony singiel','ocenione single','ocenionych singli') : pl(list.length,'oceniony album','ocenione albumy','ocenionych albumów')}</p>
-    <div class="chips">${ys.map(yr => `<a class="chip ${yr === y ? 'on' : ''}" href="#/lata/${yr}">${yr} <small>${years.get(yr)}</small></a>`).join('')}${years.has(y) ? '' : `<span class="chip on">${y} <small>0</small></span>`}</div>
+    ${(() => { // przełącznik roku: strzałki do sąsiednich lat + lista wszystkich (zamiast pastylki na każdy rok)
+      const all = years.has(y) ? ys : [...ys, y].sort((a, b) => b - a), i = all.indexOf(y), newer = all[i - 1], older = all[i + 1];
+      return `<div class="ysw"><a class="yarr ${older ? '' : 'off'}" ${older ? `href="#/lata/${older}"` : 'aria-disabled="true"'} aria-label="Poprzedni rok${older ? ': ' + older : ''}"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg><span>${older || ''}</span></a>
+        <label class="ysel"><select id="ysel" aria-label="Wybierz rok">${all.map(yr => `<option value="${yr}" ${yr === y ? 'selected' : ''}>${yr} · ${years.get(yr) || 0} ${pl(years.get(yr) || 0, 'album', 'albumy', 'albumów')}</option>`).join('')}</select><b>${y}</b><i>▾</i></label>
+        <a class="yarr ${newer ? '' : 'off'}" ${newer ? `href="#/lata/${newer}"` : 'aria-disabled="true"'} aria-label="Następny rok${newer ? ': ' + newer : ''}"><span>${newer || ''}</span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></a>
+        <a class="yall" href="#/lata">Wszystkie lata</a></div>`; })()}
     ${filtersHtml()}${listHtml(list, mvs)}
     ${list.length ? `<p class="note">${moveNote()} Najedź na strzałkę, żeby zobaczyć szczegóły.</p>` : ''}`;
   bindFilters();
+  const ysel = document.getElementById('ysel'); if(ysel) ysel.onchange = () => { location.hash = '#/lata/' + ysel.value; };
 }
 
 const fullDate = d => /^\d{4}-\d{2}-\d{2}$/.test(d || '') ? new Date(d + 'T12:00:00').toLocaleDateString('pl-PL', {day:'numeric', month:'long', year:'numeric'}) : null;
@@ -2171,19 +2202,48 @@ function afDraw(){
     ? `<div class="afbar"><i style="width:${AF.total ? Math.round(AF.done / AF.total * 100) : 0}%"></i></div><p class="small">Szukam… ${AF.done} / ${AF.total} · znaleziono ${AF.g} gatunków i ${AF.c} krajów</p>`
     : `<p class="small muted">Bez gatunku: <b>${noG}</b> albumów · bez kraju: <b>${noC}</b> wykonawców${left < noG + noC ? ` (${noG + noC - left} bez wyniku w ostatnich 7 dniach)` : ''}.</p>
        <div class="btns"><button type="button" class="btn-p" id="afGo" ${left ? '' : 'disabled'}>Uzupełnij automatycznie</button>${left < noG + noC ? '<button type="button" id="afRe">Spróbuj ponownie nietrafione</button>' : ''}</div>`;
+  if(!AF.run && noG + noC){
+    el.insertAdjacentHTML('beforeend', `<button type="button" class="linkbtn" id="afShow" aria-expanded="${!!S.afShow}">${S.afShow ? 'Ukryj listę ▴' : 'Pokaż, których brakuje ▾'}</button>${S.afShow ? afMissingHtml() : ''}`);
+    document.getElementById('afShow').onclick = () => { S.afShow = !S.afShow; afDraw(); };
+    el.querySelectorAll('[data-afc]').forEach(sel => sel.onchange = async () => {
+      const name = sel.dataset.afc, c = sel.value || null; if(!c) return; sel.disabled = true;
+      const { error } = await sb.from('artist_meta').upsert({name:artKey(name), country:c, updated_by:S.user.id, updated_at:new Date().toISOString()}, {onConflict:'name'});
+      if(error){ sel.disabled = false; return toast(errMsg(error), true); }
+      S.artMeta.set(artKey(name), c); toast(`${name}: ${COUNTRY_N[c] || c}`); afDraw(); });
+    el.querySelectorAll('[data-afg]').forEach(x => x.onclick = () => { S.gOpen = +x.dataset.afg; });
+  }
   const go = document.getElementById('afGo'); if(go) go.onclick = () => autoFillMeta(true);
   const re = document.getElementById('afRe'); if(re) re.onclick = () => { for(const k in afTried) delete afTried[k]; try { localStorage.removeItem('oceny_aftried'); } catch(e){} autoFillMeta(true); };
+}
+const countryOptions = cur => `<option value="">- nie wiem -</option>` + [...COUNTRIES].sort((x, y) => x[1].localeCompare(y[1], 'pl')).map(([c, n]) => `<option value="${c}" ${c === cur ? 'selected' : ''}>${flagEmoji(c)} ${n}</option>`).join('');
+// lista braków w Ustawieniach konta: kraj można wybrać od razu, album otwiera się z okienkiem gatunku
+function afMissingHtml(){
+  const arts = new Map();
+  if(S.artMeta) for(const a of S.albums.values()) for(const p of artistParts(a.artist)){ if(countryOf(p)) continue; const k = artKey(p), x = arts.get(k) || {name:p, n:0}; x.n++; arts.set(k, x); }
+  const A = [...arts.values()].sort((x, y) => y.n - x.n || x.name.localeCompare(y.name, 'pl'));
+  const G = S.hasGenre ? [...S.albums.values()].filter(a => !a.genre).sort((x, y) => (y.year || 0) - (x.year || 0)) : [];
+  const opts = countryOptions('');
+  return `<div class="afmiss">
+    ${A.length ? `<h3>Wykonawcy bez kraju (${A.length})</h3><div class="aflist">${A.map(x => `<div class="afrow"><a href="${artistHref(x.name)}"><b>${esc(x.name)}</b><span class="muted small">${x.n} ${x.n === 1 ? 'album' : x.n < 5 ? 'albumy' : 'albumów'}</span></a><select data-afc="${esc(x.name)}" aria-label="Kraj: ${esc(x.name)}">${opts}</select></div>`).join('')}</div>` : ''}
+    ${G.length ? `<h3>Albumy bez gatunku (${G.length})</h3><div class="aflist">${G.map(a => `<a class="afrow afalb" href="#/album/${a.id}" data-afg="${a.id}">${coverHtml(a, 'c40')}<span><b>${esc(a.title)}</b><span class="muted small">${esc(a.artist)}${a.year ? ' · ' + a.year : ''}</span></span><span class="gchip add">+ gatunek</span></a>`).join('')}</div>` : ''}
+  </div>`;
 }
 function drawGenrePanel(a){
   const box = document.getElementById('gPanel'); if(!box) return;
   const parts = artistParts(a.artist).slice(0, 4);
   const used = usedGenres().map(x => x.name);
   const opts = [...new Set([...used, ...GENRES])];
-  const sugL = [...new Set([...used.slice(0, 12), ...GENRES])].slice(0, 16);
+  // najpierw najczęstsze w bazie, reszta pod "Więcej gatunków"
+  const sugL = [...new Set([...used.slice(0, 14), ...GENRES])].slice(0, 16), shown = new Set(sugL.map(simp));
+  const custom = used.filter(g => !shown.has(simp(g)) && !GENRES.some(x => simp(x) === simp(g)));
+  const moreHtml = GENRE_GROUPS.map(([n, L]) => { const r = L.filter(g => !shown.has(simp(g))); return r.length ? `<div class="ggrp"><span>${n}</span>${r.map(g => `<button type="button" class="chip" data-g="${esc(g)}">${esc(g)}</button>`).join('')}</div>` : ''; }).join('')
+    + (custom.length ? `<div class="ggrp"><span>Wpisane przez Was</span>${custom.map(g => `<button type="button" class="chip" data-g="${esc(g)}">${esc(g)}</button>`).join('')}</div>` : '');
   const cOpts = cur => `<option value="">- nie wiem -</option>` + [...COUNTRIES].sort((x, y) => x[1].localeCompare(y[1], 'pl')).map(([c, n]) => `<option value="${c}" ${c === cur ? 'selected' : ''}>${flagEmoji(c)} ${n}</option>`).join('');
   box.innerHTML = `<div class="gpanel">
     ${S.hasGenre ? `<label>Gatunek <span class="gnote">- możesz wybrać do 3, np. Alt-pop, Rap</span><input id="gIn" maxlength="40" value="${esc(a.genre || '')}" placeholder="np. Alt-pop, Rap" autocomplete="off"></label>
-      <div class="gsug" id="gSug">${sugL.map(g => `<button type="button" class="chip" data-g="${esc(g)}">${esc(g)}</button>`).join('')}</div>` : ''}
+      <div class="gsug" id="gSug">${sugL.map(g => `<button type="button" class="chip" data-g="${esc(g)}">${esc(g)}</button>`).join('')}</div>
+      <button type="button" class="linkbtn" id="gMore" aria-expanded="false">Więcej gatunków ▾</button><div class="gmore" id="gMoreBox" hidden>${moreHtml}</div>
+      <span class="muted small">Nie ma na liście? Wpisz własny w polu wyżej.</span>` : ''}
     ${S.artMeta ? parts.map((p, i) => `<label>Kraj: ${esc(p)}<select data-ci="${i}">${cOpts(countryOf(p))}</select></label>`).join('') : ''}
     <div class="btns"><button type="button" class="btn-p sm" id="gSave">Zapisz</button><button type="button" class="sm" id="gX">Anuluj</button><span class="muted small" id="gHint"></span></div></div>`;
   const gIn = document.getElementById('gIn');
@@ -2194,6 +2254,7 @@ function drawGenrePanel(a){
     const v = L.join(', '); if(v.length > 40) return toast('Za długo - maks. 40 znaków razem', true); gIn.value = v; syncChips(); };
   box.querySelectorAll('[data-g]').forEach(b => b.onclick = () => togG(b.dataset.g));
   if(gIn){ gIn.oninput = syncChips; syncChips(); }
+  const gm = document.getElementById('gMore'); if(gm) gm.onclick = () => { const b = document.getElementById('gMoreBox'), op = b.hidden; b.hidden = !op; gm.setAttribute('aria-expanded', op); gm.textContent = op ? 'Mniej ▴' : 'Więcej gatunków ▾'; };
   document.getElementById('gX').onclick = () => { S.gOpen = null; render(); };
   // podpowiedzi w tle
   const hint = document.getElementById('gHint');
@@ -3994,7 +4055,7 @@ function openWrapTeaser(){
 }
 /* ---------- WRAPPED (podgląd - na razie tylko dla admina) ---------- */
 const wrapPreview = () => !!me().is_admin;
-const APP_VERSION = '28.11 · v78'; // podbijane przy każdej zmianie - widać w Ustawieniach konta, czy telefon ma nową wersję
+const APP_VERSION = '28.11 · v81'; // podbijane przy każdej zmianie - widać w Ustawieniach konta, czy telefon ma nową wersję
 const MONTHS_FULL = ['styczeń','luty','marzec','kwiecień','maj','czerwiec','lipiec','sierpień','wrzesień','październik','listopad','grudzień'];
 // data premiery: z bazy (update9.sql), a jak jej nie ma - raz z Deezera i zapis do bazy (albo do pamięci przeglądarki)
 function relCache(){ try { return JSON.parse(localStorage.getItem('oceny_rel') || '{}'); } catch(e){ return {}; } }
