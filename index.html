@@ -1662,7 +1662,7 @@ function pingActive(){
 }
 setInterval(pingActive, 60 * 1000);
 document.addEventListener('visibilitychange', () => { if(!document.hidden) pingActive(); });
-async function logout(){ closeSearch(); S.blind = undefined; await sb.auth.signOut(); S.user = null; location.hash = ''; render(); }
+async function logout(){ closeSearch(); S.blind = undefined; S.myNowAll = null; S.myNow = null; await sb.auth.signOut(); S.user = null; location.hash = ''; render(); }
 function route(){
   const parts = location.hash.replace(/^#\/?/, '').split('/');
   return {page:parts[0] || 'start', arg:parts[1] ? decodeURIComponent(parts[1]) : null, arg2:parts[2] ? decodeURIComponent(parts[2]) : null};
@@ -3573,16 +3573,21 @@ const NOW_DAYS = 7; // starsze, porzucone albumy nie wracają
 S.myNow = null;
 const nowHidKey = () => 'oceny_nowx_' + S.user.id;
 function nowHidden(){ try { return JSON.parse(localStorage.getItem(nowHidKey()) || '{}'); } catch(e){ return {}; } }
-async function refreshMyNow(){
+// ostatni słuchany album zapamiętany też w przeglądarce - dymek nie znika, gdy po powrocie do karty baza chwilę nie odpowiada
+const nowLocKey = () => 'oceny_now_' + S.user.id;
+function nowLocal(){ try { const o = JSON.parse(localStorage.getItem(nowLocKey()) || 'null'); return o && Date.now() - o.at < NOW_DAYS * 864e5 ? o : null; } catch(e){ return null; } }
+async function refreshMyNow(tries = 0){
   if(!S.user) return;
   const since = new Date(Date.now() - NOW_DAYS * 864e5).toISOString();
-  const { data, error } = await sb.from('track_ratings').select('album_id,updated_at,score').eq('user_id', S.user.id).gt('updated_at', since);
-  if(error || !data) return;
+  const { data, error } = await sb.from('track_ratings').select('album_id,updated_at,score').eq('user_id', S.user.id).gt('updated_at', since).order('updated_at', {ascending:false}).limit(1000);
+  if(error || !data){ if(tries < 3) setTimeout(() => refreshMyNow(tries + 1), 3000 * (tries + 1)); return; } // np. token odświeża się po powrocie do karty
   const m = new Map();
   for(const t of data){ if(t.score == null) continue; const id = Number(t.album_id), at = Date.parse(t.updated_at) || 0, o = m.get(id) || {album_id:id, at:0, n:0}; o.n++; o.at = Math.max(o.at, at); m.set(id, o); }
+  const loc = nowLocal(); if(loc && loc.n > 0 && (!m.has(loc.album_id) || m.get(loc.album_id).at < loc.at - 60000)) m.set(loc.album_id, {...loc, n:Math.max(loc.n, (m.get(loc.album_id) || {n:0}).n)});
   S.myNowAll = m; pickMyNow(); drawNowBubble();
 }
 function pickMyNow(){
+  if(!S.myNowAll && S.user){ const loc = nowLocal(); S.myNowAll = new Map(loc ? [[loc.album_id, loc]] : []); }
   const hid = nowHidden();
   S.myNow = [...(S.myNowAll || new Map()).values()].filter(o => o.n > 0 && S.albums.has(o.album_id) && !myRating(o.album_id) && !(hid[o.album_id] >= o.at))
     .sort((a, b) => b.at - a.at)[0] || null;
@@ -3592,6 +3597,7 @@ function noteMyTrack(albumId, hadScore, hasScore){
   if(!S.myNowAll) S.myNowAll = new Map();
   const o = S.myNowAll.get(albumId) || {album_id:albumId, at:0, n:0};
   o.n = Math.max(0, o.n + (hasScore ? 1 : 0) - (hadScore ? 1 : 0)); o.at = Date.now(); S.myNowAll.set(albumId, o);
+  try { localStorage.setItem(nowLocKey(), JSON.stringify(o)); } catch(e){}
   pickMyNow(); drawNowBubble();
 }
 function drawNowBubble(){
