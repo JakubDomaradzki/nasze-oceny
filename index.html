@@ -359,6 +359,27 @@ tr.cl:hover td{background:var(--soft)}
 @media (min-width:1000px){.hello .htx{flex:0 1 auto}}
 @media (max-width:520px){.wrapt{padding:14px 16px;border-radius:16px;gap:10px}.wrapt .wt{font-size:clamp(32px,10.5vw,42px)}.wrapt .wl{gap:7px}.wrapt .ws{font-size:13.5px}.wr{gap:10px 14px}.wst:nth-child(n+3){display:none}.wrapt>.wpill{position:static;order:-1;justify-self:start;margin-bottom:-4px}}
 @media (prefers-reduced-motion:reduce){.red{animation:none}.wrapt{transition:none}}
+/* dymek „Słuchasz teraz” */
+/* butelkowa zieleń - ta sama w obu motywach */
+#nowb{--nowbg:#14532d;--nowfg:#fff;--nowmut:rgba(255,255,255,.78);--nowacc:#86efac;--nowbd:rgba(255,255,255,.18);--nowhv:rgba(255,255,255,.15);position:fixed;z-index:35;right:max(18px,env(safe-area-inset-right));bottom:calc(18px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:2px;
+  max-width:min(340px,calc(100vw - 24px));padding:6px;border-radius:18px;background:var(--nowbg);color:var(--nowfg);border:1px solid var(--nowbd);
+  box-shadow:0 16px 40px -10px rgba(0,0,0,.55),0 2px 8px rgba(0,0,0,.12);animation:nowIn .35s cubic-bezier(.2,.8,.2,1)}
+@keyframes nowIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){#nowb{animation:none}}
+#nowb .nowb-in{flex:1;display:grid;grid-template-columns:44px minmax(0,1fr);gap:10px;align-items:center;color:inherit;text-decoration:none;min-width:0;padding-right:4px;border-radius:12px}
+#nowb .cover{border-radius:9px}
+#nowb .nowb-t{display:flex;flex-direction:column;min-width:0;line-height:1.25}
+#nowb small{display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;color:var(--nowacc)}
+#nowb b{color:var(--nowfg);font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#nowb .nowb-t>span{font-size:12px;color:var(--nowmut);white-space:nowrap}
+#nowb .eq{height:10px}#nowb .eq i{width:2.5px;background:var(--nowacc)}
+#nowb .nowb-x{flex:none;align-self:flex-start;width:26px;height:26px;padding:0;border:0;border-radius:50%;background:none;color:var(--nowmut);font-size:18px;line-height:1}
+#nowb .nowb-x:hover{background:var(--nowhv);color:var(--nowfg)}
+#nowb .nowb-in:hover b{text-decoration:underline}
+@media (max-width:720px){#nowb{right:10px;max-width:min(300px,calc(100vw - 20px));bottom:calc(74px + env(safe-area-inset-bottom))}}
+body:has(.wov) #nowb{display:none}
+body:has(#nowb) main{padding-bottom:100px}
+@media (max-width:720px){body:has(#nowb) main{padding-bottom:calc(170px + env(safe-area-inset-bottom))!important}}
 /* wrapped - opowieść slajd po slajdzie */
 .wov{position:fixed;inset:0;z-index:80;background:rgba(4,5,7,.9);display:flex;align-items:center;justify-content:center;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
 .wstory{position:relative;isolation:isolate;width:min(430px,100vw);height:min(800px,100dvh);border-radius:26px;overflow:hidden;color:#fff;background:#0a0b0e;box-shadow:0 40px 100px -30px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.06)}
@@ -1122,7 +1143,7 @@ async function loadData(){
   const [h, rc] = await Promise.all([fetchAll('rating_history').catch(e => { console.warn('rating_history', e); return null; }),
     fetchAll('recommendations').catch(e => { console.warn('recommendations', e); return null; })]);
   S.recs = rc ? rc.map(x => ({...x, album_id:Number(x.album_id)})) : null; // null = nie ma jeszcze tabeli (update8.sql)
-  refreshListening();
+  refreshListening(); refreshMyNow();
   S.hist = null;
   if(h){ S.hist = new Map(); h.sort((x, y) => Number(x.id) - Number(y.id)).forEach(x => push(S.hist, Number(x.album_id) + '|' + x.user_id,
     {old:x.old_score == null ? null : Number(x.old_score), score:Number(x.new_score), at:x.changed_at})); }
@@ -1671,7 +1692,7 @@ function render(){
   const V = {staty:viewPersonStats, odkrywaj:viewDiscover, oceny:viewRatings, aktywnosc:viewActivity, start:viewHome, losuj:viewRandom, statystyki:viewStats, wykonawca:viewArtist, porownaj:viewCompare, ranking:viewRanking, lata:viewYears, album:viewAlbum, albumy:viewAlbums, dodaj:viewAdd, osoby:viewPeople,
              osoba:viewPerson, import:viewImport, konto:viewAccount, edytuj:viewEdit}[page] || viewHome;
   try { V(arg, arg2); } catch(e){ console.error(e); app.innerHTML = `<div class="card err">Błąd: ${esc(e.message)}</div>`; }
-  updLgrid(); fillListening(); fillLfm();
+  updLgrid(); fillListening(); fillLfm(); if(S.user){ pickMyNow(); drawNowBubble(); }
 }
 async function safeLoad(){
   try { await loadData(); }
@@ -1966,7 +1987,8 @@ function viewAlbum(arg){
   app.querySelectorAll('[data-rcancel]').forEach(b => armButton(b, 'Cofnąć?', async () => { const rid = Number(b.dataset.rcancel);
     const { error } = await sb.from('recommendations').delete().eq('id', rid); if(error) return toast(errMsg(error), true);
     S.recs = S.recs.filter(r => Number(r.id) !== rid); toast('Cofnięto polecenie'); render(); }));
-  initTracks(a).then(() => { markRaters(a); drawCalc(a); });
+  initTracks(a).then(() => { markRaters(a); drawCalc(a);
+    if(S.goTrk === id){ S.goTrk = null; const t = document.getElementById('trk'); if(t) t.scrollIntoView({block:'start', behavior:'smooth'}); } });
   // brak daty premiery - sprawdź raz w Deezerze i zapisz (dla wszystkich)
   if(S.hasRel && a.year && !relDate(a) && !S.relTried.has(id)){ S.relTried.add(id);
     ensureRelDates([a]).then(() => { const el = document.getElementById('aDate'); if(el && relDate(a)) el.innerHTML = relDateHtml(a); }); }
@@ -2814,6 +2836,7 @@ async function saveTrackScore_(a, pos, inp){
       const lo = S.listening.get(uid); S.listening.set(uid, {album_id:a.id, at:Date.now(), n:lo && lo.album_id === a.id ? lo.n + 1 : 1}); fillListening(true); }
   }
   if(error) return toast(errMsg(error), true);
+  noteMyTrack(a.id, !!(cur && cur.score != null), score != null);
   if(score != null) inp.value = num(score);
   inp.classList.add('saved'); setTimeout(() => inp.classList.remove('saved'), 700);
   refreshTrackRow(a, pos);
@@ -3544,6 +3567,46 @@ function listenRowHtml(uid, editable){
     <div class="lmore" hidden><button type="button" class="link" data-lx="${esc(uid)}">${open ? 'Zwiń ▴' : `Pokaż wszystkie (${l.length}) ▾`}</button></div>`;
 }
 // lista „do posłuchania”: jeden rząd, rozwijany w dół; przycisk tylko gdy coś się nie mieści
+
+/* ---------- dymek „Słuchasz teraz” - album z ocenionymi piosenkami, ale bez oceny albumu ---------- */
+const NOW_DAYS = 7; // starsze, porzucone albumy nie wracają
+S.myNow = null;
+const nowHidKey = () => 'oceny_nowx_' + S.user.id;
+function nowHidden(){ try { return JSON.parse(localStorage.getItem(nowHidKey()) || '{}'); } catch(e){ return {}; } }
+async function refreshMyNow(){
+  if(!S.user) return;
+  const since = new Date(Date.now() - NOW_DAYS * 864e5).toISOString();
+  const { data, error } = await sb.from('track_ratings').select('album_id,updated_at,score').eq('user_id', S.user.id).gt('updated_at', since);
+  if(error || !data) return;
+  const m = new Map();
+  for(const t of data){ if(t.score == null) continue; const id = Number(t.album_id), at = Date.parse(t.updated_at) || 0, o = m.get(id) || {album_id:id, at:0, n:0}; o.n++; o.at = Math.max(o.at, at); m.set(id, o); }
+  S.myNowAll = m; pickMyNow(); drawNowBubble();
+}
+function pickMyNow(){
+  const hid = nowHidden();
+  S.myNow = [...(S.myNowAll || new Map()).values()].filter(o => o.n > 0 && S.albums.has(o.album_id) && !myRating(o.album_id) && !(hid[o.album_id] >= o.at))
+    .sort((a, b) => b.at - a.at)[0] || null;
+}
+// po ocenieniu piosenki - od razu, bez pytania bazy
+function noteMyTrack(albumId, hadScore, hasScore){
+  if(!S.myNowAll) S.myNowAll = new Map();
+  const o = S.myNowAll.get(albumId) || {album_id:albumId, at:0, n:0};
+  o.n = Math.max(0, o.n + (hasScore ? 1 : 0) - (hadScore ? 1 : 0)); o.at = Date.now(); S.myNowAll.set(albumId, o);
+  pickMyNow(); drawNowBubble();
+}
+function drawNowBubble(){
+  let el = document.getElementById('nowb');
+  const o = S.user && S.myNow, a = o && S.albums.get(o.album_id);
+  const m = (location.hash || '').match(/^#\/album\/(\d+)/), onIt = a && m && +m[1] === a.id; // na stronie tego albumu dymek niepotrzebny
+  if(!a || onIt){ if(el) el.remove(); return; }
+  if(!el){ el = document.createElement('div'); el.id = 'nowb'; document.body.appendChild(el); }
+  if(el.dataset.id === String(a.id) && el.dataset.n === String(o.n)) return;
+  el.dataset.id = a.id; el.dataset.n = o.n;
+  el.innerHTML = `<a href="#/album/${a.id}" class="nowb-in" title="Wróć do tracklisty">${coverHtml(a, 'c44')}<span class="nowb-t"><small><span class="eq" aria-hidden="true"><i></i><i></i><i></i></span>Słuchasz teraz</small><b>${esc(a.title)}</b><span>${o.n} ${pl(o.n,'piosenka oceniona','piosenki ocenione','piosenek ocenionych')}</span></span></a>
+    <button type="button" class="nowb-x" aria-label="Ukryj" title="Ukryj (wróci, gdy ocenisz kolejną piosenkę)">×</button>`;
+  el.querySelector('.nowb-in').onclick = () => { S.goTrk = a.id; };
+  el.querySelector('.nowb-x').onclick = () => { const h = nowHidden(); h[a.id] = o.at; try { localStorage.setItem(nowHidKey(), JSON.stringify(h)); } catch(e){} pickMyNow(); drawNowBubble(); };
+}
 function updLgrid(){
   document.querySelectorAll('.lgrid').forEach(g => {
     const cols = getComputedStyle(g).gridTemplateColumns.split(' ').filter(Boolean).length || 1, n = g.children.length, more = g.nextElementSibling;
