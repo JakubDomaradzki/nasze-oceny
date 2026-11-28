@@ -359,6 +359,96 @@ tr.cl:hover td{background:var(--soft)}
 @media (min-width:1000px){.hello .htx{flex:0 1 auto}}
 @media (max-width:520px){.wrapt{padding:14px 16px;border-radius:16px;gap:10px}.wrapt .wt{font-size:clamp(32px,10.5vw,42px)}.wrapt .wl{gap:7px}.wrapt .ws{font-size:13.5px}.wr{gap:10px 14px}.wst:nth-child(n+3){display:none}.wrapt>.wpill{position:static;order:-1;justify-self:start;margin-bottom:-4px}}
 @media (prefers-reduced-motion:reduce){.red{animation:none}.wrapt{transition:none}}
+
+/* plan słuchania */
+.calb{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:11px;border:1px solid var(--line);background:var(--card);color:var(--text);flex:none}
+.calb svg,.ab svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.calb:hover{border-color:var(--accent);color:var(--accent)}
+.abwrap{position:relative;display:inline-flex}.abwrap input{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer;border:0;padding:0}
+.ab.on svg{fill:none}
+main.planw{max-width:1400px}
+.ptop{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}.ptop h1{margin:0}
+.ptop .seg{display:inline-flex;background:var(--soft);border:1px solid var(--line);border-radius:11px;padding:3px}
+.ptop .seg button{border:0;background:none;padding:6px 14px;border-radius:8px;font-weight:650;font-size:13.5px;color:var(--muted)}
+.ptop .seg button.on{background:var(--card);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.pnav{margin-left:auto;display:flex;align-items:center;gap:8px}.pnav b{font-size:15.5px;min-width:150px;text-align:center}
+.pnav button{min-width:38px;padding:6px 10px;font-weight:800}
+.plgrid{display:grid;grid-template-columns:260px minmax(0,1fr);gap:16px;align-items:start}
+.ptray{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px;position:sticky;top:76px;max-height:calc(100vh - 96px);display:flex;flex-direction:column;gap:8px}
+.pgrab{display:none}
+.pth{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.pth b{font-size:15px}.pth>span{color:var(--muted);font-size:13px}
+.pth input{flex:1 1 100%;padding:7px 10px;font-size:13.5px}
+.pts{overflow:auto;display:flex;flex-direction:column;gap:4px;min-height:0;margin:0 -4px;padding:0 4px}
+.ptk{display:grid;grid-template-columns:40px minmax(0,1fr) 12px;gap:9px;align-items:center;padding:5px;border-radius:10px;background:var(--soft);cursor:grab;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.ptk:hover{background:color-mix(in srgb,var(--accent) 10%,var(--soft))}
+.pt2{min-width:0;display:flex;flex-direction:column;line-height:1.25}.pt2 b{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pt2 span{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pgr{color:var(--muted);font-size:13px}
+.ptip{margin:0;font-size:11.5px;color:var(--muted)}
+.ptray.dz{box-shadow:0 0 0 2px var(--r);background:color-mix(in srgb,var(--r) 6%,var(--card))}
+/* tydzień - komputer */
+.pweek{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
+.pday{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 8px;min-height:440px;display:flex;flex-direction:column;gap:10px;transition:background .12s}
+.pday.past{opacity:.75}.pday.today{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.pdh{display:flex;align-items:baseline;gap:6px}.pdh span{font-size:12px;color:var(--muted)}.pdh b{font-size:20px}
+.pdh em{margin-left:auto;font-style:normal;font-size:11px;font-weight:800;color:var(--accent-ink);background:var(--accent);border-radius:999px;padding:1px 7px}
+.pcard{position:relative;cursor:grab;user-select:none;-webkit-user-select:none}
+.pcv{display:block;position:relative;line-height:0}.pcv .cover{border-radius:10px}
+.pcard b{display:block;font-size:13px;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pcard>span:not(.pcv){display:block;font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pcard.done .cover{filter:saturate(.5) brightness(.85)}
+.psc{position:absolute;top:6px;right:6px;font-style:normal;font-family:"JetBrains Mono",ui-monospace,monospace;font-weight:800;font-size:12px;line-height:1;color:#fff;border-radius:999px;padding:4px 7px;box-shadow:0 2px 6px rgba(0,0,0,.35)}
+.pdel{position:absolute;top:5px;left:5px;width:24px;height:24px;padding:0;border:0;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;font-size:16px;line-height:1;opacity:0;transition:opacity .12s}
+.pcard:hover .pdel{opacity:1}
+.pdrop{display:none;border:2px dashed var(--accent);border-radius:10px;height:90px;align-items:center;justify-content:center;font-size:12px;color:var(--accent);background:var(--accent-soft)}
+.pday.dz{background:color-mix(in srgb,var(--accent) 9%,var(--card));border-color:var(--accent)}.pday.dz .pdrop{display:flex}
+/* miesiąc */
+.pmonth{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:10px}
+.pmw{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;font-size:12px;color:var(--muted);text-align:center;margin-bottom:6px}
+.pmg{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.pmc{min-height:96px;border-radius:10px;background:var(--soft);padding:6px;display:flex;flex-direction:column;gap:4px;cursor:pointer;border:1px solid transparent;min-width:0}
+.pmc>span{font-size:12px;font-weight:700}.pmc.out{opacity:.4}.pmc.past>span{color:var(--muted)}
+.pmc.today{border-color:var(--accent)}.pmc.today>span{color:var(--accent)}.pmc.sel{box-shadow:inset 0 0 0 2px var(--text)}
+.pmc.dz{background:var(--accent-soft);border-color:var(--accent);transform:scale(1.04)}
+.pmt{display:flex;flex-wrap:wrap;gap:3px;margin-top:auto;align-items:flex-end}.pmt em{font-style:normal;font-size:11px;font-weight:700;color:var(--muted)}
+.pmini{display:block;line-height:0;cursor:grab}.pmini .cover{border-radius:6px}.pmini.done .cover{filter:saturate(.5) brightness(.85)}
+.psel{margin-top:14px}.psl{display:grid;gap:6px}
+.pslr{display:grid;grid-template-columns:48px minmax(0,1fr) auto auto;gap:10px;align-items:center;padding:6px;border-radius:12px;background:var(--soft)}
+.pslr .meta{min-width:0;display:flex;flex-direction:column}.pslr .meta b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pslr .meta span{font-size:13px;color:var(--muted)}
+.psc2{font-family:"JetBrains Mono",ui-monospace,monospace;font-weight:800;font-size:13px;color:#fff;border-radius:999px;padding:3px 9px}
+.pdel2{width:30px;height:30px;padding:0;border-radius:50%;font-size:17px;line-height:1;color:var(--muted)}
+.ptodaycard .psc2{margin-left:auto}
+/* przeciąganie */
+.pghost{position:fixed;left:0;top:0;z-index:90;pointer-events:none;border-radius:12px;overflow:hidden;line-height:0;box-shadow:0 18px 40px rgba(0,0,0,.45),0 0 0 2px var(--accent)}
+.dragging{opacity:.35}
+html.pdragging,html.pdragging *{user-select:none!important;-webkit-user-select:none!important;cursor:grabbing!important}
+/* telefon */
+@media (max-width:720px){
+  .ptop{gap:10px}.ptop h1{font-size:24px}.pnav{margin-left:0;width:100%}.pnav b{flex:1}
+  .plgrid{display:block}
+  main.planw{padding-bottom:calc(300px + env(safe-area-inset-bottom))!important}
+  .ptray{position:fixed;left:0;right:0;top:auto;bottom:calc(62px + env(safe-area-inset-bottom));z-index:31;max-height:none;border-radius:20px 20px 0 0;border-width:1px 0 0;padding:6px 0 8px;gap:6px;box-shadow:0 -14px 34px rgba(0,0,0,.28)}
+  .pgrab{display:block;width:44px;height:16px;margin:0 auto -2px;padding:0;border:0;background:none;position:relative}
+  .pgrab::before{content:"";position:absolute;left:4px;right:4px;top:5px;height:5px;border-radius:3px;background:var(--line)}
+  .pth{padding:0 14px;flex-wrap:nowrap}.pth input{flex:0 1 150px;margin-left:auto}
+  .pts{flex-direction:row;overflow-x:auto;overflow-y:hidden;gap:10px;padding:2px 14px 2px;margin:0;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .pts::-webkit-scrollbar{display:none}
+  .ptk{display:block;flex:none;width:76px;padding:0;background:none}.ptk .pt2 b{font-size:11.5px;margin-top:4px}.ptk .pt2 span{display:none}
+  .ptk .cover{border-radius:10px}
+  .ptip{padding:0 14px}
+  .ptray.min .pts,.ptray.min .ptip,.ptray.min .pth input{display:none}
+  .pweek-m{display:flex;flex-direction:column;gap:6px}
+  .pwr{display:grid;grid-template-columns:44px minmax(0,1fr);gap:8px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:6px 8px;min-height:62px}
+  .pwr.today{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}.pwr.past{opacity:.75}
+  .pwr.dz{background:var(--accent-soft);border-color:var(--accent)}
+  .pwl{display:flex;flex-direction:column;align-items:center;line-height:1.1}.pwl span{font-size:11px;color:var(--muted)}.pwl b{font-size:18px}
+  .pwc{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.pwc em{color:var(--muted);font-style:normal}
+  .prow{position:relative;display:block;line-height:0;-webkit-touch-callout:none;user-select:none;-webkit-user-select:none}.prow .cover{border-radius:8px}
+  .prow .psc{top:auto;bottom:-4px;right:-4px;font-size:10px;padding:3px 5px}.prow.done .cover{filter:saturate(.5) brightness(.85)}
+  .pmg{gap:3px}.pmw{gap:3px}.pmonth{padding:6px}
+  .pmc{min-height:62px;padding:3px;border-radius:8px}.pmc>span{font-size:11px}
+  .pmini .cover.c40{width:22px;height:22px;border-radius:4px}
+  .ptk,.pmini,.prow,.pcard,.pslr{touch-action:pan-x pan-y}
+}
+body:has(.ptray) #nowb{display:none}
 /* dymek „Słuchasz teraz” */
 /* butelkowa zieleń - ta sama w obu motywach */
 #nowb{--nowbg:#14532d;--nowfg:#fff;--nowmut:rgba(255,255,255,.78);--nowacc:#86efac;--nowbd:rgba(255,255,255,.18);--nowhv:rgba(255,255,255,.15);position:fixed;z-index:35;right:max(18px,env(safe-area-inset-right));bottom:calc(18px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:2px;
@@ -475,6 +565,7 @@ body:has(#nowb) main{padding-bottom:100px}
 .mrow .r2{display:flex;align-items:center;gap:10px}
 .mrow .grp{font-size:12px;color:var(--muted);text-align:right;white-space:nowrap}
 .c40{width:40px;height:40px}.c40 i{font-size:15px}
+.c76{width:76px;height:76px}.c76 i{font-size:28px}
 .feed{position:sticky;top:70px;max-height:calc(100vh - 90px);display:flex;flex-direction:column;padding:16px 0 6px}
 .feed h2{padding:0 16px}
 .feedl{overflow:auto;padding:0 16px;overscroll-behavior:contain}
@@ -1142,6 +1233,8 @@ async function loadData(){
     fetchAll('weekly_album').catch(e => { console.warn(e); S.noWeekly = true; return []; })]);
   const [h, rc] = await Promise.all([fetchAll('rating_history').catch(e => { console.warn('rating_history', e); return null; }),
     fetchAll('recommendations').catch(e => { console.warn('recommendations', e); return null; })]);
+  const pl_ = await sb.from('listen_plan').select('album_id,day,created_at').eq('user_id', S.user.id);
+  S.plan = pl_.error ? null : pl_.data.map(x => ({...x, user_id:S.user.id, album_id:Number(x.album_id)})); // null = brak update10.sql
   S.recs = rc ? rc.map(x => ({...x, album_id:Number(x.album_id)})) : null; // null = nie ma jeszcze tabeli (update8.sql)
   refreshListening(); refreshMyNow();
   S.hist = null;
@@ -1687,10 +1780,10 @@ function render(){
   if(page !== lastPage){ S.lexp = null; S.recOpen = null; } // rozwinięta lista „do posłuchania” zwija się po zmianie strony
   // listy (rankingi), formularze i aktywność zostają węższe - tam szerokość tylko rozciąga puste miejsce
   app.classList.toggle('narrow', ['ranking','lata','konto','import','dodaj','aktywnosc','edytuj','porownaj'].includes(page));
-  app.classList.toggle('feedw', page === 'aktywnosc'); // aktywność: jedna kolumna, więc węższa strona
+  app.classList.toggle('feedw', page === 'aktywnosc'); app.classList.toggle('planw', page === 'plan'); // aktywność: jedna kolumna, więc węższa strona
   lastPage = page;
   const V = {staty:viewPersonStats, odkrywaj:viewDiscover, oceny:viewRatings, aktywnosc:viewActivity, start:viewHome, losuj:viewRandom, statystyki:viewStats, wykonawca:viewArtist, porownaj:viewCompare, ranking:viewRanking, lata:viewYears, album:viewAlbum, albumy:viewAlbums, dodaj:viewAdd, osoby:viewPeople,
-             osoba:viewPerson, import:viewImport, konto:viewAccount, edytuj:viewEdit}[page] || viewHome;
+             osoba:viewPerson, import:viewImport, konto:viewAccount, edytuj:viewEdit, plan:viewPlan}[page] || viewHome;
   try { V(arg, arg2); } catch(e){ console.error(e); app.innerHTML = `<div class="card err">Błąd: ${esc(e.message)}</div>`; }
   updLgrid(); fillListening(); fillLfm(); if(S.user){ pickMyNow(); drawNowBubble(); }
 }
@@ -1933,6 +2026,7 @@ function viewAlbum(arg){
       <div class="abtns">
         <button id="lisB" class="ab ${inListen(id) ? 'on' : ''}" aria-pressed="${inListen(id)}">${BOOKMARK}<span>${inListen(id) ? 'Na liście<span class="hide-xs"> do posłuchania</span>' : 'Do posłuchania'}</span></button>
         <button id="recB" class="ab ${S.recOpen === id ? 'open' : ''}" aria-expanded="${S.recOpen === id}">${SEND}<span>Poleć znajomemu</span></button>
+        <span class="abwrap"><button id="planB" type="button" class="ab ${planOf(id) ? 'on' : ''}" tabindex="-1">${CAL}<span>${planOf(id) ? 'W planie: ' + pDayLabel(planOf(id).day) : 'Zaplanuj'}</span></button><input type="date" id="planD" aria-label="Zaplanuj odsłuch na dzień" value="${planOf(id) ? planOf(id).day : ''}"></span>
       </div>
       ${S.recOpen === id && S.recs ? recPanelHtml(a) : ''}${recSentHtml(a)}
     </div>
@@ -1984,6 +2078,11 @@ function viewAlbum(arg){
   document.getElementById('recB').onclick = () => { if(!S.recs) return toast('Polecanie zadziała po uruchomieniu update8.sql w Supabase', true);
     S.recOpen = S.recOpen === id ? null : id; render(); if(S.recOpen){ const p = document.getElementById('recP'); if(p) p.scrollIntoView({block:'nearest', behavior:'smooth'}); } };
   if(document.getElementById('recP')) bindRecPanel(a);
+  const pd = document.getElementById('planD');
+  pd.onclick = () => { try { pd.showPicker(); } catch(e){} };
+  pd.onchange = async () => { if(!S.plan){ toast('Plan zadziała po uruchomieniu update10.sql w Supabase', true); return; }
+    const v = pd.value; if(!v){ if(planOf(id) && await unPlan(id)){ toast('Usunięto z planu'); render(); } return; }
+    if(await setPlan(id, v)){ toast(`Zaplanowano na ${pDayLabel(v)}`); render(); } };
   app.querySelectorAll('[data-rcancel]').forEach(b => armButton(b, 'Cofnąć?', async () => { const rid = Number(b.dataset.rcancel);
     const { error } = await sb.from('recommendations').delete().eq('id', rid); if(error) return toast(errMsg(error), true);
     S.recs = S.recs.filter(r => Number(r.id) !== rid); toast('Cofnięto polecenie'); render(); }));
@@ -2414,7 +2513,7 @@ function viewPerson(id){
       : '<div class="empty">Brak ocen.</div>'}
   </section>
 
-  <section class="card" style="margin-top:18px"><div class="shead"><h2>Do posłuchania (${S.listen.filter(x => x.user_id === id && S.albums.has(x.album_id)).length})</h2>${isMe && S.listen.some(x => x.user_id === id) ? '<a href="#/odkrywaj" data-rlist><button>Wylosuj z listy</button></a>' : ''}</div>
+  <section class="card" style="margin-top:18px"><div class="shead"><h2>Do posłuchania (${S.listen.filter(x => x.user_id === id && S.albums.has(x.album_id)).length})</h2>${isMe ? `<a href="#/plan" class="calb" style="margin-left:auto;margin-right:8px" title="Plan słuchania" aria-label="Plan słuchania">${CAL}</a>` : ''}${isMe && S.listen.some(x => x.user_id === id) ? '<a href="#/odkrywaj" data-rlist><button>Wylosuj z listy</button></a>' : ''}</div>
     ${listenRowHtml(id, isMe)}</section>
 
   <div class="prow">
@@ -3605,7 +3704,7 @@ function noteMyTrack(albumId, hadScore, hasScore){
 function drawNowBubble(){
   let el = document.getElementById('nowb');
   const o = S.user && S.myNow, a = o && S.albums.get(o.album_id);
-  const m = (location.hash || '').match(/^#\/album\/(\d+)/), onIt = a && m && +m[1] === a.id; // na stronie tego albumu dymek niepotrzebny
+  const m = (location.hash || '').match(/^#\/album\/(\d+)/), onIt = a && ((m && +m[1] === a.id) || /^#\/plan/.test(location.hash || '')); // na stronie tego albumu dymek niepotrzebny
   if(!a || onIt){ if(el) el.remove(); return; }
   if(!el){ el = document.createElement('div'); el.id = 'nowb'; document.body.appendChild(el); }
   if(el.dataset.id === String(a.id) && el.dataset.n === String(o.n)) return;
@@ -3660,7 +3759,7 @@ function openWrapTeaser(){
 }
 /* ---------- WRAPPED (podgląd - na razie tylko dla admina) ---------- */
 const wrapPreview = () => !!me().is_admin;
-const APP_VERSION = '28.11 · 09:20'; // podbijane przy każdej zmianie - widać w Ustawieniach konta, czy telefon ma nową wersję
+const APP_VERSION = '28.11 · 10:30'; // podbijane przy każdej zmianie - widać w Ustawieniach konta, czy telefon ma nową wersję
 const MONTHS_FULL = ['styczeń','luty','marzec','kwiecień','maj','czerwiec','lipiec','sierpień','wrzesień','październik','listopad','grudzień'];
 // data premiery: z bazy (update9.sql), a jak jej nie ma - raz z Deezera i zapis do bazy (albo do pamięci przeglądarki)
 function relCache(){ try { return JSON.parse(localStorage.getItem('oceny_rel') || '{}'); } catch(e){ return {}; } }
@@ -3815,6 +3914,143 @@ async function openWrapped(){
   ov.onclick = e => { if(e.target === ov) close(); };
   draw();
 }
+/* ---------- PLAN SŁUCHANIA (update10.sql) ---------- */
+const CAL = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>';
+const ymd = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const dOf = s => new Date(s + 'T12:00:00');
+const addDays = (s, n) => { const d = dOf(s); d.setDate(d.getDate() + n); return ymd(d); };
+const todayS = () => ymd(new Date());
+const pWeek = s => { const d = dOf(s), w = (d.getDay() + 6) % 7; d.setDate(d.getDate() - w); return ymd(d); };
+const WD = ['pon','wt','śr','czw','pt','sob','ndz'], WD1 = ['pn','wt','śr','cz','pt','sb','nd'];
+const MON_GEN = ['stycznia','lutego','marca','kwietnia','maja','czerwca','lipca','sierpnia','września','października','listopada','grudnia'];
+const pDayLabel = s => { const t = todayS(); if(s === t) return 'dziś'; if(s === addDays(t, 1)) return 'jutro'; if(s === addDays(t, -1)) return 'wczoraj';
+  const d = dOf(s); return `${WD[(d.getDay() + 6) % 7]} ${d.getDate()} ${MON_GEN[d.getMonth()].slice(0, 3)}`; };
+const myPlan = () => (S.plan || []).filter(p => S.albums.has(p.album_id));
+const planOf = id => (S.plan || []).find(p => p.album_id === id) || null;
+const planOn = s => myPlan().filter(p => p.day === s).sort((a, b) => (a.created_at || '').localeCompare(b.created_at || ''));
+async function setPlan(id, day){
+  if(!S.plan) return toast('Plan zadziała po uruchomieniu update10.sql w Supabase', true), false;
+  const cur = planOf(id);
+  const q = cur ? sb.from('listen_plan').update({day}).eq('user_id', S.user.id).eq('album_id', id) : sb.from('listen_plan').insert({user_id:S.user.id, album_id:id, day});
+  const { error } = await q; if(error){ toast(errMsg(error), true); return false; }
+  if(cur) cur.day = day; else S.plan.push({user_id:S.user.id, album_id:id, day, created_at:new Date().toISOString()});
+  if(!myRating(id) && !inListen(id)) await addListen(id); // planujesz = chcesz posłuchać
+  return true;
+}
+async function unPlan(id){
+  const { error } = await sb.from('listen_plan').delete().eq('user_id', S.user.id).eq('album_id', id);
+  if(error){ toast(errMsg(error), true); return false; }
+  S.plan = S.plan.filter(p => p.album_id !== id); return true;
+}
+// element albumu w kalendarzu; data-drag pozwala go przeciągnąć dalej
+function planItem(p, size){
+  const a = S.albums.get(p.album_id), r = myRating(a.id), hid = r && isHidden(r);
+  const sc = r ? `<i class="psc" style="background:${col(Math.round(r.score))}">${hid ? '🔒' : num(r.score)}</i>` : '';
+  if(size === 'mini') return `<span class="pmini ${r ? 'done' : ''}" data-drag="${a.id}" title="${esc(a.title + ' - ' + a.artist)}">${coverHtml(a, 'c40')}</span>`;
+  if(size === 'row') return `<span class="prow ${r ? 'done' : ''}" data-drag="${a.id}">${coverHtml(a, 'c48')}${sc}</span>`;
+  return `<div class="pcard ${r ? 'done' : ''}" data-drag="${a.id}"><span class="pcv">${coverHtml(a, 'cfull')}${sc}</span><b>${esc(a.title)}</b><span>${esc(a.artist)}</span>
+    <button type="button" class="pdel" data-unplan="${a.id}" aria-label="Usuń z planu" title="Usuń z planu">×</button></div>`;
+}
+function viewPlan(){
+  if(!S.planV) S.planV = {mode:matchMedia('(max-width:720px)').matches ? 'week' : 'week', at:todayS(), sel:todayS(), q:''};
+  const V = S.planV, mob = matchMedia('(max-width:720px)').matches, t = todayS();
+  if(!S.plan){ app.innerHTML = `<h1>Plan słuchania</h1><div class="card">Żeby planować albumy w kalendarzu, uruchom <b>update10.sql</b> w Supabase.</div>`; return; }
+  const ws = pWeek(V.at);
+  let title, body;
+  if(V.mode === 'week'){
+    const days = [...Array(7)].map((_, i) => addDays(ws, i)), d0 = dOf(days[0]), d6 = dOf(days[6]);
+    title = d0.getMonth() === d6.getMonth() ? `${d0.getDate()} – ${d6.getDate()} ${MON_GEN[d6.getMonth()]}` : `${d0.getDate()} ${MON_GEN[d0.getMonth()].slice(0, 3)} – ${d6.getDate()} ${MON_GEN[d6.getMonth()].slice(0, 3)}`;
+    body = mob ? `<div class="pweek-m">${days.map((s, i) => `<div class="pwr ${s === t ? 'today' : ''} ${s < t ? 'past' : ''}" data-day="${s}"><div class="pwl"><span>${WD[i]}</span><b>${dOf(s).getDate()}</b></div>
+          <div class="pwc">${planOn(s).map(p => planItem(p, 'row')).join('') || '<em>-</em>'}</div></div>`).join('')}</div>`
+      : `<div class="pweek">${days.map((s, i) => `<div class="pday ${s === t ? 'today' : ''} ${s < t ? 'past' : ''}" data-day="${s}"><div class="pdh"><span>${WD[i]}</span><b>${dOf(s).getDate()}</b>${s === t ? '<em>dziś</em>' : ''}</div>
+          ${planOn(s).map(p => planItem(p, 'card')).join('')}<div class="pdrop">Upuść tutaj</div></div>`).join('')}</div>`;
+  } else {
+    const m0 = dOf(V.at); m0.setDate(1); const first = ymd(m0), start = pWeek(first), mo = m0.getMonth();
+    title = `${MONTHS_FULL[mo].charAt(0).toUpperCase() + MONTHS_FULL[mo].slice(1)} ${m0.getFullYear()}`;
+    const cells = [...Array(42)].map((_, i) => addDays(start, i));
+    const rows = dOf(cells[35]).getMonth() === mo ? 6 : 5;
+    const selList = planOn(V.sel);
+    body = `<div class="pmonth"><div class="pmw">${WD1.map(x => `<span>${x}</span>`).join('')}</div><div class="pmg">${cells.slice(0, rows * 7).map(s => { const L = planOn(s), out = dOf(s).getMonth() !== mo, max = mob ? 2 : 4;
+        return `<div class="pmc ${out ? 'out' : ''} ${s === t ? 'today' : ''} ${s < t ? 'past' : ''} ${s === V.sel ? 'sel' : ''}" data-day="${s}" data-pick="${s}"><span>${dOf(s).getDate()}</span>
+          <div class="pmt">${L.slice(0, max).map(p => planItem(p, 'mini')).join('')}${L.length > max ? `<em>+${L.length - max}</em>` : ''}</div></div>`; }).join('')}</div></div>
+      <div class="psel card"><div class="shead"><h2>${esc(pDayLabel(V.sel))}${V.sel !== t && !['jutro','wczoraj'].includes(pDayLabel(V.sel)) ? '' : ` <span class="muted small">${dOf(V.sel).getDate()} ${MON_GEN[dOf(V.sel).getMonth()]}</span>`}</h2></div>
+        ${selList.length ? `<div class="psl">${selList.map(p => { const a = S.albums.get(p.album_id), r = myRating(a.id);
+          return `<div class="pslr" data-drag="${a.id}"><a href="#/album/${a.id}">${coverHtml(a, 'c48')}</a><div class="meta"><a href="#/album/${a.id}"><b>${esc(a.title)}</b></a><span>${esc(a.artist)}</span></div>${r ? `<span class="psc2" style="background:${col(Math.round(r.score))}">${isHidden(r) ? '🔒' : num(r.score)}</span>` : ''}<button type="button" class="pdel2" data-unplan="${a.id}" aria-label="Usuń z planu">×</button></div>`; }).join('')}</div>`
+          : `<p class="muted small" style="margin:0">Nic tu nie ma - przeciągnij album z listy na ten dzień.</p>`}</div>`;
+  }
+  const pool = myListen().filter(l => !planOf(l.album_id)).map(l => S.albums.get(l.album_id));
+  const q = simp(V.q || ''), list = q ? pool.filter(a => simp(a.title + ' ' + a.artist).includes(q)) : pool;
+  const tray = `<div class="ptray ${V.trayMin ? 'min' : ''}" data-tray="1"><button type="button" class="pgrab" aria-label="Zwiń / rozwiń listę"></button>
+    <div class="pth"><b>Do posłuchania</b><span>${pool.length}</span><input type="search" id="pq" placeholder="Szukaj…" value="${esc(V.q || '')}" autocomplete="off"></div>
+    <div class="pts">${list.map(a => `<div class="ptk" data-drag="${a.id}" data-from="tray">${coverHtml(a, mob ? 'c76' : 'c40')}<span class="pt2"><b>${esc(a.title)}</b><span>${esc(a.artist)}</span></span>${mob ? '' : '<span class="pgr">⠿</span>'}</div>`).join('')
+      || `<p class="muted small" style="margin:6px 2px">${pool.length ? 'Nic nie pasuje.' : 'Wszystko z listy jest już w planie. Dodaj albumy do posłuchania - pojawią się tutaj.'}</p>`}</div>
+    <p class="ptip">${mob ? 'Przytrzymaj okładkę i przeciągnij na dzień' : 'Przeciągnij album na dzień · z kalendarza z powrotem tutaj, żeby usunąć z planu'}</p></div>`;
+  app.innerHTML = `<div class="ptop"><h1>Plan słuchania</h1><div class="seg" role="tablist"><button type="button" class="${V.mode === 'week' ? 'on' : ''}" data-pm="week">Tydzień</button><button type="button" class="${V.mode === 'month' ? 'on' : ''}" data-pm="month">Miesiąc</button></div>
+      <div class="pnav"><button type="button" data-pn="-1" aria-label="Wstecz">‹</button><b>${title}</b><button type="button" data-pn="1" aria-label="Dalej">›</button>${(V.mode === 'week' ? ws === pWeek(t) : dOf(V.at).getMonth() === new Date().getMonth()) ? '' : '<button type="button" class="ptoday" data-pn="0">Dziś</button>'}</div></div>
+    <div class="plgrid ${V.mode}">${mob ? '' : tray}<div class="pcal">${body}</div></div>${mob ? tray : ''}`;
+  // sterowanie
+  app.querySelectorAll('[data-pm]').forEach(b => b.onclick = () => { V.mode = b.dataset.pm; render(); });
+  app.querySelectorAll('[data-pn]').forEach(b => b.onclick = () => { const n = +b.dataset.pn;
+    if(!n){ V.at = t; V.sel = t; } else if(V.mode === 'week') V.at = addDays(V.at, 7 * n); else { const d = dOf(V.at); d.setDate(1); d.setMonth(d.getMonth() + n); V.at = ymd(d); }
+    render(); });
+  app.querySelectorAll('[data-pick]').forEach(c => c.addEventListener('click', e => { if(e.target.closest('[data-drag]') && !mob) return; V.sel = c.dataset.pick; render(); }));
+  app.querySelectorAll('[data-unplan]').forEach(b => b.onclick = async e => { e.stopPropagation(); if(await unPlan(+b.dataset.unplan)){ toast('Usunięto z planu'); render(); } });
+  const pq = document.getElementById('pq'); if(pq) pq.oninput = () => { V.q = pq.value; const pos = pq.selectionStart; render(); const n = document.getElementById('pq'); if(n){ n.focus(); n.setSelectionRange(pos, pos); } };
+  const g = app.querySelector('.pgrab'); if(g) g.onclick = () => { V.trayMin = !V.trayMin; render(); };
+  bindPlanDrag();
+  if(mob && V.mode === 'week' && !V.scrolled){ V.scrolled = true; const td = app.querySelector('.pwr.today'); if(td) td.scrollIntoView({block:'center'}); }
+}
+/* przeciąganie: myszka od razu, palec po przytrzymaniu (żeby normalne przewijanie dalej działało) */
+function bindPlanDrag(){
+  let st = null;
+  const clean = () => { if(!st) return; clearTimeout(st.timer); if(st.ghost) st.ghost.remove(); if(st.el) st.el.classList.remove('dragging');
+    document.querySelectorAll('.dz').forEach(x => x.classList.remove('dz')); document.documentElement.classList.remove('pdragging'); st = null; };
+  const target = (x, y) => { const el = document.elementFromPoint(x, y); return el && (el.closest('[data-day]') || el.closest('[data-tray]')); };
+  const begin = () => { const a = S.albums.get(st.id); st.on = true; st.el.classList.add('dragging'); document.documentElement.classList.add('pdragging');
+    st.ghost = document.createElement('div'); st.ghost.className = 'pghost'; st.ghost.innerHTML = coverHtml(a, 'c64'); document.body.appendChild(st.ghost); move(st.x, st.y);
+    if(navigator.vibrate) try { navigator.vibrate(12); } catch(e){}
+    // przewijanie strony, gdy palec/myszka stoi przy krawędzi (albo nad listą na dole na telefonie)
+    const tick = () => { if(!st || !st.on) return; const tr = document.querySelector('.ptray'), mob = matchMedia('(max-width:720px)').matches;
+      const bottomEdge = mob && tr ? tr.getBoundingClientRect().top : innerHeight; let dy = 0;
+      if(st.y < 90) dy = -Math.ceil((90 - st.y) / 6); else if(st.y > bottomEdge - 60 && (!mob || st.y < bottomEdge + 40)) dy = Math.ceil((st.y - bottomEdge + 60) / 6);
+      if(dy){ scrollBy(0, dy); move(st.x, st.y); } requestAnimationFrame(tick); };
+    requestAnimationFrame(tick); };
+  const move = (x, y) => { st.x = x; st.y = y; if(!st.on) return; st.ghost.style.transform = `translate(${x - 32}px,${y - 40}px) rotate(-5deg)`;
+    const tg = target(x, y); document.querySelectorAll('.dz').forEach(z => { if(z !== tg) z.classList.remove('dz'); }); if(tg) tg.classList.add('dz');
+    const ts = document.querySelector('.pts'); if(ts && st.from === 'tray' && tg && tg.matches('[data-tray]')){ const r = ts.getBoundingClientRect(); if(x < r.left + 30) ts.scrollLeft -= 10; else if(x > r.right - 30) ts.scrollLeft += 10; } };
+  const drop = async () => { const tg = target(st.x, st.y), id = st.id, from = st.from; clean();
+    if(!tg) return;
+    if(tg.matches('[data-tray]')){ if(from !== 'tray' && await unPlan(id)){ toast('Usunięto z planu'); render(); } return; }
+    const day = tg.dataset.day, cur = planOf(id); if(cur && cur.day === day) return;
+    if(await setPlan(id, day)){ toast(`Zaplanowano na ${pDayLabel(day)}`); if(S.planV.mode === 'month') S.planV.sel = day; render(); } };
+  app.querySelectorAll('[data-drag]').forEach(el => {
+    el.addEventListener('dragstart', e => e.preventDefault());
+    el.addEventListener('mousedown', e => { if(e.button || e.target.closest('button,input')) return; e.preventDefault();
+      st = {id:+el.dataset.drag, from:el.dataset.from || 'cal', el, x:e.clientX, y:e.clientY, sx:e.clientX, sy:e.clientY, on:false, mouse:true}; });
+    el.addEventListener('touchstart', e => { if(e.target.closest('button,input')) return; const t0 = e.touches[0];
+      st = {id:+el.dataset.drag, from:el.dataset.from || 'cal', el, x:t0.clientX, y:t0.clientY, sx:t0.clientX, sy:t0.clientY, on:false};
+      st.timer = setTimeout(() => { if(st && !st.on) begin(); }, 380); }, {passive:true});
+  });
+  // jeden zestaw nasłuchów na dokument na stronę
+  if(window.__planDnD) return; window.__planDnD = true;
+  document.addEventListener('mousemove', e => { if(!st || !st.mouse) return; if(!st.on && Math.hypot(e.clientX - st.sx, e.clientY - st.sy) > 5) begin(); move(e.clientX, e.clientY); });
+  document.addEventListener('mouseup', e => { if(!st || !st.mouse) return; if(st.on){ st.x = e.clientX; st.y = e.clientY; drop(); suppressClick(); } else clean(); });
+  document.addEventListener('touchmove', e => { if(!st || st.mouse) return; const t0 = e.touches[0];
+    if(!st.on){ if(Math.hypot(t0.clientX - st.sx, t0.clientY - st.sy) > 10) clean(); return; } // ruch przed przytrzymaniem = zwykłe przewijanie
+    e.preventDefault(); move(t0.clientX, t0.clientY); }, {passive:false});
+  document.addEventListener('touchend', () => { if(!st || st.mouse) return; if(st.on){ drop(); suppressClick(); } else clean(); });
+  document.addEventListener('touchcancel', () => clean());
+  document.addEventListener('contextmenu', e => { if(st && st.on) e.preventDefault(); });
+  function suppressClick(){ const k = e => { e.stopPropagation(); e.preventDefault(); }; document.addEventListener('click', k, true); setTimeout(() => document.removeEventListener('click', k, true), 60); }
+}
+// karta „Dziś w planie” na stronie głównej
+function planTodayHtml(){
+  if(!S.plan) return '';
+  const L = planOn(todayS()); if(!L.length) return '';
+  return `<section class="card ptodaycard"><div class="shead"><h2>Dziś w planie</h2><a class="link small" href="#/plan">Kalendarz →</a></div>
+    ${L.map(p => { const a = S.albums.get(p.album_id), r = myRating(a.id);
+      return `<a class="arch" href="#/album/${a.id}">${coverHtml(a, 'c40')}<div><span><b>${esc(a.title)}</b></span><span class="muted">${esc(a.artist)}</span></div>${r ? `<span class="psc2" style="background:${col(Math.round(r.score))}">${isHidden(r) ? '🔒' : num(r.score)}</span>` : ''}</a>`; }).join('')}</section>`;
+}
 function viewHome(){
   const H = S.home, uid = S.user.id;
   const mineR = (S.byUser.get(uid) || []).filter(r => { const a = S.albums.get(r.album_id); return a && !isSingle(a); });
@@ -3847,7 +4083,7 @@ function viewHome(){
       ${recG.length ? `<section class="card"><div class="shead"><h2>💌 Polecone dla Ciebie (${recG.length})</h2>${recG.length > 3 ? '<a class="link small" href="#/aktywnosc">Wszystkie →</a>' : ''}</div>${recListHtml(recG.slice(0, 3))}</section>` : ''}
 
       <section class="card">
-        <div class="shead"><h2>Do posłuchania (${listen.length})</h2>${listen.length ? '<a href="#/odkrywaj" data-rlist><button>Wylosuj z listy</button></a>' : ''}</div>
+        <div class="shead"><h2>Do posłuchania (${listen.length})</h2><div class="btns" style="gap:8px;flex-wrap:nowrap"><a href="#/plan" class="calb" title="Plan słuchania" aria-label="Plan słuchania">${CAL}</a>${listen.length ? '<a href="#/odkrywaj" data-rlist><button>Wylosuj z listy</button></a>' : ''}</div></div>
         ${pickerHtml('lpick', 'Dodaj album do posłuchania - wpisz wykonawcę lub tytuł…')}
         ${listenRowHtml(uid, true)}
       </section>
@@ -3879,6 +4115,7 @@ function viewHome(){
     </div>
 
     <aside class="side">
+      ${planTodayHtml()}
       <div class="only-d" data-listen-home></div>
       ${actCard('only-d', 8)}
       ${upcomingHtml()}
